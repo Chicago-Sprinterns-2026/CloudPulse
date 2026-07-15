@@ -1,0 +1,1 @@
+"""CloudPulse Synthesizer application package."""

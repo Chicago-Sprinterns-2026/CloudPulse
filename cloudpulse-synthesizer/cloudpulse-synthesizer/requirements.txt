@@ -1,0 +1,10 @@
+beautifulsoup4>=4.12,<5
+google-cloud-aiplatform>=1.71
+google-cloud-bigquery>=3.25
+google-cloud-discoveryengine>=0.13
+langchain>=0.3
+langchain-google-vertexai>=2.0
+python-dotenv>=1.0
+requests>=2.32
+streamlit>=1.39
+pytest>=8.3
