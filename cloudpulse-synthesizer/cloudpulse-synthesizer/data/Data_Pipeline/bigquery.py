@@ -82,5 +82,11 @@ def fetch_and_upload_bq_release_notes():
     blob.upload_from_string(json_data, content_type="application/json")
     print(f"-> Successfully extracted BigQuery rows and uploaded JSON to gs://{BUCKET_NAME}/{DESTINATION_PATH}")
 
+    # ---- ADD THIS SECTION TO SAVE LOCALLY FOR INGEST.PY ----
+    os.makedirs("release-notes", exist_ok=True)
+    with open(DESTINATION_PATH, "w", encoding="utf-8") as local_file:
+        local_file.write(json_data)
+    print(f"✅ Local copy saved to: {DESTINATION_PATH}")
+    # ---------------------------------------------------------
 if __name__ == "__main__":
     fetch_and_upload_bq_release_notes()
