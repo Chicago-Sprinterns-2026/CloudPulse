@@ -2,7 +2,10 @@
 
 from dataclasses import dataclass
 import os
+from dotenv import load_dotenv
 
+# This line finds your .env file and loads the variables into os.environ
+load_dotenv()
 
 @dataclass(frozen=True)
 class Settings:
@@ -31,3 +34,6 @@ class Settings:
                 "GEMINI_MODEL", "gemini-2.5-flash"
             ),
         )
+
+# Create a single instance to import across your app
+settings = Settings.from_env()

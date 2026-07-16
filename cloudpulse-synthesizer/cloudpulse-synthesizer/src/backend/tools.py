@@ -41,3 +41,4 @@ def format_context(chunks: list[RetrievedChunk]) -> str:
             f"URL: {chunk.source_url}"
         )
     return "\n\n".join(sections)
+
