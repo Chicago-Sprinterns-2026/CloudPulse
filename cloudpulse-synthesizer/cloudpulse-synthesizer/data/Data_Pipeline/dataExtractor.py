@@ -22,7 +22,6 @@ def scrape_and_upload():
     for doc_type, url in SOURCES.items():
         print(f"Scraping {doc_type} from {url}...")
         response = requests.get(url)
-        
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             clean_text = soup.get_text(separator='\n')
