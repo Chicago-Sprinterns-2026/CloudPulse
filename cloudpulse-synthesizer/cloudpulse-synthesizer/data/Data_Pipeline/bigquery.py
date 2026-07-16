@@ -1,5 +1,8 @@
+import os
 import json
+import html
 from datetime import datetime, timezone
+from bs4 import BeautifulSoup
 from google.cloud import bigquery
 from google.cloud import storage
 
@@ -7,15 +10,39 @@ from google.cloud import storage
 BUCKET_NAME = "cloudpulse-raw-docs-2026"
 DESTINATION_PATH = "release-notes/latest_release_notes.json"
 
+def clean_html_content(raw_html):
+    """
+    Takes a raw HTML string and returns formatted, clean plain-text 
+    by resolving HTML entities and stripping out tag elements.
+    """
+    if not raw_html:
+        return ""
+    
+    # Unescape common HTML entities (e.g., &#39; to ' or &gt; to >) 
+    unescaped_html = html.unescape(raw_html)
+    
+    # Parse HTML structure
+    soup = BeautifulSoup(unescaped_html, "html.parser")
+    
+    # Format list items nicely as markdown bullet points
+    for li in soup.find_all("li"):
+        li.insert_before("\n* ")
+        
+    # Get text and clean up redundant line breaks
+    text = soup.get_text()
+    cleaned_text = "\n".join([line.strip() for line in text.splitlines() if line.strip()])
+    
+    return cleaned_text
+
 def fetch_and_upload_bq_release_notes():
-    # Pass your actual project ID to the clients explicitly
-    PROJECT_ID = "sprinternship-chi1-2026"  # Taken from your original console link
+    # Pass your actual project ID to the clients explicitly 
+    PROJECT_ID = "sprinternship-chi1-2026"
     
     bq_client = bigquery.Client(project=PROJECT_ID)
     storage_client = storage.Client(project=PROJECT_ID)
     bucket = storage_client.bucket(BUCKET_NAME)
     
-    # Define SQL targeting the public dataset verified in Cloud Console
+    # Define SQL targeting the public dataset verified in Cloud Console [cite: 591, 592]
     query = """
         SELECT 
             CAST(published_at AS STRING) as date, 
@@ -30,23 +57,23 @@ def fetch_and_upload_bq_release_notes():
     query_job = bq_client.query(query)
     results = query_job.result() # Awaits query execution completion
     
-    # Structure rows cleanly into objects
+    # Structure rows cleanly into objects with parsed text [cite: 594]
     release_records = []
     for row in results:
         release_records.append({
-            "date": row.date,
-            "product": row.product_name,
-            "update": row.description
+            "date": row.date, # [cite: 596]
+            "product": row.product_name, # [cite: 597]
+            "update": clean_html_content(row.description) # Cleaned on-the-fly [cite: 598]
         })
         
-    # Wrap with standard internal pipeline metadata
+    # Wrap with standard internal pipeline metadata [cite: 588]
     payload = {
         "metadata": {
-            "source": "bigquery-public-dataset",
-            "scraped_at_utc": datetime.now(timezone.utc).isoformat(),
-            "records_count": len(release_records)
+            "source": "bigquery-public-dataset", # [cite: 591]
+            "scraped_at_utc": datetime.now(timezone.utc).isoformat(), # [cite: 592]
+            "records_count": len(release_records) # [cite: 593]
         },
-        "releases": release_records
+        "releases": release_records # [cite: 594]
     }
     
     # Save the structured file directly into the bucket
