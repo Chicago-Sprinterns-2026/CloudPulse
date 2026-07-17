@@ -8,6 +8,9 @@ Team Instructions:
 
 from dataclasses import dataclass
 from typing import List, Dict, Optional
+from google.cloud import bigquery
+from src.backend.config import settings
+from langchain_core.tools import tool
 
 @dataclass
 class RetrievedChunk:
@@ -40,6 +43,7 @@ def search_docs(query: str, limit: int = 5) -> List[RetrievedChunk]:
 # ==========================================
 # 2. STRUCTURED DATABASE (BigQuery)
 # ==========================================
+@tool
 def lookup_product_metadata(product_name: str) -> Dict[str, str]:
     """Pulls precise service details like owners, versions, and shutdown protocols.
     
@@ -50,8 +54,50 @@ def lookup_product_metadata(product_name: str) -> Dict[str, str]:
         Dict: A dictionary containing the product's metadata fields.
     """
     # TODO: Write BigQuery SQL to fetch product metadata.
-    
-    return {"product": product_name, "status": "placeholder"}
+    # 1. Initialize the client using your configuration
+    client = bigquery.Client(project=settings.google_cloud_project)
+
+    # 2. Write the SQL Query (Using parameters for security)
+    # Be sure to update the table name to match your actual dataset structure
+    query = f"""
+        SELECT 
+            product_name, 
+            owner_team, 
+            current_version, 
+            shutdown_protocol,
+            status
+        FROM `{settings.google_cloud_project}.{settings.bigquery_dataset}.product_metadata`
+        WHERE product_name = @product_name
+        LIMIT 1
+    """
+
+    # 3. Configure the parameterized query
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
+        ]
+    )
+
+    # 4. Execute the query
+    query_job = client.query(query, job_config=job_config)
+    results = query_job.result() # Waits for the query to finish
+
+    # 5. Process the result into a dictionary
+    metadata = {}
+    for row in results:
+        metadata = {
+            "product_name": row.product_name,
+            "owner_team": row.owner_team,
+            "current_version": row.current_version,
+            "shutdown_protocol": row.shutdown_protocol,
+            "status": row.status
+        }
+
+    # If no results are found, return a helpful default
+    if not metadata:
+        return {"product": product_name, "error": "No metadata found for this product."}
+
+    return metadata
 
 
 # ==========================================
