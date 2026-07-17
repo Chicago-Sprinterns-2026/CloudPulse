@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import "./css/app.css";      
+import "./css/App.css";
 import Catalog from "./catalog";    
 import Synthesizer from "./synthesizer"; 
 import Chatbot from "./chatbot";

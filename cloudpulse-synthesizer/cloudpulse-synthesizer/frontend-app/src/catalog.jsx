@@ -1,28 +1,30 @@
 import React from 'react';
+import releaseData from './release_notes.json';
 
-const PRODUCTS = [
-  { id: 'compute', name: 'Compute Engine', tag: 'Virtual machines, resized on demand', icon: '⚙️', meta: 'updated this cycle' },
-  { id: 'vertex', name: 'Vertex AI', tag: 'Train, tune, and serve models', icon: '✦', meta: 'updated this cycle' },
-  { id: 'cloudsql', name: 'Cloud SQL', tag: 'Managed relational databases', icon: '⚃', meta: 'updated this cycle' }
-];
 
 export default function Catalog({ onSelectProduct }) {
+  const releases = releaseData.releases || [];
+
   return (
     <div className="catalog-view">
-      <h3>Product Catalog</h3>
-      <p className="subtitle">Select a product below to view active release notes.</p>
+      <h3> 📅 July Cycle - Recent Updates</h3>
+      <p className="subtitle">Select a product below to trigger the RAG synthesis engine.</p>
       
-      <div className="catalog-grid">
-        {PRODUCTS.map((p) => (
-          <div key={p.id} className="catalog-card">
-            <h3>{p.icon} {p.name}</h3>
-            <p className="tag"><em>{p.tag}</em></p>
-            <p className="meta">🔴 <strong>{p.meta}</strong></p>
+     <div className="catalog-grid">
+        {/* Slice the latest 6 updates just like the Streamlit python setup did */}
+        {releases.slice(0, 6).map((item, idx) => (
+          <div key={idx} className="catalog-card">
+            <h3 style={{ color: '#1a73e8' }}>{item.product}</h3>
+            <small style={{ color: 'gray' }}>{item.date}</small>
+            <p className="tag-description">
+              {/* Grab the first 130 characters for the summary preview */}
+              {item.update.substring(0, 130)}...
+            </p>
             <button 
               className="btn btn-primary" 
-              onClick={() => onSelectProduct(p.name)}
+              onClick={() => onSelectProduct(item.product)}
             >
-              View {p.name} Notes
+              Synthesize {item.product}
             </button>
           </div>
         ))}

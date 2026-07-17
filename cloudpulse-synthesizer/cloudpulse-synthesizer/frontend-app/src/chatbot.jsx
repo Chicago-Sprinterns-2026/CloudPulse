@@ -10,28 +10,45 @@ export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  const handleSend = (textToSend) => {
-    const query = textToSend || input;
+  const handleSend = async (text) => {
+    const query = text || input;
     if (!query.trim()) return;
 
-    const userMessage = { sender: 'user', text: query };
-    const botResponse = { 
-      sender: 'bot', 
-      text: `This is a simulated answer for: "${query}". Would you like a technical overview or a simplified walkthrough?`,
-      showChips: true 
-    };
-
-    setMessages((prev) => [...prev, userMessage, botResponse]);
+    const userMsg = { sender: 'user', text: query };
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
+
+    try {
+      const response = await fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: query })
+      });
+
+      const data = await response.json();
+
+      const botMsg = {
+        sender: 'bot',
+        text: data.answer,
+        sources: data.source_documents || [],
+        showChips: true
+      };
+
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: 'bot', text: "⚠️ Unable to reach the retrieval backend. Ensure the API server is running on localhost:8000." }
+      ]);
+    }
   };
 
   const handleChipClick = (choice) => {
-    // Remove chip selections from past bubbles to clean the layout
-    setMessages((prev) => prev.map(m => ({ ...m, showChips: false })));
-    
+    setMessages((prev) => prev.map((m) => ({ ...m, showChips: false })));
+
     const botFollowUp = {
       sender: 'bot',
-      text: choice === 'tech' 
+      text: choice === 'tech'
         ? "Mock Technical Data: Process relies on write-ahead logging (WAL) replication updates using schema engine 16.4."
         : "Mock Simple Data: You can now safely roll your storage database backwards without causing runtime downtime."
     };
@@ -42,9 +59,9 @@ export default function Chatbot() {
     <div className="workspace-chatbot">
       <h4>💬 Troubleshooting Assistant</h4>
       <hr />
-      
+
       <div className="chat-history">
-        {messages.length === 0 && <p className="subtitle">Select a quick prompt or type below to begin mock agent execution.</p>}
+        {messages.length === 0 && <p className="subtitle">Select a quick prompt or type below to begin.</p>}
         {messages.map((msg, idx) => (
           <div key={idx} className={`chat-bubble ${msg.sender}`}>
             <p>{msg.text}</p>
@@ -58,21 +75,21 @@ export default function Chatbot() {
         ))}
       </div>
 
-      <div className="quick-questions-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+      <div className="quick-questions-row">
         {QUICK_QUESTIONS.map((q, i) => (
-          <button key={i} className="btn btn-secondary" style={{ fontSize: '0.8rem' }} onClick={() => handleSend(q)}>
+          <button key={i} className="btn btn-secondary quick-question" onClick={() => handleSend(q)}>
             💡 {q}
           </button>
         ))}
       </div>
 
       <div className="chat-input-wrapper">
-        <input 
-          type="text" 
-          value={input} 
-          onChange={(e) => setInput(e.target.value)} 
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask a Google Cloud question..." 
+          placeholder="Ask a Google Cloud question..."
         />
         <button className="btn btn-primary" onClick={() => handleSend()}>Send</button>
       </div>
