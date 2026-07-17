@@ -7,10 +7,13 @@ Team Instructions:
 """
 
 from dataclasses import dataclass
+import json
+import os
 from typing import List, Dict, Optional
 from google.cloud import bigquery
 from src.backend.config import settings
 from langchain_core.tools import tool
+from data.Data_Pipeline.retriever import generate_agent_builder_response
 
 @dataclass
 class RetrievedChunk:
@@ -44,60 +47,67 @@ def search_docs(query: str, limit: int = 5) -> List[RetrievedChunk]:
 # 2. STRUCTURED DATABASE (BigQuery)
 # ==========================================
 @tool
-def lookup_product_metadata(product_name: str) -> Dict[str, str]:
+def lookup_product_metadata(product_name: str) -> str:
     """Pulls precise service details like owners, versions, and shutdown protocols.
     
     Args:
         product_name (str): The name of the Google Cloud product (e.g., 'Cloud Run').
         
     Returns:
-        Dict: A dictionary containing the product's metadata fields.
+        str: A JSON-formatted string containing the product's metadata fields.
     """
-    # TODO: Write BigQuery SQL to fetch product metadata.
-    # 1. Initialize the client using your configuration
-    client = bigquery.Client(project=settings.google_cloud_project)
+    try:
+        # 1. Initialize client using default environment credentials
+        # (Alternatively, you can keep your 'settings' object if you import it properly)
+        client = bigquery.Client()
+        
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
+        dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
 
-    # 2. Write the SQL Query (Using parameters for security)
-    # Be sure to update the table name to match your actual dataset structure
-    query = f"""
-        SELECT 
-            product_name, 
-            owner_team, 
-            current_version, 
-            shutdown_protocol,
-            status
-        FROM `{settings.google_cloud_project}.{settings.bigquery_dataset}.product_metadata`
-        WHERE product_name = @product_name
-        LIMIT 1
-    """
+        # 2. Write the SQL Query (Using parameters for security)
+        query = f"""
+            SELECT 
+                product_name, 
+                owner_team, 
+                current_version, 
+                shutdown_protocol,
+                status
+            FROM `{project_id}.{dataset_id}.product_metadata`
+            WHERE product_name = @product_name
+            LIMIT 1
+        """
 
-    # 3. Configure the parameterized query
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
-        ]
-    )
+        # 3. Configure the parameterized query
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
+            ]
+        )
 
-    # 4. Execute the query
-    query_job = client.query(query, job_config=job_config)
-    results = query_job.result() # Waits for the query to finish
+        # 4. Execute the query
+        query_job = client.query(query, job_config=job_config)
+        results = query_job.result() 
 
-    # 5. Process the result into a dictionary
-    metadata = {}
-    for row in results:
-        metadata = {
-            "product_name": row.product_name,
-            "owner_team": row.owner_team,
-            "current_version": row.current_version,
-            "shutdown_protocol": row.shutdown_protocol,
-            "status": row.status
-        }
+        # 5. Process the result into a dictionary
+        metadata = {}
+        for row in results:
+            metadata = {
+                "product_name": row.product_name,
+                "owner_team": row.owner_team,
+                "current_version": row.current_version,
+                "shutdown_protocol": row.shutdown_protocol,
+                "status": row.status
+            }
 
-    # If no results are found, return a helpful default
-    if not metadata:
-        return {"product": product_name, "error": "No metadata found for this product."}
+        # 6. Return a JSON string for maximum LangChain agent compatibility
+        if not metadata:
+            return json.dumps({"product": product_name, "error": "No metadata found for this product."})
 
-    return metadata
+        return json.dumps(metadata)
+        
+    except Exception as e:
+        # Prevent the entire agent from crashing if BigQuery fails
+        return json.dumps({"error": f"Failed to query BigQuery: {str(e)}"})
 
 
 # ==========================================
