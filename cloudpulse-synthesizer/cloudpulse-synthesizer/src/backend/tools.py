@@ -20,6 +20,7 @@ from src.backend.config import settings
 from langchain_core.tools import tool
 from data.Data_Pipeline.retriever import generate_agent_builder_response
 
+
 @dataclass
 class RetrievedChunk:
     text: str
@@ -187,18 +188,6 @@ def lookup_product_metadata(product_name: str) -> str:
 # ==========================================
 # 3. TIME-BASED FILTERING (BigQuery)
 # ==========================================
-get_release_notes(keywords: set):
-	“““
-	Pull necessary context from RAG Engine using keywords from user input
-”””
-	Check for set of keywords
-Connect to rag engine built with MSAs data file (enable API access)
-Query vector store with keywords
-Store relevant documentation found in external data struct
-
-from typing import List, Dict
-from google.cloud import bigquery
-
 def get_release_notes(product_name: str, start_date: str) -> List[Dict]:
     """Finds the newest updates and feature changes for a specific product.
     
