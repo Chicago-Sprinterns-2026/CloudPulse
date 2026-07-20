@@ -5,6 +5,11 @@ Team Instructions:
 - Do NOT change the function names, inputs, or return types.
 - Replace the 'TODO' section and 'return' placeholders with your actual code.
 """
+import agentplatform
+
+from agentplatform import types
+from google.genai import types as genai_types
+
 
 from dataclasses import dataclass
 import json
@@ -23,24 +28,93 @@ class RetrievedChunk:
 
 
 # ==========================================
-# 1. UNSTRUCTURED SEARCH (Vertex AI)
+# 1. UNSTRUCTURED SEARCH (Vertex AI RAG)
 # ==========================================
 def search_docs(query: str, limit: int = 5) -> List[RetrievedChunk]:
-    """Searches raw PDFs, web pages, and technical guides.
-    
+    """Searches the CloudPulse RAG corpus for relevant document chunks.
+
     Args:
-        query (str): The search query from the user.
-        limit (int): The maximum number of documents to return.
-        
+        query (str): The question or search text from the user.
+        limit (int): Maximum number of chunks to return.
+
     Returns:
-        List[RetrievedChunk]: A list of text chunks with their source URLs.
+        List[RetrievedChunk]: Relevant text, source paths, and document titles.
     """
-    if not query.strip():
+
+    # Remove unnecessary spaces from the query.
+    query = query.strip()
+
+    # Do not send an empty query to the RAG Engine.
+    if not query or limit <= 0:
         return []
-        
-    # TODO: Connect to Vertex AI Search / Discovery Engine.
-    
-    return []
+
+    # CloudPulse Google Cloud information.
+    project_id = "sprinternship-chi1-2026"
+    location = "us-central1"
+    corpus_id = "5175911405336920064"
+
+    # The RAG API requires the complete corpus resource name.
+    corpus_name = (
+        f"projects/{project_id}/"
+        f"locations/{location}/"
+        f"ragCorpora/{corpus_id}"
+    )
+
+    # Create a client that connects to Vertex AI RAG Engine.
+    client = agentplatform.Client(
+        project=project_id,
+        location=location,
+    )
+
+    try:
+        # Search the corpus and return the chunks most relevant
+        # to the user's query.
+        response = client.rag.retrieve_contexts(
+            vertex_rag_store=genai_types.VertexRagStore(
+                rag_resources=[
+                    genai_types.VertexRagStoreRagResource(
+                        rag_corpus=corpus_name
+                    )
+                ]
+            ),
+            query=types.RagQuery(
+                text=query,
+                rag_retrieval_config=genai_types.RagRetrievalConfig(
+                    top_k=limit
+                ),
+            ),
+        )
+
+    except Exception as error:
+        raise RuntimeError(
+            f"RAG document search failed: {error}"
+        ) from error
+
+    chunks: List[RetrievedChunk] = []
+
+    # Google returns the matches inside response.contexts.contexts.
+    if response.contexts:
+        for context in response.contexts.contexts:
+
+            # Ignore any result that has no usable text.
+            if not context.text or not context.text.strip():
+                continue
+
+            # Convert the Google response into the format
+            # required by the team's backend template.
+            chunks.append(
+                RetrievedChunk(
+                    text=context.text.strip(),
+                    source_url=context.source_uri or "",
+                    title=context.source_display_name or "",
+                )
+            )
+
+            # Stop once the requested number of results is collected.
+            if len(chunks) >= limit:
+                break
+
+    return chunks
 
 
 # ==========================================
