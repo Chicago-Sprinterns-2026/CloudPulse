@@ -835,14 +835,15 @@
 .synthesis-output {
   margin-top: 20px;
   padding: 16px 18px;
-  background: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow-x: auto;
 }
 
 .synthesis-output pre {
   margin: 0;
-  color: #e8eaed;
+  color: #202124;
   font-family: var(--mono);
   font-size: 12.5px;
   white-space: pre-wrap;
