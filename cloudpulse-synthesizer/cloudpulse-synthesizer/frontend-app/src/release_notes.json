@@ -1,0 +1,879 @@
+{
+  "metadata": {
+    "source": "bigquery-public-dataset",
+    "scraped_at_utc": "2026-07-16T19:30:50.069691+00:00",
+    "records_count": 174
+  },
+  "releases": [
+    {
+      "date": "2026-07-14",
+      "product": "Google Cloud Contact Center as a Service",
+      "update": "Agent Assist hub\nThe Agent Assist hub is a new panel in the agent desktop that combines\ngenerative knowledge assist and agent coaching features in a single unified\ninterface. The Agent Assist hub contains a knowledge assist module that\nis a 1:1 functional replacement of the agent desktop knowledge assist panel.\nImportant:\n* For any agents that are signed into your contact center at the moment we\nupdate it, the new Knowledge Assist module will stop working. To fix this\nproblem, the agent needs to sign out of the contact center and sign in\nagain. The Knowledge Assist module will begin working. Agents who sign into\nyour contact center after we update it won't be affected by this issue.\n* When we roll out this change, your Google Cloud CCaaS instance will be\nupdated automatically - you don't need to change any configurations.\nHowever, you should tell your agents to sign out of your contact center and\nsign in again if the Knowledge Assist module within the Agent Assist Hub\npanel isn't working for them. Your agents do not need to take action If your\ninstance is configured as a Critical deployment and is updated outside of\nthe contact center hours of operation.\nAdministrators: We've made the following updates to the CCAI Platform portal:\n* We've reorganized the Agent Assist panels at Settings >\nCall > Agent Assist and Settings\n> Chat > Agent Assist as follows:\n* Settings are now grouped in Knowledge & Guidance and Conversation\nInsights sections.\n* The Knowledge & Guidance section contains a new Agent Assist Hub\noption.\n* A new Agent Assist Hub panel is available in the desktop layout\nbuilder of the agent desktop."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Cloud SDK",
+      "update": "576.0.0 (2026-07-14)\nBreaking Changes\n* (Cloud Storage) Updated gcloud storage rsync to default decompresses downloaded gzip files to match the behavior of gcloud storage cp. To retain the previous behavior, use the new --do-not-decompress flag.\nGoogle Cloud CLI\n* Updated Linux bundled Python for the gcloud CLI to 3.14.6 to resolve CVE-2026-34182.\nArtifact Registry\n* Fixed a performance regression in gcloud artifacts docker images list when\nlisting a large number of image versions.\nBigLake\n* Promoted gcloud biglake delta-sharing  to GA.\n* Promoted gcloud biglake data-product-sharing publish to GA.\n* Added lakehouse option to --catalog=type flag to gcloud biglake iceberg catalogs.\n* Added gcloud biglake hive tables update to beta.\nBigQuery\n* Added environment information to the user-agent HTTP header.\n* Added support for --label flag in bq cp, bq extract, and bq load commands to configure job-level labels.\n* Fixed 'bq show' command failures displaying timestamps without fractional seconds.\nCloud Data Lineage\n* Added gcloud datalineage runs command group to manage data lineage runs.\n* Added gcloud datalineage lineage-events command group to manage data lineage runs.\nCloud Dataplex\n* Added --enable-catalog-publishing flag to gcloud dataplex datascans create data-documentation and gcloud dataplex datascans update data-documentation commands.\n* Added --mode flag to gcloud dataplex datascans create data-profile and gcloud dataplex datascans update data-profile commands to support specifying profiling mode.\nCloud Dataproc\n* Promoted gcloud dataproc batches submit pyspark-notebook to GA.\nCloud Identity-Aware Proxy\n* Promoted support for agent-registry resource type in gcloud iap web IAM commands to GA.\nCloud Key Management Service\n* (Alpha, Beta) Added --folder flag to\ngcloud kms autokey-config show-effective-config to retrieve the effective\nCloud KMS Autokey configuration for folders. The --project and --folder\nflags are now optional, defaulting to the current project.\n* Added --hsm-trusted-wrapping flag to gcloud kms keys create and gcloud kms keys versions import to enable trusted wrapping capabilities.\n* Promoted gcloud kms keys versions export-trusted-key-wrapped and gcloud kms keys versions import-trusted-key-wrapped to GA.\n* Added --crypto-key-version-name and --two-factor-public-key-pem flags to gcloud kms single-tenant-hsm proposal create for --operation-type=upgrade_key_trust.\nCloud Managed Kafka\n* Added util function to validate and remove byte units from broker disk input.\nCloud Run\n* Modified gcloud run services proxy to fail immediately if the service has its default URL disabled.\nCloud SQL\n* Upgraded --storage-auto-increase-limit flag for\ngcloud sql instances create and gcloud sql instances patch\ncommands to GA.\nCloud Storage\n* Updated gcloud storage Parallel Composite Uploads to atomically clean up temporary parts, avoiding bucket soft-delete costs.\nCluster Director\n* Added support for Lustre dynamic tier in gcloud cluster-director clusters commands.\nCompliance Manager\n* Updated gcloud compliance-manager commands to support project-level resources.\nCompute Engine\n* Promoted --nat-ips-per-endpoint flag to GA in gcloud compute service-attachments create and gcloud compute service-attachments update.\n* Promoted gcloud compute hosts and gcloud compute reservations hosts to beta.\n* Added gcloud compute sole-tenancy node-templates test-iam-permissions command to test IAM permissions on a node template in beta, preview, and GA.\n* Added gcloud compute instant-snapshots set-iam-policy command to support setting IAM policy bindings for instant snapshots in alpha, beta, preview, and GA.\n* Added gcloud compute network-attachments test-iam-permissions command to test IAM permissions on a network attachment in beta, preview, and GA.\n* Added gcloud beta compute instance-groups managed adopt-instances to support adopting instances into regional managed instance groups.\n* Added gcloud compute instant-snapshots test-iam-permissions command to test\nIAM permissions on an instant snapshot in beta, preview, and GA.\n* Added get-iam-policy and set-iam-policy commands to gcloud compute firewall-policies and gcloud compute network-firewall-policies to manage policy-level IAM policy.\n* Promote the --location flag of gcloud compute interconnects update to GA.\n* Added gcloud compute backend-buckets test-iam-permissions command to test IAM permissions on backend buckets.\n* Promoted --on-repair-allow-changing-zone flag to GA in gcloud compute instance-groups managed create and gcloud compute instance-groups managed update.\n* Added gcloud compute interconnects test-iam-permissions command to test IAM permissions on a Compute Engine interconnect in beta.\n* Added gcloud compute instant-snapshot-groups test-iam-permissions command.\n* Added test-iam-permissions command to gcloud compute target-tcp-proxies\nto test IAM permissions on a target TCP proxy. Global proxies are\nsupported in all tracks, and regional proxies are supported in alpha and\nbeta tracks.\n* Added support for displaying dynamic field GRACEFUL_SHUTDOWN_TIMESTAMP to gcloud compute instance-groups managed list-instances in GA, beta and alpha.\n* Added gcloud compute service-attachments set-iam-policy command to set IAM policy on a service attachment in beta, preview, and GA.\n* Added --async flag to gcloud compute instance-groups managed delete.\n* Promoted --load-balancing-scheme flag to GA in gcloud compute target-tcp-proxies create.\n* Promoted --instances flag of gcloud create instance-groups managed resize-requests create to GA to support specific instance names.\n* Added gcloud compute reservations sub-blocks test-iam-permissions command to beta, preview and GA release tracks.\n* Added on-update-action enum class to --create-disk flag for an instance creation. And it is added to the following release tracks alpha, beta, preview, and GA.\n* Added gcloud compute external-vpn-gateways test-iam-permissions command to test IAM permissions on an external VPN gateway.\n* Added gcloud compute sole-tenancy node-groups test-iam-permissions command to test IAM permissions on a node group in alpha, beta, GA, and preview.\n* Promoted --identity, --identity-certificate and --most-disruptive-allowed-action flags to GA.\n* Added gcloud compute disks bulk set-labels command to alpha, beta, ga, and preview release tracks.\nDeveloper Connect\n* Promoted gcloud developer-connect insights-configs deployment-events list and describe commands to GA.\nKubernetes Engine\n* Added KCP_VPA option to --logging flag of gcloud container clusters create to enable VPA Decision Logs feature.\n* Added KCP_VPA option to --logging flag of gcloud container clusters create-auto to enable VPA Decision Logs feature.\n* Added KCP_VPA option to --logging flag of gcloud container clusters update to enable VPA Decision Logs feature.\n* Added node config options nodeVfioConfig to\ngcloud container clusters create, gcloud container node-pools create, and\ngcloud container node-pools update command which contains VFIO-related\nconfigurations for this node.\n* Added node config options diskIoScheduler to\ngcloud container clusters create, gcloud container node-pools create, and\ngcloud container node-pools update command which contains the configuration\nfor the disk IO scheduler.\n* Promoted Rollbackable Upgrades (Two-Step Upgrades) to GA. Added\n--control-plane-soak-duration flag to gcloud container clusters upgrade\nand promoted gcloud container clusters complete-control-plane-upgrade to GA.\n* Promoted --managed-otel-scope flag to GA in gcloud container clusters create to enable Managed OpenTelemetry feature.\n* Promoted --managed-otel-scope flag to GA in gcloud container clusters create-auto to enable Managed OpenTelemetry feature.\n* Promoted --managed-otel-scope flag to GA in gcloud container clusters update to enable Managed OpenTelemetry feature.\n* Additional kubectl versions:\n* kubectl.1.30 (1.30.14)\n* kubectl.1.31 (1.31.14)\n* kubectl.1.32 (1.32.13)\n* kubectl.1.33 (1.33.13)\n* kubectl.1.34 (1.34.9)\n* kubectl.1.35 (1.35.6)\n* kubectl.1.36 (1.36.2)\nLooker\n* Promoted --release-channel and --accelerated-security-patch-enabled flags to GA for gcloud looker instances create and gcloud looker instances update.\n* Added RELEASE_CHANNEL and ACCELERATED_SECURITY_PATCH_ENABLED columns to gcloud looker instances describe output in GA track.\nNetwork Security\n* Added support for project-level security profiles to gcloud network-security security-profiles wildfire-analysis commands in BETA.\nTransfer\n* Deprecated --s3-compatible-mode flag in gcloud transfer agents install. It is no longer needed as Transfer Service automatically detects S3-compatible job.\nVmware Engine\n* Updated gcloud vmware private-clouds create command to use full resource\nnames for --preferred-zone and --secondary-zone flags when creating a\nstretched private cloud. This update ensures compliance with VPC Service\nControls.\nSubscribe to these release notes at https://groups.google.com/forum/#!forum/google-cloud-sdk-announce."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Cloud Contact Center as a Service",
+      "update": "Google Cloud CCaaS prerelease notes\nHere are the pre-release notes for the next version of Google Cloud CCaaS.\nWhen we release this version, we expect the new capabilities to be as shown\nhere."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Earth Engine Code Editor",
+      "update": "Continued reduction of Code Editor OAuth scopes."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Bigtable",
+      "update": "AI agents can use the list_hot_tablets Model Context Protocol (MCP) tool\nto programmatically query Bigtable cluster health to isolate resource-intensive\ntablets (hot tablets) and detect overutilized node CPUs. This feature is\ngenerally available (GA)."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "BigQuery",
+      "update": "Conversational analytics\nnow supports the\nAI.AGG function.\nThis function is in\nPreview."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Gemini Enterprise",
+      "update": "Gemini Enterprise: Idea Generation agent removal\nThe Idea Generation agent which was in public preview is removed\nstarting the week of July 14, 2026. Users can brainstorm ideas directly\nusing the assistant.\n* For general brainstorming and creative thinking, use the Gemini Enterprise\napp assistant.\n* For in-depth exploration or hypothesis generation, use\nDeep Research or\nCo-Scientist agents."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "BigQuery",
+      "update": "As part of\nGemini in BigQuery,\nconversational analytics\nnow supports HIPAA\ncompliance."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Cloud Run",
+      "update": "Cloud Run support for importing public container images from GitHub Container Registry is in General Availability."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Cloud Contact Center as a Service",
+      "update": "* Fixed an issue where emails were stuck in a Transferring state when\nmoved between queues.\n* Fixed an issue where end-users didn't receive messages from agents during\nweb chats.\n* Fixed an issue where calls or chats remained in a queue without being\noffered to available agents.\n* Fixed an issue where voice calls were prematurely moved from an agent's\nqueue during a multi-group cascade.\n* Fixed an issue where the disposition panel didn't appear after a call ended,\nleaving agents unable to change their status without signing out and signing\nin.\n* Fixed an issue where end-users were incorrectly assigned to teams and skills\nthey weren't originally part of during bulk CSV imports.\n* Fixed an issue where interaction transcripts for calls in non-English\nlanguages were incorrect.\n* Fixed an issue in Salesforce integrations where incoming chat audio and\ndesktop notifications didn't play for agents using the embedded\nCCAI Platform widget.\n* Fixed an issue where the inactive chat dismissal timer didn't reset after\na chat was transferred from a virtual agent to a human agent.\n* Fixed an issue where voicemails disappeared from the queue\nimmediately after being opened.\n* Fixed an issue where the reporting dashboard incorrectly displayed call and\nagent status during a cold transfer to another queue.\n* Improved rendering performance in the agent desktop mini chat adapter.\n* Fixed an issue where the storage path for screen recordings didn't align\nwith the folder structure displayed in the user interface.\n* Fixed an issue where missing public files were incorrectly cached by the\nCDN for up to seven days.\n* Fixed an issue where agents were automatically redirected to the Closed\ninbox view after changing an interaction status to Closed.\n* Fixed an issue where the You cannot log out when in a chat notification\nwas truncated in the chat adapter.\n* Fixed an issue with Salesforce integrations where rapid, concurrent data\nrequests caused information to be lost.\n* Fixed an issue where duplicate call recording links were posted to Zendesk\ntickets for multi-segment calls.\n* Fixed an issue with Salesforce integrations where the UI retained settings\nfrom a previous Salesforce organization after switching to a new\norganization.\n* Fixed an issue where duplicate customer satisfaction surveys were submitted\nand recorded for a single live chat session.\n* Fixed an issue where the message field in the chat adapter was inactive\nwhen an agent accepted a new chat.\n* Fixed an issue where task virtual agents were incorrectly identified as\nNobody when joining a conversation after a transfer from a human agent.\n* Fixed an issue that occurred when a chat entered a queue and the greeting\nmessage was sent before an agent was assigned. In these cases, the\nassociated push notification crashed and logged an error, producing\nexcessive noise in logs.\n* Fixed an issue where the agent's final message in a chat session\nappeared after This chat is ended in the chat adapter and the CRM\ntranscript.\n* Fixed an issue where agents using instances without a CRM configuration\nreceived a No Account Detected warning when making outbound calls.\n* Fixed an issue where notification chimes played after an agent had connected\nto an active call.\n* Fixed an issue where the country code list didn't automatically update the\ncountry flag when a phone number was entered without the + prefix.\n* Fixed an issue where calls to an agent's personal queue didn't break through\nif the agent was also assigned to an inbound queue with breakthrough\ndisabled.\n* Fixed an issue where outbound calls that were transferred to a queue didn't\nadhere to the queue's deltacast configuration.\n* Fixed an issue where the agent desktop became unstable or didn't load.\n* Fixed an issue where wrap-up time was incorrectly reported when agents\nexceeded the configured wrap-up time.\n* Fixed an issue where the IVR queues dashboard didn't load for instances with\na large volume of queues.\n* Fixed an issue where calls to the manager/api/v1/agent_activity_logs\nendpoint timed out when sort_direction was turned off."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Kubernetes Engine",
+      "update": "Rollout sequencing with custom stages is now generally available. This version\nof rollout sequencing, which is recommended if you're configuring an environment\nfor the first time, offers a robust set of features including the following:\n* Define custom stages: Sequence the rollout of a new GKE version across\nenvironments. With custom stages, you can, for example, deploy a new version\non a small subset of production clusters before a wider rollout.\n* Choose the scope of rollouts: Decide what types of versions that GKE\nrolls out in the sequence. For example, you can have GKE roll out patch\nversions, but not minor versions, across a sequence.\n* Initiate a rollout: Create a rollout of a specific version, if you want\nGKE to roll out that version across your sequence.\n* Manage a rollout: Pause, resume, cancel rollouts, or complete rollout\nstages as needed.\nFor more information, see\nAbout rollout sequencing with custom stages."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Kubernetes Engine",
+      "update": "GKE Dataplane V2 clusters running version 1.35.1-gke.1516000 or later now use\nCNI version 1.1.0 in the CNI configuration files. This change requires\ndownstream CNI plugins to be compatible with CNI version 1.1.0.\nCustomers using self-managed open-source Istio or in-cluster unmanaged Cloud\nService Mesh (CSM) variant must manually upgrade their CSM CNI version to 1.23\nto ensure compatibility. If you use an incompatible CNI version, nodes might\nfail to reach a Ready state and might show NetworkPluginNotReady errors."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Cloud Tasks",
+      "update": "Cloud Tasks is available in the following locations:\n* me-central1 (Doha, Qatar)\n* me-central2 (Dammam, Saudi Arabia)"
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Earth Engine Data Catalog",
+      "update": "* Added COPERNICUS/DEM/GLO30_2024_1: Copernicus DEM GLO-30 (2024_1): Global 30m Digital Elevation Model\n* Added ECMWF/ERA5/HOURLY_PRESSURE_LEVELS: ERA5 Hourly Pressure Levels - ECMWF Climate Reanalysis\n* Added ECMWF/ERA5_LAND/STATIC: ERA5-Land Static - ECMWF Climate Reanalysis\n* Added NASA/GEOS-CF/v2/ana/htf: GEOS-CF Ana htf v2: Goddard Earth Observing System Composition Forecast\n* Added NASA/GEOS-CF/v2/ana/tavg1hr: GEOS-CF ana tavg1hr v2: Goddard Earth Observing System Composition Forecast\n* Added NASA/GEOS-CF/v2/fcst/htf: GEOS-CF fcst htf v2: Goddard Earth Observing System Composition Forecast\n* Added NASA/GEOS-CF/v2/fcst/tavg1hr: GEOS-CF fcst tavg1hr v2: Goddard Earth Observing System Composition Forecast"
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Sensitive Data Protection",
+      "update": "The CRIME_STATUS infoType detector is available in all regions. For more information about all built-in infoTypes, see the InfoType detector reference."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Cloud Contact Center as a Service",
+      "update": "Manual wrap-up\nYou can now configure CCAI Platform so agents can attribute wrap-up\ntime, disposition code, and notes to a previous interaction. You can also let\nagents modify the disposition code and notes of previously completed sessions.\nAdministrators: In the Settings > Operation Management >\nWrap-up pane, a new Manual Wrap-up section is available.\nUser experience change: If configured, a new Previous Sessions list appears\nin the agent adapter."
+    },
+    {
+      "date": "2026-07-14",
+      "product": "Google Cloud Contact Center as a Service",
+      "update": "API direct access point for chat\nThe API direct access point (DAP) for chat lets you automatically route incoming\nchat sessions to a queue based on a response from an external API endpoint that\nyou configure. This eliminates the need for end-users to select from a queue\nmenu."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "Incremental data transfers for the\nBigQuery Data Transfer Service for Salesforce\nare now\ngenerally available\n(GA)."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "Table partitioning, multi-statement transactions, and advanced runtime are now\ngenerally available\n(GA) for\nApache Iceberg managed tables."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "The types AdUnitParent, AdUnitSize, Targeting, and TargetWindow\nhave been moved from nested types (AdUnit.AdUnitParent, AdUnit.AdUnitSize,\nAdSpot.Targeting, AdUnit.TargetWindow) to top-level types. This change is\nwire compatible, but client library users may need to update import paths when\nupgrading client library versions."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Dataform",
+      "update": "A Missing Authorization vulnerability was discovered in repositories in\nBigQuery, Dataform, and Colab Enterprise. An authenticated attacker could\npotentially escalate permissions and perform cross-tenant repository takeover.\nFor more information, see the\nGCP-2026-047\nDataform security bulletin."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Managed Service for Apache Spark",
+      "update": "Managed Service for Apache Spark (formerly Dataproc on Compute Engine):\n* The 2.1, 2.2 and 2.3 cluster image versions now support\nConfidential Compute\nfor the\ng4-standard-48\nGPU machine type."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Colab Enterprise",
+      "update": "A Missing Authorization vulnerability was discovered in repositories in\nBigQuery, Dataform, and Colab Enterprise. An authenticated attacker could\npotentially escalate permissions and perform cross-tenant repository takeover.\nFor more information, see the\nGCP-2026-047 security bulletin."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Developer Connect",
+      "update": "For GitLab Enterprise and Bitbucket Data Center connections, Developer Connect now\nchecks permissions on the calling principal.\nWhen you create or update repository connections, Developer Connect uses Secret Manager\nsecrets to authenticate to third-party Git providers. Previously, these\nreferenced secrets were retrieved by the Developer Connect service agent (P4SA) on your\nbehalf, checking permissions only against the P4SA's credentials rather than\nthose of the calling principal. To adhere to the security principle of least\nprivilege, Developer Connect now checks permissions on both the calling principal\n(using end-user credentials) and the P4SA, to ensure both have the\nsecretmanager.versions.access IAM permission on the referenced\nsecrets.\nThis check only affects GitLab Enterprise (GLE) and Bitbucket Data Center (BBDC)\nconnections.\nFor instructions and more details, see the\nDeveloper Connect security bulletin."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Sensitive Data Protection",
+      "update": "If you leave InfoType.version unset\nor set it to stable when setting the MEDICAL_ID\ninfoType in your InspectConfig,\nSensitive Data Protection includes MEDICAL_RECORD_NUMBER\nfindings as type MEDICAL_ID in the scan results.\nYou can still use the old functionality by setting\nInfoType.version to legacy for the next 90 days."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added AdRule service."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added ThirdPartyCompany service (networks.thirdPartyCompanies)."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added write operations to CustomTargetingValue service (create, patch,\nbatchCreate, batchUpdate, batchActivate, and batchDeactivate)."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added TargetingPreset service."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added LiveStream service."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added CdnConfig service."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google Ad Manager API",
+      "update": "Added SuggestedAdUnit service."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Cloud SQL for MySQL",
+      "update": "You can now create and query parameterized secure views in Cloud SQL for MySQL.\nParameterized secure views let you create MySQL views in your MySQL database\nthat reference session variables for managing data access. By using a\nparameterized secure view, you can create a single view that is flexible enough\nto accommodate multiple queries across a predefined range of data without\nbeing required to create multiple static view definitions for different users.\nTo use parameterized secure views, you're required to have Cloud SQL for\nMySQL 8.0.43 or later and\nmaintenance version R20260320.00_20 or later\ninstalled on your instance.\nFor more information, see Parameterized secure views in Cloud SQL.\nThis feature is in Preview."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "You can use the BigQuery Migration Service MCP server\nto perform SQL translation tasks, including translating SQL queries into\nGoogleSQL syntax, generating DDL statements from SQL input queries, and getting\nexplanations of SQL translations.\nThis feature is\nGenerally Available."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Managed Service for Apache Spark",
+      "update": "Managed Service for Apache Spark (formerly Google Cloud Serverless for Apache Spark):\n* The 3.0 runtime\nnow uses fewer executors, as follows:\n* 0 min executors for spark.dynamicAllocation.minExecutors property\n* 1 min executor for spark.executor.instances and spark.dynamicAllocation.initialExecutors properties\n* All runtimes now configure spark.scheduler.listenerbus.exitTimeout to 30 seconds."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "The BigQuery Overview page\nis a hub for discovering tutorials, features, and resources to help you get the\nmost out of BigQuery. It provides guided paths for users of all skill levels.\nThis feature is now\ngenerally available\n(GA)."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Google SecOps",
+      "update": "SOAR migration to Google Cloud validation status\nYou can now check if the SOAR migration was successful by going to the SOAR Settings > License Management page.\nAfter successful completion of Stage 1, it will say Google.com after the system version number.\nAfter successful completion of Stage 2 of SOAR permissions to IAM roles, it will say both Google.com and CloudIAM Enabled after the system version number.\nFor more information on the migration, see the SOAR migration guide"
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Earth",
+      "update": "Known issue: Surface water data layer\nThe surface water data layer is temporarily unavailable."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Managed Service for Apache Airflow",
+      "update": "In Managed Airflow (Gen 3) builds with Airflow 2.11.1 starting from\ncomposer-3-airflow-2.11.1-build.7,\nthe Airflow web server requires at least 3 GB of memory (the default amount of\nmemory for a Small environment preset is 4 GB).\nIf the Airflow web server has less than 3 GB of memory, it might experience\nintermittent out-of-memory (OOM) issues. To resolve these issues,\nincrease the web server memory\nto at least 3 GB."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Slides API",
+      "update": "Developer Preview: The Model Context Protocol (MCP) server for Google Slides is now available in developer preview. MCP is an open protocol that enables seamless integration between AI applications and your presentations. By configuring the Slides MCP server, you enable AI agents to securely interact with your presentations and take actions, such as reading slide content or updating layouts.\nTo get started with the Slides MCP server, see the following documentation:\n* Set up the Slides MCP server\n* Slides MCP tool reference\nTo find more available MCP servers, see Model Context Protocol (MCP) servers in Google Workspace."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Sheets API",
+      "update": "Developer Preview: The Model Context Protocol (MCP) server for Google Sheets is now available in developer preview. MCP is an open protocol that enables seamless integration between AI applications and your spreadsheets. By configuring the Sheets MCP server, you enable AI agents to securely interact with your spreadsheets and take actions, such as reading cell values or updating formulas.\nTo get started with the Sheets MCP server, see the following documentation:\n* Set up the Sheets MCP server\n* Sheets MCP tool reference\nTo find more available MCP servers, see Model Context Protocol (MCP) servers in Google Workspace."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Looker",
+      "update": "The latest versions in the Looker (Google Cloud core) release channels are beginning deployment as follows:\n* Latest version in the Rapid channel: Looker 26.12\n* Latest version in the Regular channel: Looker 26.10\n* Latest version in the No Channel channel: Looker 26.12"
+    },
+    {
+      "date": "2026-07-13",
+      "product": "Chat API",
+      "update": "Generally Available: Subscriptions to user read state updates in Google Chat are now generally available.\nYou can use the Google Workspace Events API to subscribe to user read state updates in Google Chat. The following event types are supported:\n* google.workspace.chat.spaceReadState.v1.updated: A user's space read state is updated.\n* google.workspace.chat.threadReadState.v1.updated: A user's thread read state is updated.\n* google.workspace.chat.spaceReadState.v1.batchUpdated: Multiple space read states are updated for the subscribed user.\n* google.workspace.chat.threadReadState.v1.batchUpdated: Multiple thread read states are updated for the subscribed user.\nThis feature requires the https://www.googleapis.com/auth/chat.users.readstate or https://www.googleapis.com/auth/chat.users.readstate.readonly authorization scope.\nTo learn more, see Subscribe to Google Chat events."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "Project caps (also known as scheduling policies)\nlet you limit maximum slots and concurrency per project within a BigQuery\nreservation. This feature is in\nPreview."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "You can now use the\nALTER SEARCH INDEX DDL statement\nto\nupdate the configuration\nof a search index. This feature is in\nPreview."
+    },
+    {
+      "date": "2026-07-13",
+      "product": "BigQuery",
+      "update": "A Missing Authorization vulnerability was discovered in repositories in\nBigQuery, Dataform, and Colab Enterprise. An authenticated attacker could\npotentially escalate permissions and perform cross-tenant repository takeover.\nFor more information, see the\nGCP-2026-047 security bulletin."
+    },
+    {
+      "date": "2026-07-12",
+      "product": "Google SecOps SOAR",
+      "update": "Release 6.3.93 is being rolled out to the first phase of regions as listed\nhere.\nThis release contains internal and customer bug fixes."
+    },
+    {
+      "date": "2026-07-12",
+      "product": "Google SecOps",
+      "update": "Publisher Agent Version 2.7.0\nPublisher Agent Version 2.7.0 is now available for all regions.\nThis release includes the following updates for the remote agent:\n* High Availability support: Adds applicative support for Publisher high availability.\n* File transfer support: You can now upload and download files using playbooks and the SDK on agents that have been migrated to the GCOM infrastructure."
+    },
+    {
+      "date": "2026-07-12",
+      "product": "Google SecOps SOAR",
+      "update": "Publisher Agent Version 2.7.0\nPublisher Agent Version 2.7.0\nis now available for all regions."
+    },
+    {
+      "date": "2026-07-11",
+      "product": "Google SecOps SOAR",
+      "update": "Release 6.3.92 is now\navailable for all regions."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Distributed Cloud (software only) for VMware",
+      "update": "Google Distributed Cloud (software only) for VMware 1.33.1000-gke.59 is now available\nfor download. To upgrade, see Upgrade clusters.\nGoogle Distributed Cloud 1.33.1000-gke.59 runs on Kubernetes v1.33.11-gke.100.\nIf you use a third-party storage vendor, check the listing of our\npreviously-qualified storage partners.\nAfter a release, it takes approximately 7 to 14 days for the version to become\navailable for use with GKE On-Prem API clients: the Google Cloud console, the\ngcloud CLI, and Terraform.\nThe following patches were skipped:\n* 1.33.900\n* 1.34.600\n* 1.35.200"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Network Connectivity Center",
+      "update": "Include and exclude spoke filters\nfor hybrid spokes are generally available.\nYou can use export filters to control which subnets or routes a spoke can\nsend to the hub. Import filters control which subnets or routes can be\naccepted by a spoke from the hub."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "SAP on Google Cloud",
+      "update": "New SAP certifications: M4N series of memory-optimized machine types\nFor use with SAP HANA scale-up (OLAP and OLTP) and SAP NetWeaver workloads, SAP\nhas certified the Compute Engine memory-optimized M4N series machine types with\nthe Intel Emerald Rapids CPU platform.\nFor more information, see:\n* For SAP HANA, see\nM4N memory-optimized machine types\n* For SAP NetWeaver, see\nM4N memory-optimized machine types"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Apigee hybrid",
+      "update": "v1.16.7\nOn July 10, 2026 we released an updated version of the Apigee hybrid software, v1.16.7.\n* For information on upgrading, see Upgrading Apigee hybrid to version v1.16.7.\n* For information on new installations, see The big picture.\nNote: This is a patch release: The container images used in patch releases are integrated with the Apigee hybrid Helm charts. Upgrading to a patch via the Helm chart automatically updates the images. No manual image changes are typically needed. For information on container image support in Apigee hybrid releases, see Apigee release process."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nGKE cluster versions have been updated.\nNew versions available for upgrades and new clusters.\nThe following versions are now available for new GKE clusters, and for\nmanual control plane upgrades and node upgrades for existing clusters. For more\ninformation about versioning and upgrades, see GKE versioning and\nsupport and About GKE\ncluster upgrades.\nRapid channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.36.0-gke.4447000 is now the default version for cluster creation in the Rapid channel.\n* The following versions are now available in the Rapid channel:\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000\n* The following versions are no longer available in the Rapid channel:\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3712000\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.13-gke.1011000\n* 1.33 to 1.34.9-gke.1131000\n* 1.34 to 1.35.6-gke.1127000\n* 1.35 to 1.36.0-gke.4447000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.13-gke.1011000\n* 1.34 to 1.34.9-gke.1131000\n* 1.35 to 1.35.6-gke.1127000\n* 1.36 to 1.36.0-gke.4447000\nRegular channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Regular channel:\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3302004\n* 1.36.0-gke.3712000\nStable channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Stable channel:\n* 1.33.12-gke.1165000\n* 1.34.8-gke.1278000\nExtended channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Extended channel:\n* 1.30.14-gke.2746000\n* 1.30.14-gke.2816000\n* 1.31.14-gke.2157000\n* 1.31.14-gke.2233000\n* 1.32.13-gke.1829000\n* 1.32.13-gke.1913000\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3302004\n* 1.36.0-gke.3712000\n* The following versions are no longer available in the Extended channel:\n* 1.30.14-gke.2608000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.30.14-gke.2767000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.1986000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.2169000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1729000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1844000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.29 to 1.30.14-gke.2710000\n* 1.30 to 1.31.14-gke.2116000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.30 to 1.30.14-gke.2710000\n* 1.31 to 1.31.14-gke.2116000\n* 1.32 to 1.32.13-gke.1740000\nNo channel (deprecated)\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available:\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000\n* The following node versions are now available:\n* 1.30.14-gke.2816000\n* 1.31.14-gke.2233000\n* 1.32.13-gke.1913000\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available:\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000\n* The following node versions are now available:\n* 1.30.14-gke.2816000\n* 1.31.14-gke.2233000\n* 1.32.13-gke.1913000\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Stable channel:\n* 1.33.12-gke.1165000\n* 1.34.8-gke.1278000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.36.0-gke.4447000 is now the default version for cluster creation in the Rapid channel.\n* The following versions are now available in the Rapid channel:\n* 1.33.13-gke.1101000\n* 1.34.9-gke.1287000\n* 1.35.6-gke.1250000\n* 1.36.0-gke.4681000\n* 1.36.2-gke.1346000\n* The following versions are no longer available in the Rapid channel:\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3712000\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.13-gke.1011000\n* 1.33 to 1.34.9-gke.1131000\n* 1.34 to 1.35.6-gke.1127000\n* 1.35 to 1.36.0-gke.4447000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.13-gke.1011000\n* 1.34 to 1.34.9-gke.1131000\n* 1.35 to 1.35.6-gke.1127000\n* 1.36 to 1.36.0-gke.4447000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Regular channel:\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3302004\n* 1.36.0-gke.3712000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* The following versions are now available in the Extended channel:\n* 1.30.14-gke.2746000\n* 1.30.14-gke.2816000\n* 1.31.14-gke.2157000\n* 1.31.14-gke.2233000\n* 1.32.13-gke.1829000\n* 1.32.13-gke.1913000\n* 1.33.12-gke.1270000\n* 1.34.9-gke.1065000\n* 1.35.6-gke.1049000\n* 1.36.0-gke.3302004\n* 1.36.0-gke.3712000\n* The following versions are no longer available in the Extended channel:\n* 1.30.14-gke.2608000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.30.14-gke.2767000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.1986000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.2169000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1729000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1844000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.29 to 1.30.14-gke.2710000\n* 1.30 to 1.31.14-gke.2116000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.30 to 1.30.14-gke.2710000\n* 1.31 to 1.31.14-gke.2116000\n* 1.32 to 1.32.13-gke.1740000"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Cloud Billing",
+      "update": "Payments documents for invoiced billing accounts available on Payment\nstatus page\nFor\nCloud Billing accounts that are paid by invoice,\naccess to your payments documents, such as invoices and credit memos, is now\navailable in the Cloud Billing console in the Payment status page.\nThe Payment status page replaces the Invoices page. Self-service\n(online) Cloud Billing accounts will continue to access Payments\ndocuments on the Invoices page.\nThe Payment status page provides a real-time and customizable view of your\nfinancial standing with your Cloud Billing account. The Payment status\npage is based on the\nGoogle payments Statement of account\npage, with your payments documents filtered by the Google payments account\nthat is linked to the Cloud Billing account that you are viewing.\nFor more information about payments documents, see:\n* Get a Cloud Billing document such as an invoice, statement, or receipt.\n* View your cost and payment history\n* Google payments Statement of account"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Distributed Cloud (software only) for bare metal",
+      "update": "The following issues were fixed in 1.33.1000-gke.59:\n* Fixed vulnerabilities listed in Vulnerability fixes.\n* Fixed an issue where Certificate Authority (CA) rotation failed for\nself-managing clusters (admin, hybrid, and standalone). The failure occurs\nduring the final phase of the rotation when attempting to move management\nresources back from the temporary bootstrap cluster to the self-managing\ncluster, which can leave the cluster in an unmanageable state. You must\nupgrade your clusters to version 1.33.1000-gke.59 before you rotate your CAs.\nRunning a CA rotation on self-managing clusters in versions prior to\n1.33.1000-gke.59 triggers this issue and can disrupt your ability to manage\nthe cluster."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Distributed Cloud (software only) for VMware",
+      "update": "The following issues were fixed in 1.33.1000-gke.59:\n* Fixed vulnerabilities listed in Vulnerability fixes.\n* Fixed the issue preventing patch releases for GDC software only for VMware."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Cloud Deploy",
+      "update": "The Cloud Deploy image now uses a Google-specific fork of Skaffold. The\nSkaffold version that you see if you run gcloud deploy releases describe, or\nif you view the release in the Google Cloud Console, is now cd-skaffold\ninstead of a version number."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R29) Security updates\nThis release includes new GKE versions that use updated\nContainer-Optimized OS images. These updated images are cumulative,\nincorporating security fixes from all Container-Optimized OS\nversions released since the previous GKE release.\nTo identify the specific vulnerabilities that were resolved in each updated\nContainer-Optimized OS image, see the Security release notes\nfor that image. The following table includes links to the release notes for\neach updated Container-Optimized OS image:\nGKE version\nContainer-Optimized OS version\nDetails\n1.31.14-gke.2233000\ncos-117-18613-613-77\ncos-117-18613-613-77 release notes\n1.32.13-gke.1913000\ncos-117-18613-613-77\ncos-117-18613-613-77 release notes\n1.33.13-gke.1101000\ncos-121-18867-381-201\ncos-121-18867-381-201 release notes\n1.34.9-gke.1287000\ncos-125-19216-395-138\ncos-125-19216-395-138 release notes\n1.36.0-gke.4681000\ncos-129-19506-224-80\ncos-129-19506-224-80 release notes"
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Apigee hybrid",
+      "update": "Various security and CVE fixes are included in this release."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Google Distributed Cloud (software only) for bare metal",
+      "update": "Google Distributed Cloud (software only) for bare metal 1.33.1000-gke.59 is now available for\ndownload. To upgrade, see Upgrade clusters.\nGoogle Distributed Cloud for bare metal\n1.33.1000-gke.59 runs on Kubernetes v1.33.11-gke.100.\nAfter a release, it takes approximately 7 to 14 days for the version to become\navailable for installations or upgrades with the GKE On-Prem API clients: the\nGoogle Cloud console, the gcloud CLI, and Terraform.\nIf you use a third-party storage vendor, check the listing of our\npreviously-qualified storage partners."
+    },
+    {
+      "date": "2026-07-10",
+      "product": "Apigee Advanced API Security",
+      "update": "Deprecation and shutdown of GenAI Incident Summary (generative AI Insights)\nThe standalone GenAI Incident Summary (generative AI Insights) feature in\nApigee Advanced API Security Abuse Detection, currently in Preview, is\ndeprecated and shut down as of July 9, 2026. This feature used Google Cloud\ngenerative AI large language models (LLMs) to provide automated summaries and\nmitigation guidance for security incidents identified by the Abuse Detection\nclustering tool.\nFor more information, see GenAI Incident Summary deprecation."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "BigQuery",
+      "update": "Support for hybrid search (using the VECTOR_SEARCH function to combine a\nsemantic search with a lexical (keyword) search) has been temporarily disabled.\nWe are working to restore this feature as soon as possible."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where inline button toggle filters on dashboards could be cut off or could overlap with adjacent filters. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Upgraded app-containers/docker-credential-helpers to v0.9.8."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Added support for NVIDIA GRID driver version 580.159.03."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Upgraded app-admin/oslogin to v20260626.00."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where drill modals could repeatedly render a visualization, which would present as constant flickering in the browser. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "Layout spacing and column alignment issues have been fixed on the OIDC and SAML authentication Admin pages. These features now perform as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Security Command Center",
+      "update": "You can modify the data residency\nand data encryption configuration\non the Premium and Standard tiers after you activate Security Command Center for your\norganization. For more information, see\nModify data residency or data encryption configuration."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the LookML validator used a stale cache for local project dependencies when the dependencies were updated in production. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where clicking Reset Styles in the table visualization formatting panel would unexpectedly reset the table theme, color palette, and custom borders. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the comparison value in a KPI visualization could be incorrectly centered when the sparkline was disabled. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Upgraded dev-libs/expat to v2.8.2."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Gemini Enterprise Agent Platform",
+      "update": "Retirement for preview models for 2.5 Flash, 2.5 Flash-Lite, and 3.1\nFlash-Lite\nThe following preview model endpoints have been retired and are no longer\naccessible:\n* gemini-2.5-flash-lite-preview-09-2025\n* gemini-2.5-flash-preview-05-2025\n* gemini-3.1-flash-lite-preview\nSee Migrate to the latest Google\nmodels for information on how\nto migrate your project."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the Workflows page was not visible to users with the create_alerts permission. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where some custom visualizations could be cut off in PDF exports. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where autosizing table columns didn't work as expected in drill menus. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the column limit could fail to apply to an Explore that used pivots. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Upgraded sys-apps/acl to v2.4.0."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the commit hash in the Deploy Manager displayed PENDING during compilation and didn't update upon refresh. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where drilling into a value while in Dev mode could return a 500 internal server error. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Upgraded dev-db/sqlite to v3.53.3."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the Content Validator returned a generic error message instead of returning the specific models that were affected. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Knowledge Catalog",
+      "update": "Knowledge Catalog connectors for importing metadata from SQL Server and\nPostgreSQL data sources are available in Preview.\nKnowledge Catalog connectors automatically extract metadata (technical,\noperational, and business) from external data sources and import it into\nKnowledge Catalog entry groups. You can schedule metadata import runs on a set\nschedule.\nFor more information, see About database connectors\nand Manage connector jobs."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where editing a workflow on the Workflow Management page could load indefinitely. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where deleting a duplicated dashboard tab would incorrectly delete shared elements from other tabs. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-53359 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed KCTF-d82ba05 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed KCTF-d82ba05 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-53167 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-53359 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-53359 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed KCTF-d82ba05 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-40225 in sys-apps/systemd."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Fixed CVE-2026-53359 in the Linux kernel."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Gemini Enterprise",
+      "update": "Gemini Enterprise: AlphaEvolve algorithm optimization agent (GA)\nThe AlphaEvolve optimization service is generally available (GA) on the\nGemini Enterprise agent. AlphaEvolve is a code optimization\nand discovery agent built on top of Gemini that helps solve the hardest algorithmic\nproblems for your business and research. It combines creative, server-side\nLLM exploration with secure client-side code execution to autonomously\ndiscover new, optimized solutions that surpass human-designed\nbaselines.\nNote: AlphaEvolve does not support FedRAMP or DoD compliance\nrequirements. Access for environments requiring these standards is restricted\nby default but can be requested through your account team.\nFor more information, see AlphaEvolve documentation."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "Looker CI Run Alert emails now include the Run ID in the subject line to prevent email threading. The email body now includes the Git branch and commit details."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where clearing the Totals Labels option for the Totals Color setting in the color picker resulted in black text in the chart. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Compute Engine",
+      "update": "Preview: Advanced Compute Images provide high-performance images to support\nyour artificial intelligence (AI), machine learning (ML), and high-performance\ncomputing (HPC) workloads on Google Cloud.\nAdvanced Compute Images provide a single source of trusted, performance-tuned\nOS images that remove the need for manual image building for specialized\nworkloads. Each image version is pre-installed with the necessary drivers,\nnetwork fabrics, and Slurm agents to help you run your workloads."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "cos-129-19506-299-8\nKernel\nDocker\nContainerd\nGPU Drivers\nCOS-6.12.94\nv27.5.1\nv2.2.3\nSee List"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "cos-117-18613-675-7\nKernel\nDocker\nContainerd\nGPU Drivers\nCOS-6.6.143\nv24.0.9\nv1.7.31\nSee List"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "cos-125-19216-532-9\nKernel\nDocker\nContainerd\nGPU Drivers\nCOS-6.12.94\nv27.5.1\nv2.1.7\nSee List"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "cos-121-18867-528-7\nKernel\nDocker\nContainerd\nGPU Drivers\nCOS-6.6.143\nv27.5.1\nv2.0.8\nSee List"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation in the Regular channel.\n* The following versions are no longer available in the Regular channel:\n* 1.33.12-gke.1116000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1163012\n* 1.36.0-gke.2684000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1165000\n* 1.33 to 1.34.8-gke.1278000\n* 1.34 to 1.35.5-gke.1241004\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1278000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where view.field references in Liquid were not correctly rendered if the field name matched a built-in Liquid variable. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation in the Extended channel.\n* The following versions are now available in the Extended channel:\n* 1.30.14-gke.2767000\n* 1.31.14-gke.2169000\n* 1.32.13-gke.1740000\n* 1.32.13-gke.1844000\n* The following versions are no longer available in the Extended channel:\n* 1.30.14-gke.2746000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.2157000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1657000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1829000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1116000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1163012\n* 1.36.0-gke.2684000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.32 to 1.32.13-gke.1729000\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1278000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "Looker (Google Cloud core) now supports FIPS 140-3 level 1 compliance. Existing FIPS 140-2 compliant instances will be automatically upgraded to the FIPS 140-3 standard when they're upgraded to Looker 26.12."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation.\n* The following versions are now available:\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following node versions are now available:\n* 1.30.14-gke.2767000\n* 1.31.14-gke.2169000\n* 1.32.13-gke.1844000\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following versions are no longer available:\n* 1.33.12-gke.1000000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1116000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1208000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.7-gke.1499000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1284000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1000004 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1324000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.36.0-gke.2684000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1165000\n* 1.33 to 1.34.8-gke.1126000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1126000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "Now available in preview, the Table Row Grouping feature option for table charts lets users display table chart data hierarchically in groups and customize the appearance with new Grouping menu options.\nThis feature is enabled by default."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "The Increased Row Limit feature is now out of labs and generally available."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.36.0-gke.3712000 is now the default version for cluster creation in the Rapid channel.\n* The following versions are now available in the Rapid channel:\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following versions are no longer available in the Rapid channel:\n* 1.33.12-gke.1208000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1284000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1324000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.36.0-gke.3302004\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1270000\n* 1.33 to 1.34.9-gke.1065000\n* 1.34 to 1.35.6-gke.1049000\n* 1.35 to 1.36.0-gke.3712000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1270000\n* 1.34 to 1.34.9-gke.1065000\n* 1.35 to 1.35.6-gke.1049000\n* 1.36 to 1.36.0-gke.3712000"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "The KPI Visualization preview feature is now enabled by default."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.34.8-gke.1126000 is now the default version for cluster creation in the Stable channel.\n* The following versions are no longer available in the Stable channel:\n* 1.33.12-gke.1000000 is deprecated in the Stable channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1000000\n* 1.35.5-gke.1000004 is deprecated in the Stable channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1059000\n* 1.33 to 1.34.8-gke.1126000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1059000\n* 1.34 to 1.34.8-gke.1126000\n* 1.35 to 1.35.5-gke.1057002"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Chat API",
+      "update": "Generally Available: You can now configure separate, granular access\npermissions for discovering and joining a space in the Google Chat\nAPI. To specify who\ncan discover or join a space, include the\nAccessSettings\nobject in the\nspaces\nresource, and use the\naccessPermissionSettings\nfield to specify granular permissions.\nFor more information, see the Target audience for the Spaces\nresource.\nLearn more in this Google Workspace Updates blog post: New discoverable space\nsetting in Google\nChat."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R28) Version updates\nGKE cluster versions have been updated.\nNew versions available for upgrades and new clusters.\nThe following versions are now available for new GKE clusters, and for\nmanual control plane upgrades and node upgrades for existing clusters. For more\ninformation about versioning and upgrades, see GKE versioning and\nsupport and About GKE\ncluster upgrades.\nRapid channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.36.0-gke.3712000 is now the default version for cluster creation in the Rapid channel.\n* The following versions are now available in the Rapid channel:\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following versions are no longer available in the Rapid channel:\n* 1.33.12-gke.1208000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1284000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1324000 is deprecated in the Rapid channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.36.0-gke.3302004\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1270000\n* 1.33 to 1.34.9-gke.1065000\n* 1.34 to 1.35.6-gke.1049000\n* 1.35 to 1.36.0-gke.3712000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1270000\n* 1.34 to 1.34.9-gke.1065000\n* 1.35 to 1.35.6-gke.1049000\n* 1.36 to 1.36.0-gke.3712000\nRegular channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation in the Regular channel.\n* The following versions are no longer available in the Regular channel:\n* 1.33.12-gke.1116000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1163012\n* 1.36.0-gke.2684000 is deprecated in the Regular channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1165000\n* 1.33 to 1.34.8-gke.1278000\n* 1.34 to 1.35.5-gke.1241004\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1278000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003\nStable channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.34.8-gke.1126000 is now the default version for cluster creation in the Stable channel.\n* The following versions are no longer available in the Stable channel:\n* 1.33.12-gke.1000000 is deprecated in the Stable channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1000000\n* 1.35.5-gke.1000004 is deprecated in the Stable channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1059000\n* 1.33 to 1.34.8-gke.1126000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1059000\n* 1.34 to 1.34.8-gke.1126000\n* 1.35 to 1.35.5-gke.1057002\nExtended channel\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation in the Extended channel.\n* The following versions are now available in the Extended channel:\n* 1.30.14-gke.2767000\n* 1.31.14-gke.2169000\n* 1.32.13-gke.1740000\n* 1.32.13-gke.1844000\n* The following versions are no longer available in the Extended channel:\n* 1.30.14-gke.2746000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.31.14-gke.2157000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1657000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.32.13-gke.1829000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1116000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1163012\n* 1.36.0-gke.2684000 is deprecated in the Extended channel. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.32 to 1.32.13-gke.1729000\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1278000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003\nNo channel (deprecated)\nNote: Your clusters might not have these versions available.\nRollouts are already in progress when we publish the release notes, and can take\nmultiple days to complete across all Google Cloud zones.\n* Version 1.35.5-gke.1241004 is now the default version for cluster creation.\n* The following versions are now available:\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following node versions are now available:\n* 1.30.14-gke.2767000\n* 1.31.14-gke.2169000\n* 1.32.13-gke.1844000\n* 1.33.13-gke.1011000\n* 1.34.9-gke.1131000\n* 1.35.6-gke.1127000\n* 1.36.0-gke.4447000\n* The following versions are no longer available:\n* 1.33.12-gke.1000000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1116000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.33.12-gke.1208000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.7-gke.1499000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1218000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.34.8-gke.1284000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1000004 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.35.5-gke.1324000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* 1.36.0-gke.2684000 is deprecated. This version will be removed in 90 days, or at the end of support, if sooner.\n* Clusters in this channel running the listed minor version have new general auto-upgrade targets. GKE can upgrade control planes and nodes to the following new versions with this release:\n* GKE upgrades clusters to the following new minor versions if there are no factors, such as maintenance exclusions or deprecated APIs, preventing upgrades:\n* 1.32 to 1.33.12-gke.1165000\n* 1.33 to 1.34.8-gke.1126000\n* GKE upgrades clusters to the following new patch versions if no minor version upgrade is available, or if the cluster has maintenance exclusions or other factors preventing minor version upgrades:\n* 1.33 to 1.33.12-gke.1165000\n* 1.34 to 1.34.8-gke.1126000\n* 1.35 to 1.35.5-gke.1241004\n* 1.36 to 1.36.0-gke.3070003"
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "BigQuery",
+      "update": "You can use the BigQuery Data Transfer Service to transfer metadata from the\nfollowing data sources into Knowledge Catalog:\n* PostgreSQL\n* Microsoft SQL Server\nThis feature is in\nPreview."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Google Kubernetes Engine",
+      "update": "(2026-R27) Version updates\nThere are no version updates for 2026-R27."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where OAuth connections would incorrectly fail connection tests on the Self-service Explores Admin page. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where added_params metadata in streaming JSON responses could be malformed or missing. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "Looker 26.12 will roll out to Looker (original) instances on the following schedule:\n* Expected deployment start: Sunday, July 12, 2026\n* Expected final deployment and download available: Sunday, July 26, 2026\nLooker 26.12 is expected to include the following changes, features, and fixes."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where users with only the Admin via IAM role on Looker (Google Cloud Core) instances would incorrectly lack access to connections when Advanced Control Governance (ACG) was enabled. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where accessing a folder that contained scheduled content that was configured for disabled integrations could cause Looker to crash with a TypeError. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Bigtable",
+      "update": "You can use the Bigtable client library for Go\nto execute read jobs and queries using Data Boost."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Gemini Enterprise",
+      "update": "Gemini Enterprise: Enable skills feature management toggle is\nnot available\nThe Enable skills feature management toggle is not available.\nThis feature is generally available (GA) with an allowlist in Gemini\nEnterprise. After your organization is added to the allowlist, end users can\ncreate and use skills directly in the app. To access this feature, contact your\nGoogle account manager.\nWe will update the release notes when the Enable skills toggle for\nadministrators is available.\nNote: This is a correction to the June 17, 2026 release\nnote."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "The OAuth interface now prohibits forward slashes in the OAuth Client ID field. Previously, the inclusion of one or more forward slashes would result in a 401 error. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where invalid parameters in an embed URL could result in Looker displaying an unnecessarily verbose stack trace instead of a concise error. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where the Run and Settings buttons were not correctly being displayed on embedded Explores with the _theme URL parameter. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "BigQuery",
+      "update": "The Data Agent Kit extension is an extension for agent\ncoding tools, such as VS Code, Antigravity, and Cursor, that lets\nyou interact with BigQuery resources directly in your agent environment. You can\nuse this extension to browse datasets, manage pipelines, run queries, and prompt\nyour agent to perform other BigQuery tasks directly in your preferred IDE. This\nfeature is in\nPreview."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where drilling down on a value for which the custom value format contained the # character could cause the page to crash. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where, if a dashboard tile contained no results, the row_total table calculation function could return an error, which would prevent scheduled deliveries. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Looker",
+      "update": "An issue has been fixed where API calls that were made by service account users without a configured last name failed with a 500 internal server error. This feature now performs as expected."
+    },
+    {
+      "date": "2026-07-09",
+      "product": "Container Optimized OS",
+      "update": "Added support for NVIDIA GRID driver version 580.159.03."
+    }
+  ]
+}
