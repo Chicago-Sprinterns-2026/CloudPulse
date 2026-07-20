@@ -133,18 +133,47 @@ def get_release_notes(product_name: str, start_date: str) -> List[Dict]:
 # ==========================================
 def get_msas(product_name: str, severity: Optional[str] = None) -> List[Dict]:
     """Checks for mandatory actions or deprecation deadlines.
-    
-    Args:
-        product_name (str): The target Google Cloud product.
-        severity (str, optional): Filter by severity (e.g., 'Critical', 'Warning').
-        
-    Returns:
-        List[Dict]: A list of Mandatory Service Announcements.
-    """
-    # TODO: Write BigQuery SQL to fetch MSAs, applying the severity filter if provided.
-    
-    return []
 
+    Use this tool when the user asks about mandatory actions,
+    deprecations, security updates, deadlines, or critical alerts.
+
+    Args:
+        product_name (str): Google Cloud product or service.
+        severity (str, optional): Severity filter such as CRITICAL or HIGH.
+
+    Returns:
+        List[Dict]: Matching MSA records from the RAG corpus.
+    """
+
+    # Do not search with an empty product name
+    if not product_name.strip():
+        return []
+
+    # Build a focused query for the RAG Engine
+    query = (
+        f"Mandatory Service Announcements for {product_name}. "
+        "Find required actions, deprecations, security changes, "
+        "effective dates, deadlines, and service impacts."
+    )
+
+    # Include severity when the user provides it
+    if severity:
+        query += f" Only return announcements with severity {severity}."
+
+    # Search the shared RAG corpus
+    chunks = search_docs(query, limit=5)
+
+    # Convert RetrievedChunk objects to dictionaries
+    return [
+        {
+            "product": product_name,
+            "severity_filter": severity,
+            "title": chunk.title,
+            "description": chunk.text,
+            "source_url": chunk.source_url,
+        }
+        for chunk in chunks
+    ]
 
 # ==========================================
 # 5. UTILITY / UX
