@@ -11,6 +11,7 @@ export const GCP_PRODUCTS = [
   { name: 'Batch', category: 'Compute' },
   { name: 'Cloud TPUs', category: 'Compute' },
   { name: 'Cloud Workstations', category: 'Compute' },
+  { name: 'Knative', category: 'Compute' },
 
   // Storage
   { name: 'Cloud Storage', category: 'Storage' },
@@ -43,6 +44,7 @@ export const GCP_PRODUCTS = [
   { name: 'Dataplex', category: 'Data Analytics' },
   { name: 'Dataform', category: 'Data Analytics' },
   { name: 'BigQuery Data Transfer Service', category: 'Data Analytics' },
+  { name: 'Earth Engine', category: 'Data Analytics' },
 
   // AI & Machine Learning
   { name: 'Vertex AI', category: 'AI & Machine Learning' },
@@ -85,6 +87,10 @@ export const GCP_PRODUCTS = [
   { name: 'Access Context Manager', category: 'Security & Identity' },
   { name: 'Binary Authorization', category: 'Security & Identity' },
   { name: 'Sensitive Data Protection', category: 'Security & Identity' }, // Formerly Cloud DLP
+  { name: 'Cloud IDS', category: 'Security & Identity' },
+  { name: 'Certificate Authority Service', category: 'Security & Identity' },
+  { name: 'Cloud Asset Inventory', category: 'Security & Identity' },
+
 
   // DevOps & Management
   { name: 'Cloud Build', category: 'DevOps & Management' },
@@ -97,6 +103,8 @@ export const GCP_PRODUCTS = [
   { name: 'Cloud Profiler', category: 'DevOps & Management' },
   { name: 'Cloud Shell', category: 'DevOps & Management' },
   { name: 'Developer Connect', category: 'DevOps & Management' },
+  { name: 'Cloud Billing API', category: 'DevOps & Management' },
+  
 
   // Hybrid & Multicloud
   { name: 'Anthos', category: 'Hybrid & Multicloud' },
