@@ -6,6 +6,7 @@ import Synthesizer from "./synthesizer";
 import Chatbot from "./chatbot";
 import ProductDirectory from "./productDirectory";
 import Dashboard from "./dashboard";
+import ReleaseHistory from "./releaseHistory";
 import { GCP_PRODUCTS, CATEGORIES } from "./products";
 
 // Google's four brand colors, canonical logo order — reused as the app's
@@ -49,6 +50,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState('Compute Engine');
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [historyProduct, setHistoryProduct] = useState(null);
 
   // --- Automatic Rotating Carousel Timer Logic ---
   useEffect(() => {
@@ -90,7 +92,7 @@ export default function App() {
                 Products
               </button>
               <button
-                className={`header-nav-link ${viewState === 'synthesizer' ? 'active' : ''}`}
+                className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
                 onClick={() => setViewState('synthesizer')}
               >
                 Workspace
@@ -264,8 +266,22 @@ export default function App() {
         {/* VIEW 4: INTERACTIVE WORKSPACE */}
         {viewState === 'synthesizer' && (
           <div className="workspace-view">
-            <Synthesizer defaultProduct={selectedProduct} />
+            <Synthesizer
+              defaultProduct={selectedProduct}
+              onViewHistory={(product) => {
+                setHistoryProduct(product);
+                setViewState('history');
+              }}
+            />
           </div>
+        )}
+
+        {/* VIEW 5: FULL RELEASE HISTORY FOR ONE PRODUCT */}
+        {viewState === 'history' && historyProduct && (
+          <ReleaseHistory
+            product={historyProduct}
+            onBack={() => setViewState('synthesizer')}
+          />
         )}
       </main>
 

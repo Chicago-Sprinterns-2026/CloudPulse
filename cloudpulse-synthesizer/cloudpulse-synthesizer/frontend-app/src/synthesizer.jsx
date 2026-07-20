@@ -1,30 +1,46 @@
 import React, { useState, useMemo } from 'react';
-import releaseData from './release_notes.json';
+import { useReleaseNotes, useManifest } from './useReleaseNotes';
+import { productsMatch } from './utils';
 
-const ALL_RELEASES = releaseData.releases || [];
 const RECENT_COUNT = 6;
 
 function matchesProduct(release, query) {
   return release.product.toLowerCase().includes(query.trim().toLowerCase());
 }
 
-export default function Synthesizer({ defaultProduct }) {
+export default function Synthesizer({ defaultProduct, onViewHistory }) {
   const [productName, setProductName] = useState(defaultProduct || '');
   const [output, setOutput] = useState('');
 
+  // Already scoped to the last 12 months — see public/release-data/recent.json
+  // and scripts/build-release-data.mjs.
+  const { releases: RECENT_RELEASES, loading } = useReleaseNotes();
+  const { manifest } = useManifest();
+
   const matchingReleases = useMemo(
-    () => (productName.trim() ? ALL_RELEASES.filter((r) => matchesProduct(r, productName)) : []),
-    [productName]
+    () => (productName.trim() ? RECENT_RELEASES.filter((r) => matchesProduct(r, productName)) : []),
+    [productName, RECENT_RELEASES]
   );
 
-  const ledgerItems = productName.trim() ? matchingReleases : ALL_RELEASES.slice(0, RECENT_COUNT);
+  const ledgerItems = productName.trim() ? matchingReleases : RECENT_RELEASES.slice(0, RECENT_COUNT);
+
+  // Total history (all time) for the typed product, from the manifest —
+  // used only to decide whether "show full history" has anything to add
+  // beyond what's already in the last-12-months ledger.
+  const totalCount = useMemo(() => {
+    if (!productName.trim()) return 0;
+    const entry = manifest.find((m) => productsMatch(m.product, productName));
+    return entry ? entry.count : 0;
+  }, [manifest, productName]);
+
+  const hasOlderHistory = productName.trim() && totalCount > matchingReleases.length;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!productName.trim()) return;
 
     if (matchingReleases.length === 0) {
-      setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${productName}\n\nNo release notes found for "${productName}" in the ledger.`);
+      setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${productName}\n\nNo release notes found for "${productName}" in the last 12 months.`);
       return;
     }
 
@@ -51,7 +67,9 @@ export default function Synthesizer({ defaultProduct }) {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary full-width">Generate one-pager</button>
+          <button type="submit" className="btn btn-primary full-width">
+            Generate one-pager
+          </button>
         </form>
 
         {output && (
@@ -64,9 +82,16 @@ export default function Synthesizer({ defaultProduct }) {
       {/* Right Scrollable Panel Ledger */}
       <div className="ledger-panel">
         <h4>Release Notes Ledger</h4>
+        <p className="subtitle" style={{ marginBottom: '10px' }}>
+          Last 12 months{loading && ' · loading…'}
+        </p>
         <div className="scrolling-ledger">
-          {ledgerItems.length === 0 && (
-            <p className="note">No release notes match "{productName}".</p>
+          {ledgerItems.length === 0 && !loading && (
+            <p className="note">
+              {productName.trim()
+                ? `No release notes in the last 12 months for "${productName}".`
+                : 'No recent release notes found.'}
+            </p>
           )}
           {ledgerItems.map((item, idx) => (
             <div
@@ -82,6 +107,16 @@ export default function Synthesizer({ defaultProduct }) {
               {idx < ledgerItems.length - 1 && <hr />}
             </div>
           ))}
+
+          {hasOlderHistory && (
+            <button
+              className="btn btn-secondary full-width"
+              style={{ marginTop: '12px' }}
+              onClick={() => onViewHistory && onViewHistory(productName.trim())}
+            >
+              Show full history for {productName.trim()} ({totalCount} total)
+            </button>
+          )}
         </div>
       </div>
     </div>

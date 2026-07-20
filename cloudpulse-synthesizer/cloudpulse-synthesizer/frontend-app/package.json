@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "build:data": "node scripts/build-release-data.mjs",
+    "predev": "npm run build:data",
+    "prebuild": "npm run build:data",
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
