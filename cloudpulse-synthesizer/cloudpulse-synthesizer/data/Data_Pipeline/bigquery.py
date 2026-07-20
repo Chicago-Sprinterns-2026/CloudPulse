@@ -1,61 +1,61 @@
-import os
 import json
-import html
-from datetime import datetime, timezone
-from bs4 import BeautifulSoup
+import os
 from google.cloud import bigquery
-from google.cloud import storage
+from bs4 import BeautifulSoup
 
-BUCKET_NAME = "cloudpulse-raw-docs-2026"
-DESTINATION_PATH = "release-notes/latest_release_notes.json"
-PROJECT_ID = "sprinternship-chi1-2026"
-
-def clean_html_content(raw_html):
-    if not raw_html: return ""
-    unescaped_html = html.unescape(raw_html)
-    soup = BeautifulSoup(unescaped_html, "html.parser")
-    for li in soup.find_all("li"):
-        li.insert_before("\n* ")
-    text = soup.get_text()
-    return "\n".join([line.strip() for line in text.splitlines() if line.strip()])
-
-def fetch_and_upload_bq_release_notes():
-    bq_client = bigquery.Client(project=PROJECT_ID)
-    storage_client = storage.Client(project=PROJECT_ID)
-    bucket = storage_client.bucket(BUCKET_NAME)
+def extract_and_chunk_historical_release_notes():
+    client = bigquery.Client(project="sprinternship-chi1-2026")
     
     query = """
-        SELECT CAST(published_at AS STRING) as date, product_name, description 
-        FROM `bigquery-public-data.google_cloud_release_notes.release_notes` 
-        WHERE DATE(published_at) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
-        ORDER BY published_at DESC
+        SELECT 
+            product_name, 
+            product_version_name, 
+            description, 
+            published_at, 
+            release_note_type
+        FROM 
+            `bigquery-public-data.google_cloud_release_notes.release_notes`
+        ORDER BY 
+            published_at DESC
     """
     
-    print("Executing query against BigQuery Public Dataset...")
-    query_job = bq_client.query(query)
+    print("⏳ Querying entire Google Cloud release notes history database...")
+    query_job = client.query(query)
     results = query_job.result()
     
-    release_records = []
+    cleaned_records = []
     for row in results:
-        release_records.append({
-            "date": row.date,
-            "product": row.product_name,
-            "update": clean_html_content(row.description)
-        })
+        raw_html = row.description if row.description else ""
+        soup = BeautifulSoup(raw_html, "html.parser")
+        clean_text = soup.get_text(separator=" ").strip()
         
-    payload = {
-        "metadata": {
-            "source": "bigquery-public-dataset",
-            "scraped_at_utc": datetime.now(timezone.utc).isoformat(),
-            "records_count": len(release_records)
-        },
-        "releases": release_records
-    }
+        cleaned_records.append({
+            "product_name": row.product_name,
+            "product_version": row.product_version_name,
+            "description": clean_text,
+            "publish_date": str(row.published_at),
+            "release_note_type": row.release_note_type
+        })
+
+    # 🌟 FIX: Split the massive array into smaller chunks (5,000 records per file)
+    chunk_size = 5000
+    output_dir = "/home/znoman/CloudPulse/chunks"
+    os.makedirs(output_dir, exist_ok=True)
     
-    json_data = json.dumps(payload, ensure_ascii=False, indent=2)
-    blob = bucket.blob(DESTINATION_PATH)
-    blob.upload_from_string(json_data, content_type="application/json")
-    print(f"✅ Live Cloud Upload Successful: gs://{BUCKET_NAME}/{DESTINATION_PATH}")
+    print(f"📦 Total records retrieved: {len(cleaned_records)}. Splitting into files...")
+    
+    file_counter = 1
+    for i in range(0, len(cleaned_records), chunk_size):
+        chunk = cleaned_records[i:i + chunk_size]
+        output_path = f"{output_dir}/release_notes_part_{file_counter}.json"
+        
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(chunk, f, indent=2, ensure_ascii=False)
+            
+        print(f"✅ Generated: {output_path} ({len(chunk)} records)")
+        file_counter += 1
+
+    print("🎉 All parts successfully chunked and saved locally!")
 
 if __name__ == "__main__":
-    fetch_and_upload_bq_release_notes()
+    extract_and_chunk_historical_release_notes()
