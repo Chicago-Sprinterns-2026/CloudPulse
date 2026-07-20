@@ -151,10 +151,7 @@ export default function App() {
               </button>
 
               <div className="carousel-band">
-                <div
-                  className="carousel-tiles"
-                  style={{ gridTemplateColumns: `repeat(${activeSlide.products.length}, 1fr)` }}
-                >
+                <div className="carousel-tiles">
                   {activeSlide.products.map((prod, i) => (
                     <button
                       key={prod.name}

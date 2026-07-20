@@ -190,12 +190,16 @@
 
 .carousel-tiles {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  justify-content: center;
   gap: 18px;
 }
 
 .carousel-tile {
+  /* Fixed width matching a 4-up grid track, so tile size stays constant
+     no matter how many tiles a slide has — flexbox then centers the row
+     when there are fewer than 4. */
+  flex: 0 0 calc((100% - 54px) / 4);
   aspect-ratio: 1 / 0.85;
   display: flex;
   flex-direction: column;
@@ -230,6 +234,7 @@
 .carousel-tile:hover {
   opacity: 0.85;
   box-shadow: var(--shadow-md);
+  transform: scale(1.06);
 }
 
 .carousel-tile.active {
@@ -237,6 +242,10 @@
   border-color: var(--tile-color);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+.carousel-tile.active:hover {
+  transform: translateY(-2px) scale(1.06);
 }
 
 .carousel-tile.active .tile-swatch {
