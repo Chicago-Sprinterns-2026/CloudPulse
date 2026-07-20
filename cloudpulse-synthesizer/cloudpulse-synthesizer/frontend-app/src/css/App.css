@@ -812,6 +812,8 @@
 .workspace-view {
   flex: 1;
   padding: 32px 32px 0;
+  background: #ffffff;
+  color: #000000;
 }
 
 .workspace-grid {
@@ -855,14 +857,15 @@
 .synthesis-output {
   margin-top: 20px;
   padding: 16px 18px;
-  background: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow-x: auto;
 }
 
 .synthesis-output pre {
   margin: 0;
-  color: #e8eaed;
+  color: #000000;
   font-family: var(--mono);
   font-size: 12.5px;
   white-space: pre-wrap;
