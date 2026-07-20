@@ -48,6 +48,7 @@ export default function App() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState('Compute Engine');
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   // --- Automatic Rotating Carousel Timer Logic ---
   useEffect(() => {
@@ -97,16 +98,29 @@ export default function App() {
             </nav>
           )}
 
-          {viewState === 'synthesizer' && (
-            <select 
-              value={selectedProduct} 
-              onChange={(e) => setSelectedProduct(e.target.value)} 
-              style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #B0B3B8' }}
-            >
-              <option>Compute Engine</option>
-              <option>Vertex AI</option>
-              <option>Cloud SQL</option>
-            </select>
+          {isSignedIn && (
+            <div className="account-menu-wrapper">
+              <button
+                className="account-button"
+                onClick={() => setAccountMenuOpen((open) => !open)}
+              >
+                👤 Account
+              </button>
+
+              {accountMenuOpen && (
+                <div className="account-dropdown">
+                  <button
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      setIsSignedIn(false);
+                      setViewState('carousel');
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </header>
