@@ -1,312 +1,188 @@
-"""Backend tools used by the CloudPulse agent.
-
-Team Instructions:
-- Claim a function to work on.
-- Do NOT change the function names, inputs, or return types.
-- Replace the 'TODO' section and 'return' placeholders with your actual code.
-"""
+import os
+from typing import Optional, Any, Dict, List
+ 
 import agentplatform
-
 from agentplatform import types
 from google.genai import types as genai_types
-
-
-from dataclasses import dataclass
-import json
-import os
-from typing import List, Dict, Optional
 from google.cloud import bigquery
-from src.backend.config import settings
-from langchain_core.tools import tool
-from data.Data_Pipeline.retriever import generate_agent_builder_response
-
-
-@dataclass
-class RetrievedChunk:
-    text: str
-    source_url: str
-    title: str = ""
-
-
-# ==========================================
-# 1. UNSTRUCTURED SEARCH (Vertex AI RAG)
-# ==========================================
-def search_docs(query: str, limit: int = 5) -> List[RetrievedChunk]:
-    """Searches the CloudPulse RAG corpus for relevant document chunks.
-
-    Args:
-        query (str): The question or search text from the user.
-        limit (int): Maximum number of chunks to return.
-
-    Returns:
-        List[RetrievedChunk]: Relevant text, source paths, and document titles.
-    """
-
-    # Remove unnecessary spaces from the query.
-    query = query.strip()
-
-    # Do not send an empty query to the RAG Engine.
-    if not query or limit <= 0:
+ 
+_PROJECT_ID = "sprinternship-chi1-2026"
+_LOCATION = "us-central1"
+_CORPUS_ID = "5175911405336920064"
+ 
+ 
+def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
+    """Internal helper: runs Vertex AI RAG retrieval, not exposed to the model."""
+    if not query or not query.strip() or limit <= 0:
         return []
-
-    # CloudPulse Google Cloud information.
-    project_id = "sprinternship-chi1-2026"
-    location = "us-central1"
-    corpus_id = "5175911405336920064"
-
-    # The RAG API requires the complete corpus resource name.
+ 
+    query = query.strip()
     corpus_name = (
-        f"projects/{project_id}/"
-        f"locations/{location}/"
-        f"ragCorpora/{corpus_id}"
+        f"projects/{_PROJECT_ID}/locations/{_LOCATION}/ragCorpora/{_CORPUS_ID}"
     )
-
-    # Create a client that connects to Vertex AI RAG Engine.
-    client = agentplatform.Client(
-        project=project_id,
-        location=location,
-    )
-
+    client = agentplatform.Client(project=_PROJECT_ID, location=_LOCATION)
+ 
     try:
-        # Search the corpus and return the chunks most relevant
-        # to the user's query.
         response = client.rag.retrieve_contexts(
             vertex_rag_store=genai_types.VertexRagStore(
                 rag_resources=[
-                    genai_types.VertexRagStoreRagResource(
-                        rag_corpus=corpus_name
-                    )
+                    genai_types.VertexRagStoreRagResource(rag_corpus=corpus_name)
                 ]
             ),
             query=types.RagQuery(
                 text=query,
-                rag_retrieval_config=genai_types.RagRetrievalConfig(
-                    top_k=limit
-                ),
+                rag_retrieval_config=genai_types.RagRetrievalConfig(top_k=limit),
             ),
         )
-
     except Exception as error:
-        raise RuntimeError(
-            f"RAG document search failed: {error}"
-        ) from error
-
-    chunks: List[RetrievedChunk] = []
-
-    # Google returns the matches inside response.contexts.contexts.
+        raise RuntimeError(f"RAG document search failed: {error}") from error
+ 
+    chunks: List[Dict[str, str]] = []
     if response.contexts:
         for context in response.contexts.contexts:
-
-            # Ignore any result that has no usable text.
             if not context.text or not context.text.strip():
                 continue
-
-            # Convert the Google response into the format
-            # required by the team's backend template.
             chunks.append(
-                RetrievedChunk(
-                    text=context.text.strip(),
-                    source_url=context.source_uri or "",
-                    title=context.source_display_name or "",
-                )
+                {
+                    "text": context.text.strip(),
+                    "source_url": context.source_uri or "",
+                    "title": context.source_display_name or "",
+                }
             )
-
-            # Stop once the requested number of results is collected.
             if len(chunks) >= limit:
                 break
-
     return chunks
-
-
-# ==========================================
-# 2. STRUCTURED DATABASE (BigQuery)
-# ==========================================
-@tool
-def lookup_product_metadata(product_name: str) -> str:
-    """Pulls precise service details like owners, versions, and shutdown protocols.
-    
+ 
+ 
+def cloudpulse_tool(
+    action: str,
+    query: Optional[str] = None,
+    product_name: Optional[str] = None,
+    start_date: Optional[str] = None,
+    severity: Optional[str] = None,
+    limit: int = 5,
+) -> Any:
+    """Single tool for docs search, product metadata, release notes, and MSAs.
+ 
     Args:
-        product_name (str): The name of the Google Cloud product (e.g., 'Cloud Run').
-        
+        action: Which operation to perform. Must be one of:
+            "search_docs" -- free-text documentation search (RAG). Requires `query`.
+            "metadata" -- structured product lookup. Requires `product_name`.
+            "release_notes" -- release notes since a date. Requires `product_name`
+                and `start_date`.
+            "msas" -- Mandatory Service Announcements. Requires `product_name`;
+                `severity` is optional.
+        query: Search text. Only used when action="search_docs".
+        product_name: Exact Google Cloud product name. Used by "metadata",
+            "release_notes", and "msas".
+        start_date: Earliest date to include, format YYYY-MM-DD. Only used
+            when action="release_notes".
+        severity: Optional severity filter, e.g. "CRITICAL". Only used when
+            action="msas".
+        limit: Max number of results for "search_docs". Defaults to 5.
+ 
     Returns:
-        str: A JSON-formatted string containing the product's metadata fields.
+        - "search_docs": list of dicts with "text", "source_url", "title".
+        - "metadata": dict with product metadata, or {"error": ...}.
+        - "release_notes": list of dicts with "product_name", "release_date",
+          "description", "release_note_type".
+        - "msas": list of dicts with "product", "severity_filter", "title",
+          "description", "source_url".
     """
-    try:
-        # 1. Initialize client using default environment credentials
-        # (Alternatively, you can keep your 'settings' object if you import it properly)
-        client = bigquery.Client()
-        
-        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
-        dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
-
-        # 2. Write the SQL Query (Using parameters for security)
-        query = f"""
-            SELECT 
-                product_name, 
-                owner_team, 
-                current_version, 
-                shutdown_protocol,
-                status
-            FROM `{project_id}.{dataset_id}.product_metadata`
-            WHERE product_name = @product_name
-            LIMIT 1
-        """
-
-        # 3. Configure the parameterized query
-        job_config = bigquery.QueryJobConfig(
-            query_parameters=[
-                bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
-            ]
+    if action == "search_docs":
+        if not query:
+            return {"error": "query is required for search_docs."}
+        return _search_docs_raw(query=query, limit=limit)
+ 
+    elif action == "metadata":
+        if not product_name:
+            return {"error": "product_name is required for metadata lookup."}
+        try:
+            client = bigquery.Client()
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
+            dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
+ 
+            sql_query = f"""
+                SELECT product_name, owner_team, current_version, shutdown_protocol, status
+                FROM `{project_id}.{dataset_id}.product_metadata`
+                WHERE product_name = @product_name
+                LIMIT 1
+            """
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
+                ]
+            )
+            results = client.query(sql_query, job_config=job_config).result()
+ 
+            for row in results:
+                return {
+                    "product_name": row.product_name,
+                    "owner_team": row.owner_team,
+                    "current_version": row.current_version,
+                    "shutdown_protocol": row.shutdown_protocol,
+                    "status": row.status,
+                }
+            return {"product": product_name, "error": "No metadata found."}
+ 
+        except Exception as e:
+            return {"error": f"Failed to query BigQuery: {str(e)}"}
+ 
+    elif action == "release_notes":
+        if not product_name or not start_date:
+            return {"error": "product_name and start_date are required for release notes."}
+        try:
+            client = bigquery.Client()
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
+            dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
+            table_id = f"{project_id}.{dataset_id}.release_notes_table"
+ 
+            sql_query = f"""
+                SELECT product_name, release_date, description, release_note_type
+                FROM `{table_id}`
+                WHERE LOWER(product_name) = LOWER(@product_name)
+                AND release_date >= CAST(@start_date AS DATE)
+                ORDER BY release_date DESC
+            """
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("product_name", "STRING", product_name),
+                    bigquery.ScalarQueryParameter("start_date", "STRING", start_date),
+                ]
+            )
+            results = client.query(sql_query, job_config=job_config).result()
+            return [dict(row) for row in results]
+ 
+        except Exception as e:
+            print(f"Error fetching release notes from BigQuery: {e}")
+            return []
+ 
+    elif action == "msas":
+        if not product_name or not product_name.strip():
+            return []
+ 
+        search_query = (
+            f"Mandatory Service Announcements for {product_name}. "
+            "Find required actions, deprecations, security changes, "
+            "effective dates, deadlines, and service impacts."
         )
-
-        # 4. Execute the query
-        query_job = client.query(query, job_config=job_config)
-        results = query_job.result() 
-
-        # 5. Process the result into a dictionary
-        metadata = {}
-        for row in results:
-            metadata = {
-                "product_name": row.product_name,
-                "owner_team": row.owner_team,
-                "current_version": row.current_version,
-                "shutdown_protocol": row.shutdown_protocol,
-                "status": row.status
+        if severity:
+            search_query += f" Only return announcements with severity {severity}."
+ 
+        chunks = _search_docs_raw(query=search_query, limit=5)
+        return [
+            {
+                "product": product_name,
+                "severity_filter": severity,
+                "title": chunk["title"],
+                "description": chunk["text"],
+                "source_url": chunk["source_url"],
             }
-
-        # 6. Return a JSON string for maximum LangChain agent compatibility
-        if not metadata:
-            return json.dumps({"product": product_name, "error": "No metadata found for this product."})
-
-        return json.dumps(metadata)
-        
-    except Exception as e:
-        # Prevent the entire agent from crashing if BigQuery fails
-        return json.dumps({"error": f"Failed to query BigQuery: {str(e)}"})
-
-
-# ==========================================
-# 3. TIME-BASED FILTERING (BigQuery)
-# ==========================================
-def get_release_notes(product_name: str, start_date: str) -> List[Dict]:
-    """Finds the newest updates and feature changes for a specific product.
-    
-    Args:
-        product_name (str): The target Google Cloud product.
-        start_date (str): The date to filter from (Format: YYYY-MM-DD).
-        
-    Returns:
-        List[Dict]: A list of release note records.
-    """
-    # Initialize the BigQuery client
-    # Note: Ensure you have GOOGLE_APPLICATION_CREDENTIALS set in your environment
-    client = bigquery.Client()
-    
-    # Define your fully qualified table ID
-    # TODO: INCLUDE IDs AS NEEDED
-    table_id = "your_project_id.your_dataset_id.release_notes_table"
-    
-    # Construct the parameterized SQL query to prevent SQL injection
-    query = f"""
-        SELECT 
-            product_name, 
-            release_date, 
-            description, 
-            release_note_type
-        FROM 
-            `{table_id}`
-        WHERE 
-            LOWER(product_name) = LOWER(@product_name)
-            AND release_date >= CAST(@start_date AS DATE)
-        ORDER BY 
-            release_date DESC
-    """
-    
-    # Set up the query parameters
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("product_name", "STRING", product_name),
-            bigquery.ScalarQueryParameter("start_date", "STRING", start_date),
+            for chunk in chunks
         ]
-    )
-    
-    try:
-        # Execute the query
-        query_job = client.query(query, job_config=job_config)
-        results = query_job.result()  # Waits for the query to complete
-        
-        # Convert the row iterator into a list of dictionaries
-        release_notes = [dict(row) for row in results]
-        return release_notes
-
-    except Exception as e:
-        print(f"Error fetching release notes from BigQuery: {e}")
-        return []
-
-
-
-# ==========================================
-# 4. ACTIVE ALERT / LEGAL (BigQuery)
-# ==========================================
-def get_msas(product_name: str, severity: Optional[str] = None) -> List[Dict]:
-    """Checks for mandatory actions or deprecation deadlines.
-
-    Use this tool when the user asks about mandatory actions,
-    deprecations, security updates, deadlines, or critical alerts.
-
-    Args:
-        product_name (str): Google Cloud product or service.
-        severity (str, optional): Severity filter such as CRITICAL or HIGH.
-
-    Returns:
-        List[Dict]: Matching MSA records from the RAG corpus.
-    """
-
-    # Do not search with an empty product name
-    if not product_name.strip():
-        return []
-
-    # Build a focused query for the RAG Engine
-    query = (
-        f"Mandatory Service Announcements for {product_name}. "
-        "Find required actions, deprecations, security changes, "
-        "effective dates, deadlines, and service impacts."
-    )
-
-    # Include severity when the user provides it
-    if severity:
-        query += f" Only return announcements with severity {severity}."
-
-    # Search the shared RAG corpus
-    chunks = search_docs(query, limit=5)
-
-    # Convert RetrievedChunk objects to dictionaries
-    return [
-        {
-            "product": product_name,
-            "severity_filter": severity,
-            "title": chunk.title,
-            "description": chunk.text,
-            "source_url": chunk.source_url,
+ 
+    else:
+        return {
+            "error": f"Unknown action '{action}'. Must be one of: "
+            "search_docs, metadata, release_notes, msas."
         }
-        for chunk in chunks
-    ]
-
-# ==========================================
-# 5. UTILITY / UX
-# ==========================================
-def format_citations(chunks: List[RetrievedChunk]) -> str:
-    """Formats clean references and links for the user to make the agent verifiable.
-    
-    Args:
-        chunks (List[RetrievedChunk]): The raw chunks retrieved from search_docs.
-        
-    Returns:
-        str: A neatly formatted markdown string containing the citations.
-    """
-    if not chunks:
-        return "No documentation sources were referenced."
-        
-    # TODO: Iterate through the chunks and format them into a clean string.
-    
-    return "Placeholder formatted citation string."
