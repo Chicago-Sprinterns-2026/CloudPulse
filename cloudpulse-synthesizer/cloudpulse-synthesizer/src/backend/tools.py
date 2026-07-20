@@ -187,6 +187,18 @@ def lookup_product_metadata(product_name: str) -> str:
 # ==========================================
 # 3. TIME-BASED FILTERING (BigQuery)
 # ==========================================
+get_release_notes(keywords: set):
+	“““
+	Pull necessary context from RAG Engine using keywords from user input
+”””
+	Check for set of keywords
+Connect to rag engine built with MSAs data file (enable API access)
+Query vector store with keywords
+Store relevant documentation found in external data struct
+
+from typing import List, Dict
+from google.cloud import bigquery
+
 def get_release_notes(product_name: str, start_date: str) -> List[Dict]:
     """Finds the newest updates and feature changes for a specific product.
     
@@ -197,9 +209,51 @@ def get_release_notes(product_name: str, start_date: str) -> List[Dict]:
     Returns:
         List[Dict]: A list of release note records.
     """
-    # TODO: Write BigQuery SQL to fetch release notes after the start_date.
+    # Initialize the BigQuery client
+    # Note: Ensure you have GOOGLE_APPLICATION_CREDENTIALS set in your environment
+    client = bigquery.Client()
     
-    return []
+    # Define your fully qualified table ID
+    # TODO: INCLUDE IDs AS NEEDED
+    table_id = "your_project_id.your_dataset_id.release_notes_table"
+    
+    # Construct the parameterized SQL query to prevent SQL injection
+    query = f"""
+        SELECT 
+            product_name, 
+            release_date, 
+            description, 
+            release_note_type
+        FROM 
+            `{table_id}`
+        WHERE 
+            LOWER(product_name) = LOWER(@product_name)
+            AND release_date >= CAST(@start_date AS DATE)
+        ORDER BY 
+            release_date DESC
+    """
+    
+    # Set up the query parameters
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("product_name", "STRING", product_name),
+            bigquery.ScalarQueryParameter("start_date", "STRING", start_date),
+        ]
+    )
+    
+    try:
+        # Execute the query
+        query_job = client.query(query, job_config=job_config)
+        results = query_job.result()  # Waits for the query to complete
+        
+        # Convert the row iterator into a list of dictionaries
+        release_notes = [dict(row) for row in results]
+        return release_notes
+
+    except Exception as e:
+        print(f"Error fetching release notes from BigQuery: {e}")
+        return []
+
 
 
 # ==========================================
