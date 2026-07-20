@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import releaseData from './release_notes.json';
 
-const LEDGER = [
-  { tag: 'Cloud SQL', note: 'Point-in-time recovery for PostgreSQL 16' },
-  { tag: 'Vertex AI', note: 'Gemini Code Assist now in Model Garden' },
-  { tag: 'Vertex AI', note: 'Batch prediction quota increased 3x' },
-  { tag: 'Compute Engine', note: 'C4 machine series GA in 6 more regions' },
-  { tag: 'Cloud SQL', note: 'Per-replica maintenance windows' },
-  { tag: 'Compute Engine', note: 'Live migration supports local SSD-attached VMs' }
-];
+const ALL_RELEASES = releaseData.releases || [];
+const RECENT_COUNT = 6;
+
+function matchesProduct(release, query) {
+  return release.product.toLowerCase().includes(query.trim().toLowerCase());
+}
 
 export default function Synthesizer({ defaultProduct }) {
   const [productName, setProductName] = useState(defaultProduct || '');
-  const [persona, setPersona] = useState('Cloud Architect');
-  const [priority, setPriority] = useState('Critical');
   const [output, setOutput] = useState('');
+
+  const matchingReleases = useMemo(
+    () => (productName.trim() ? ALL_RELEASES.filter((r) => matchesProduct(r, productName)) : []),
+    [productName]
+  );
+
+  const ledgerItems = productName.trim() ? matchingReleases : ALL_RELEASES.slice(0, RECENT_COUNT);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!productName.trim()) return;
-    
-    // Simulating backend generated one-pager output
-    setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${productName}\n**Audience Focus:** ${persona}\n**Priority Matrix:** ${priority}\n\n[MOCK DATA]: Features successfully evaluated. Under the hood, this release introduces automated pipeline optimizations, scaling logic controls, and structural node adjustments.`);
+
+    if (matchingReleases.length === 0) {
+      setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${productName}\n\nNo release notes found for "${productName}" in the ledger.`);
+      return;
+    }
+
+    const latest = matchingReleases[0];
+    setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${latest.product}\n**Date:** ${latest.date}\n\n${latest.update}`);
   };
 
   return (
@@ -30,38 +39,18 @@ export default function Synthesizer({ defaultProduct }) {
         <h3>Product One-Pager Synthesizer</h3>
         <p className="subtitle">Configure synthesis target layout.</p>
         <hr />
-        
+
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Google Cloud product</label>
-            <input 
-              type="text" 
-              value={productName} 
-              onChange={(e) => setProductName(e.target.value)} 
-              placeholder="e.g. Compute Engine, Vertex AI" 
+            <input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="e.g. Compute Engine, Vertex AI"
             />
           </div>
-          
-          <div className="form-row">
-            <div className="input-group">
-              <label>Audience persona</label>
-              <select value={persona} onChange={(e) => setPersona(e.target.value)}>
-                <option>Cloud Architect</option>
-                <option>Cloud Sales Representative</option>
-                <option>TAM</option>
-                <option>Developer</option>
-              </select>
-            </div>
-            <div className="input-group">
-              <label>Priority</label>
-              <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-                <option>Critical</option>
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-            </div>
-          </div>
+
           <button type="submit" className="btn btn-primary full-width">Generate one-pager</button>
         </form>
 
@@ -76,16 +65,23 @@ export default function Synthesizer({ defaultProduct }) {
       <div className="ledger-panel">
         <h4>Release Notes Ledger</h4>
         <div className="scrolling-ledger">
-          {LEDGER.map((item, idx) => {
-            const isMatch = productName && item.tag.toLowerCase().includes(productName.toLowerCase());
-            return (
-              <div key={idx} className="ledger-item">
-                <p>{isMatch ? '🔥' : '🔹'} <strong>{item.tag}</strong></p>
-                <p className="note">{item.note}</p>
-                {idx < LEDGER.length - 1 && <hr />}
-              </div>
-            );
-          })}
+          {ledgerItems.length === 0 && (
+            <p className="note">No release notes match "{productName}".</p>
+          )}
+          {ledgerItems.map((item, idx) => (
+            <div
+              key={idx}
+              className="ledger-item"
+              role="button"
+              tabIndex={0}
+              onClick={() => setProductName(item.product)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setProductName(item.product)}
+            >
+              <p>🔹 <strong>{item.product}</strong> <span className="note">{item.date}</span></p>
+              <p className="note">{item.update.slice(0, 130)}...</p>
+              {idx < ledgerItems.length - 1 && <hr />}
+            </div>
+          ))}
         </div>
       </div>
     </div>
