@@ -1,9 +1,10 @@
 from google.adk.agents.llm_agent import Agent
- 
+from google.genai import types
+
 from .tools import cloudpulse_tool
- 
+
 root_agent = Agent(
-    model='gemini-3.5-flash',
+    model='gemini-2.5-flash',
     name='root_agent',
     description='A helpful assistant for user questions.',
     instruction=(
@@ -17,4 +18,9 @@ root_agent = Agent(
         "Always set the `action` argument explicitly."
     ),
     tools=[cloudpulse_tool],
+    generate_content_config=types.GenerateContentConfig(
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
+        ),
+    ),
 )
