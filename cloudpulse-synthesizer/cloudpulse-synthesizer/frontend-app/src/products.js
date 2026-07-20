@@ -24,7 +24,7 @@ export const GCP_PRODUCTS = [
   { name: 'Storage Transfer Service', category: 'Storage' },
   { name: 'Transfer Appliance', category: 'Storage' },
   { name: 'Google Cloud NetApp Volumes', category: 'Storage' },
-  { name: 'Backup and DR Service', category: 'Storage' },
+  { name: 'Backup and Disaster Recovery (DR) Service', category: 'Storage' },
 
   // Databases
   { name: 'Cloud SQL', category: 'Databases' },
@@ -39,12 +39,12 @@ export const GCP_PRODUCTS = [
   // Data Analytics
   { name: 'BigQuery', category: 'Data Analytics' },
   { name: 'Dataflow', category: 'Data Analytics' },
-  { name: 'Dataproc', category: 'Data Analytics' },
+  { name: 'Apache Spark', category: 'Data Analytics' },
   { name: 'Pub/Sub', category: 'Data Analytics' },
   { name: 'Cloud Data Fusion', category: 'Data Analytics' },
   { name: 'Cloud Composer', category: 'Data Analytics' },
   { name: 'Looker', category: 'Data Analytics' },
-  { name: 'Dataplex', category: 'Data Analytics' },
+  { name: 'Knowledge Catalog', category: 'Data Analytics' },
   { name: 'Dataform', category: 'Data Analytics' },
   { name: 'BigQuery Data Transfer Service', category: 'Data Analytics' },
 
@@ -62,7 +62,7 @@ export const GCP_PRODUCTS = [
   { name: 'Contact Center AI', category: 'AI & Machine Learning' },
   { name: 'Gemini Code Assist', category: 'AI & Machine Learning' },
   { name: 'Colab Enterprise', category: 'AI & Machine Learning' },
-  { name: 'Agent Studio', category: 'AI & Machine Learning' },
+  // { name: 'Agent Studio', category: 'AI & Machine Learning' },
 
   // Networking
   { name: 'Virtual Private Cloud', category: 'Networking' },
