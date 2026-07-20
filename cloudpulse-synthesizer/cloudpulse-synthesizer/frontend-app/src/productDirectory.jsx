@@ -4,7 +4,7 @@ import { GCP_PRODUCTS, CATEGORIES } from './products';
 // Same four-color rhythm established in the carousel, cycling by category index.
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
-export default function ProductDirectory({ onSelectProduct }) {
+export default function ProductDirectory({ onSelectProduct, onViewHistory }) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -57,16 +57,20 @@ export default function ProductDirectory({ onSelectProduct }) {
           {filtered.map((p) => {
             const colorIndex = CATEGORIES.indexOf(p.category) % 4;
             return (
-              <button
+              <div
                 key={p.name}
                 className="directory-card"
                 style={{ '--chip-color': BRAND_COLORS[colorIndex] }}
-                onClick={() => onSelectProduct(p.name)}
               >
-                <span className="directory-card-dot" />
-                <span className="directory-card-name">{p.name}</span>
-                <span className="directory-card-category">{p.category}</span>
-              </button>
+                <button className="directory-card-main" onClick={() => onSelectProduct(p.name)}>
+                  <span className="directory-card-dot" />
+                  <span className="directory-card-name">{p.name}</span>
+                  <span className="directory-card-category">{p.category}</span>
+                </button>
+                <button className="directory-card-history-link" onClick={() => onViewHistory(p.name)}>
+                  View release history →
+                </button>
+              </div>
             );
           })}
         </div>

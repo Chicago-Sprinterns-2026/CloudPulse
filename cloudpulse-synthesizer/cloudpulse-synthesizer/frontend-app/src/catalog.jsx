@@ -2,7 +2,7 @@ import React from 'react';
 import { useReleaseNotes } from './useReleaseNotes';
 import { stripHtml, truncate } from './utils';
 
-export default function Catalog({ onSelectProduct }) {
+export default function Catalog({ onSelectProduct, onViewHistory }) {
   const { releases, loading, error } = useReleaseNotes();
 
   return (
@@ -22,12 +22,20 @@ export default function Catalog({ onSelectProduct }) {
               <h3 style={{ color: '#1a73e8' }}>{item.product}</h3>
               <small style={{ color: 'gray' }}>{item.date}</small>
               <p className="tag-description">{summary}</p>
-              <button 
-                className="btn btn-primary" 
-                onClick={() => onSelectProduct(item.product)}
-              >
-                Synthesize {item.product}
-              </button>
+              <div className="card-actions">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onSelectProduct(item.product)}
+                >
+                  Synthesize {item.product}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => onViewHistory(item.product)}
+                >
+                  View history
+                </button>
+              </div>
             </div>
           );
         })}

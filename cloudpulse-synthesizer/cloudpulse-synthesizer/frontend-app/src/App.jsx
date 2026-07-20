@@ -26,6 +26,14 @@ function buildCarouselSlides() {
 
 const CAROUSEL_SLIDES = buildCarouselSlides();
 
+// Back-button label on the release history page, based on which view sent
+// the user there.
+const HISTORY_ORIGIN_LABELS = {
+  synthesizer: '← Back to workspace',
+  catalog: '← Back to recent updates',
+  products: '← Back to all products',
+};
+
 // One-line blurb per category for the carousel caption. Falls back to a
 // generic line if a category isn't listed here yet.
 const CATEGORY_BLURBS = {
@@ -51,6 +59,7 @@ export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
+  const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
 
   // --- Automatic Rotating Carousel Timer Logic ---
   useEffect(() => {
@@ -214,17 +223,31 @@ export default function App() {
             </div>
 
             {viewState === 'products' && (
-              <ProductDirectory onSelectProduct={(productName) => {
-                setSelectedProduct(productName);
-                setViewState('login');
-              }} />
+              <ProductDirectory
+                onSelectProduct={(productName) => {
+                  setSelectedProduct(productName);
+                  setViewState('login');
+                }}
+                onViewHistory={(productName) => {
+                  setHistoryProduct(productName);
+                  setHistoryOrigin('products');
+                  setViewState('history');
+                }}
+              />
             )}
 
             {viewState === 'catalog' && (
-              <Catalog onSelectProduct={(productName) => {
-                setSelectedProduct(productName);
-                setViewState('login');
-              }} />
+              <Catalog
+                onSelectProduct={(productName) => {
+                  setSelectedProduct(productName);
+                  setViewState('login');
+                }}
+                onViewHistory={(productName) => {
+                  setHistoryProduct(productName);
+                  setHistoryOrigin('catalog');
+                  setViewState('history');
+                }}
+              />
             )}
           </div>
         )}
@@ -270,6 +293,7 @@ export default function App() {
               defaultProduct={selectedProduct}
               onViewHistory={(product) => {
                 setHistoryProduct(product);
+                setHistoryOrigin('synthesizer');
                 setViewState('history');
               }}
             />
@@ -280,7 +304,8 @@ export default function App() {
         {viewState === 'history' && historyProduct && (
           <ReleaseHistory
             product={historyProduct}
-            onBack={() => setViewState('synthesizer')}
+            backLabel={HISTORY_ORIGIN_LABELS[historyOrigin]}
+            onBack={() => setViewState(historyOrigin)}
           />
         )}
       </main>

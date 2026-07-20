@@ -389,6 +389,12 @@
   padding: 9px 16px;
 }
 
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* ---------- Dashboard (post-sign-in) ---------- */
 .dashboard-view {
   padding: 32px 48px 64px;
@@ -634,13 +640,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   text-align: left;
   padding: 16px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--surface);
-  cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   font-family: var(--sans);
 }
@@ -649,6 +654,35 @@
   transform: translateY(-2px);
   border-color: var(--chip-color, var(--pulse));
   box-shadow: var(--shadow-sm);
+}
+
+.directory-card-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-align: left;
+}
+
+.directory-card-history-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pulse-dark);
+  cursor: pointer;
+}
+
+.directory-card-history-link:hover {
+  text-decoration: underline;
 }
 
 .directory-card-dot {
@@ -764,10 +798,51 @@
   margin: 6px 0 24px;
 }
 
+.history-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.history-filters .input-group {
+  margin-bottom: 0;
+  gap: 6px;
+}
+
+.history-filters .input-group input {
+  padding: 8px 10px;
+}
+
 .history-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.history-pagination .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.history-pagination .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.history-pagination-label {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-soft);
 }
 
 .history-item {
