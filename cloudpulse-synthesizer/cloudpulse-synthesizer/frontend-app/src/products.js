@@ -1,16 +1,11 @@
-// Representative Google Cloud product catalog, grouped by category.
-// This is a curated ~65-product set across 12 real GCP categories — not the
-// full ~200-product catalog. Swap in the complete list from the data team
-// (e.g. via the public products page or `gcloud services list`) without
-// touching any component: everything downstream reads from this one file.
-
+// Complete GCP Product Catalog categorized for CloudPulse Synthesizer
 export const GCP_PRODUCTS = [
-// Compute
+  // Compute
   { name: 'Compute Engine', category: 'Compute' },
   { name: 'App Engine', category: 'Compute' },
   { name: 'Cloud Run', category: 'Compute' },
   { name: 'Google Kubernetes Engine', category: 'Compute' },
-  { name: 'Cloud Run Functions', category: 'Compute' }, // Modernized from Cloud Functions
+  { name: 'Cloud Run Functions', category: 'Compute' },
   { name: 'Bare Metal Solution', category: 'Compute' },
   { name: 'VMware Engine', category: 'Compute' },
   { name: 'Batch', category: 'Compute' },
@@ -24,13 +19,13 @@ export const GCP_PRODUCTS = [
   { name: 'Storage Transfer Service', category: 'Storage' },
   { name: 'Transfer Appliance', category: 'Storage' },
   { name: 'Google Cloud NetApp Volumes', category: 'Storage' },
-  { name: 'Backup and Disaster Recovery (DR) Service', category: 'Storage' },
+  { name: 'Backup and Disaster Recovery Service', category: 'Storage' },
 
   // Databases
   { name: 'Cloud SQL', category: 'Databases' },
   { name: 'Cloud Spanner', category: 'Databases' },
   { name: 'Firestore', category: 'Databases' },
-  { name: 'Bigtable', category: 'Databases' },
+  { name: 'Cloud Bigtable', category: 'Databases' },
   { name: 'Memorystore', category: 'Databases' },
   { name: 'AlloyDB', category: 'Databases' },
   { name: 'Database Migration Service', category: 'Databases' },
@@ -39,20 +34,24 @@ export const GCP_PRODUCTS = [
   // Data Analytics
   { name: 'BigQuery', category: 'Data Analytics' },
   { name: 'Dataflow', category: 'Data Analytics' },
-  { name: 'Apache Spark', category: 'Data Analytics' },
+  { name: 'Dataproc', category: 'Data Analytics' },
   { name: 'Pub/Sub', category: 'Data Analytics' },
   { name: 'Cloud Data Fusion', category: 'Data Analytics' },
   { name: 'Cloud Composer', category: 'Data Analytics' },
   { name: 'Looker', category: 'Data Analytics' },
-  { name: 'Knowledge Catalog', category: 'Data Analytics' },
+  { name: 'Looker Studio', category: 'Data Analytics' },
+  { name: 'Dataplex', category: 'Data Analytics' },
   { name: 'Dataform', category: 'Data Analytics' },
   { name: 'BigQuery Data Transfer Service', category: 'Data Analytics' },
 
   // AI & Machine Learning
-  { name: 'Gemini Enterprise Agent Platform', category: 'AI & Machine Learning' },
   { name: 'Vertex AI', category: 'AI & Machine Learning' },
-  { name: 'Vertex AI Search & Conversation', category: 'AI & Machine Learning' },
+  { name: 'Vertex AI Studio', category: 'AI & Machine Learning' },
+  { name: 'Vertex AI Agent Builder', category: 'AI & Machine Learning' },
+  { name: 'Gemini Enterprise Agent Platform', category: 'AI & Machine Learning' },
+  { name: 'Gemini Code Assist', category: 'AI & Machine Learning' },
   { name: 'AutoML', category: 'AI & Machine Learning' },
+  { name: 'Dialogflow CX', category: 'AI & Machine Learning' },
   { name: 'Natural Language AI', category: 'AI & Machine Learning' },
   { name: 'Vision AI', category: 'AI & Machine Learning' },
   { name: 'Translation AI', category: 'AI & Machine Learning' },
@@ -60,9 +59,7 @@ export const GCP_PRODUCTS = [
   { name: 'Text-to-Speech', category: 'AI & Machine Learning' },
   { name: 'Document AI', category: 'AI & Machine Learning' },
   { name: 'Contact Center AI', category: 'AI & Machine Learning' },
-  { name: 'Gemini Code Assist', category: 'AI & Machine Learning' },
   { name: 'Colab Enterprise', category: 'AI & Machine Learning' },
-  // { name: 'Agent Studio', category: 'AI & Machine Learning' },
 
   // Networking
   { name: 'Virtual Private Cloud', category: 'Networking' },
@@ -77,16 +74,17 @@ export const GCP_PRODUCTS = [
   { name: 'Cloud Service Mesh', category: 'Networking' },
 
   // Security & Identity
-  { name: 'Identity and Access Management', category: 'Security & Identity' },
+  { name: 'Cloud IAM', category: 'Security & Identity' },
   { name: 'Cloud Identity', category: 'Security & Identity' },
   { name: 'Security Command Center', category: 'Security & Identity' },
   { name: 'Secret Manager', category: 'Security & Identity' },
-  { name: 'Cloud KMS', category: 'Security & Identity' },
-  { name: 'Chronicle Security Operations', category: 'Security & Identity' },
+  { name: 'Cloud Key Management Service', category: 'Security & Identity' },
+  { name: 'Google SecOps', category: 'Security & Identity' },
   { name: 'BeyondCorp Enterprise', category: 'Security & Identity' },
   { name: 'reCAPTCHA Enterprise', category: 'Security & Identity' },
   { name: 'Access Context Manager', category: 'Security & Identity' },
   { name: 'Binary Authorization', category: 'Security & Identity' },
+  { name: 'Sensitive Data Protection', category: 'Security & Identity' }, // Formerly Cloud DLP
 
   // DevOps & Management
   { name: 'Cloud Build', category: 'DevOps & Management' },
@@ -103,7 +101,6 @@ export const GCP_PRODUCTS = [
   // Hybrid & Multicloud
   { name: 'Anthos', category: 'Hybrid & Multicloud' },
   { name: 'Google Distributed Cloud', category: 'Hybrid & Multicloud' },
-  { name: 'GKE Enterprise', category: 'Hybrid & Multicloud' },
 
   // Migration
   { name: 'Migrate to Virtual Machines', category: 'Migration' },
@@ -121,8 +118,6 @@ export const GCP_PRODUCTS = [
   // Media & Gaming
   { name: 'Transcoder API', category: 'Media & Gaming' },
   { name: 'Live Stream API', category: 'Media & Gaming' },
-  { name: 'Game Servers', category: 'Media & Gaming' },
-  { name: 'Immersive Stream for XR', category: 'Media & Gaming' },
 ];
 
 export const CATEGORIES = [...new Set(GCP_PRODUCTS.map((p) => p.category))];
