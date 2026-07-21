@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import agent  # assuming your endpoint lives in routers/agent.py
+from app.routers import chat # assuming your endpoint lives in routers/agent.py
 
 app = FastAPI(title="Agent API")
 
@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 # Wire in your router
-app.include_router(agent.router)
+app.include_router(chat.router)
 
 @app.get("/")
 async def root():

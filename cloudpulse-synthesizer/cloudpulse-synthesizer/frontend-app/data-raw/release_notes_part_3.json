@@ -933,7 +933,7 @@
   {
     "product_name": "Security Command Center",
     "product_version": "v1",
-    "description": "Graph search  lets you explore the security graph\nusing custom queries. This product is available in  Preview \nin the Security Command Center Enterprise tier.",
+    "description": "Graph search  lets you explore the security graph\nusing custom queries. This product is available in  Preview \nin the Security Command Center Enterprise tier.",
     "publish_date": "2025-09-22",
     "release_note_type": "FEATURE"
   },
@@ -1486,7 +1486,7 @@
   {
     "product_name": "Backup for GKE",
     "product_version": null,
-    "description": "Backup for GKE now supports restoring disks in pre-existing Storage Pools for Hyperdisk Balanced and Hyperdisk Throughput volumes. This feature is available in clusters running the following GKE versions: \n \n 1.33: Versions  1.33.4-gke.1245000  and later \n 1.34 and later: All versions from  1.34.0-gke.1532000  onwards",
+    "description": "Backup for GKE now supports restoring disks in pre-existing Storage Pools for Hyperdisk Balanced and Hyperdisk Throughput volumes. This feature is available in clusters running the following GKE versions: \n \n 1.33: Versions  1.33.4-gke.1245000  and later \n 1.34 and later: All versions from  1.34.0-gke.1532000  onwards",
     "publish_date": "2025-09-16",
     "release_note_type": "FEATURE"
   },
@@ -8766,7 +8766,7 @@
   {
     "product_name": "Contact Center AI Insights",
     "product_version": "v1",
-    "description": "Quality AI offers the virtual agent platform to help with quality management for virtual agents. The  virtual agent platform  presents data for the following metrics, aggregated across all an agent's conversations: \n \n Rate of escalation to a human agent \n Latencies with respect to operations that an agent performs                                                                                         \n Customer sentiments",
+    "description": "Quality AI offers the virtual agent platform to help with quality management for virtual agents. The  virtual agent platform  presents data for the following metrics, aggregated across all an agent's conversations: \n \n Rate of escalation to a human agent \n Latencies with respect to operations that an agent performs                                                                                         \n Customer sentiments",
     "publish_date": "2025-08-15",
     "release_note_type": "FEATURE"
   },
@@ -12686,7 +12686,7 @@
   {
     "product_name": "Security Command Center",
     "product_version": "v1",
-    "description": "Compliance Manager  helps ensure\nthat your Google Cloud infrastructure, workloads, and data meet the security and\nregulatory requirements of your organization. This product is available in\n Preview  to the\nSecurity Command Center Enterprise tier.",
+    "description": "Compliance Manager  helps ensure\nthat your Google Cloud infrastructure, workloads, and data meet the security and\nregulatory requirements of your organization. This product is available in\n Preview  to the\nSecurity Command Center Enterprise tier.",
     "publish_date": "2025-08-01",
     "release_note_type": "FEATURE"
   },
@@ -16970,7 +16970,7 @@
   {
     "product_name": "Google Cloud Armor",
     "product_version": null,
-    "description": "Cloud Armor  preconfigured WAF rules  can now inspect up to the first 64 kB (either 8 kB, 16 kB, 32 kB, 48 kB, or 64 kB) of the  request body content  in Preview.",
+    "description": "Cloud Armor  preconfigured WAF rules  can now inspect up to the first 64 kB (either 8 kB, 16 kB, 32 kB, 48 kB, or 64 kB) of the  request body content  in Preview.",
     "publish_date": "2025-07-08",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -17369,7 +17369,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Mobile SDK 18.8.0-beta01 is now available for iOS. \n This version contains the following changes: \n \n Support for Swift 6 and Xcode 26.0 beta01. \n Minimum supported version is set to  iOS 15 in accordance with  https://developer.apple.com/support/xcode/  for Xcode 16.",
+    "description": "reCAPTCHA Mobile SDK 18.8.0-beta01 is now available for iOS. \n This version contains the following changes: \n \n Support for Swift 6 and Xcode 26.0 beta01. \n Minimum supported version is set to  iOS 15 in accordance with  https://developer.apple.com/support/xcode/  for Xcode 16.",
     "publish_date": "2025-07-02",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -24194,7 +24194,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "Generally available : Resource-based committed use discounts (CUDs) are available for M4 machine types that come with 6 TB of memory. Learn more about how to  purchase commitments for M4 6 TB machine types .",
+    "description": "Generally available : Resource-based committed use discounts (CUDs) are available for M4 machine types that come with 6 TB of memory. Learn more about how to  purchase commitments for M4 6 TB machine types .",
     "publish_date": "2025-05-23",
     "release_note_type": "FEATURE"
   },
@@ -27036,7 +27036,7 @@
   {
     "product_name": "Assured Workloads",
     "product_version": "v1",
-    "description": "The following products are now supported by the following  control packages . See  supported products  for more information: \n \n Cloud Build, Cloud SQL for PostgreSQL, Cloud Workstations, Document AI, Firebase Security Rules, Cloud OS Login API, Storage Transfer Service:\n \n Australia Regions \n Australia Regions with Assured Support \n Brazil Regions \n Canada Protected B \n Canada Regions \n Canada Regions and Support \n Chile Regions \n EU Regions \n EU Regions and Support \n Hong Kong Regions \n India Regions \n Indonesia Regions \n Israel Regions \n Israel Regions and Support \n Japan Regions \n Qatar Regions \n Singapore Regions \n South Africa Regions \n South Korea Regions \n Switzerland Regions \n Taiwan Regions \n UK Regions \n US Regions \n US Regions and Support \n \n Google Cloud NetApp Volumes:\n \n Canada Regions \n EU Regions \n Singapore Regions \n US Regions \n \n Google Security Operations (Google SecOps) SOAR\n \n Australia Regions: \n Australia Regions with Assured Support \n Brazil Regions \n Chile Regions \n Hong Kong Regions \n India Regions \n Indonesia Regions \n Israel Regions \n Israel Regions and Support \n Japan Regions \n Qatar Regions \n Singapore Regions \n South Africa Regions \n South Korea Regions \n Switzerland Regions \n Taiwan Regions \n UK Regions \n US Regions \n US Regions and Support",
+    "description": "The following products are now supported by the following  control packages . See  supported products  for more information: \n \n Cloud Build, Cloud SQL for PostgreSQL, Cloud Workstations, Document AI, Firebase Security Rules, Cloud OS Login API, Storage Transfer Service:\n \n Australia Regions \n Australia Regions with Assured Support \n Brazil Regions \n Canada Protected B \n Canada Regions \n Canada Regions and Support \n Chile Regions \n EU Regions \n EU Regions and Support \n Hong Kong Regions \n India Regions \n Indonesia Regions \n Israel Regions \n Israel Regions and Support \n Japan Regions \n Qatar Regions \n Singapore Regions \n South Africa Regions \n South Korea Regions \n Switzerland Regions \n Taiwan Regions \n UK Regions \n US Regions \n US Regions and Support \n \n Google Cloud NetApp Volumes:\n \n Canada Regions \n EU Regions \n Singapore Regions \n US Regions \n \n Google Security Operations (Google SecOps) SOAR\n \n Australia Regions: \n Australia Regions with Assured Support \n Brazil Regions \n Chile Regions \n Hong Kong Regions \n India Regions \n Indonesia Regions \n Israel Regions \n Israel Regions and Support \n Japan Regions \n Qatar Regions \n Singapore Regions \n South Africa Regions \n South Korea Regions \n Switzerland Regions \n Taiwan Regions \n UK Regions \n US Regions \n US Regions and Support",
     "publish_date": "2025-05-07",
     "release_note_type": "FEATURE"
   },
@@ -34113,7 +34113,7 @@
   {
     "product_name": "Gemini Enterprise",
     "product_version": "v1",
-    "description": "Google NotebookLM Enterprise: Support for Access Transparency is GA \n Access Transparency  supports Google NotebookLM Enterprise in general availability (GA). \n See  Enable Access Transparency .",
+    "description": "Google NotebookLM Enterprise: Support for Access Transparency is GA \n Access Transparency  supports Google NotebookLM Enterprise in general availability (GA). \n See  Enable Access Transparency .",
     "publish_date": "2025-04-02",
     "release_note_type": "FEATURE"
   },

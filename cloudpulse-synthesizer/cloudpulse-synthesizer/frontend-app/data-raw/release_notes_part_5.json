@@ -6946,7 +6946,7 @@
   {
     "product_name": "Cloud Monitoring",
     "product_version": "v3",
-    "description": "The fleetwide and per-instance  Observability  tabs on the Compute Engine  VM instances  page now include charts for GPU metrics the from NVIDIA Management Library (NVML). To view the fleetwide GPU charts, select  Compute Engine  >  VM instances  >  Observability . To view the GPU charts for a VM instance, select  Compute Engine  >  VM instances , click on the name of a VM instance, and then select  Observability . These charts are available only for VM instances with attached GPUs, with both the Ops Agent and the NVIDIA GPU driver installed. For information about configuring these VMs, see  About the  gpu  metrics .",
+    "description": "The fleetwide and per-instance  Observability  tabs on the Compute Engine  VM instances  page now include charts for GPU metrics the from NVIDIA Management Library (NVML). To view the fleetwide GPU charts, select  Compute Engine  >  VM instances  >  Observability . To view the GPU charts for a VM instance, select  Compute Engine  >  VM instances , click on the name of a VM instance, and then select  Observability . These charts are available only for VM instances with attached GPUs, with both the Ops Agent and the NVIDIA GPU driver installed. For information about configuring these VMs, see  About the  gpu  metrics .",
     "publish_date": "2024-09-06",
     "release_note_type": "FEATURE"
   },
@@ -8129,7 +8129,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "The fleetwide and per-instance  Observability  tabs on the Compute Engine  VM instances  page now include charts for GPU metrics the from NVIDIA Management Library (NVML). To view the fleetwide GPU charts, select  Compute Engine  >  VM instances  >  Observability . To view the GPU charts for a VM instance, select  Compute Engine  >  VM instances , click on the name of a VM instance, and then select  Observability . These charts are available only for VM instances with attached GPUs, with both the Ops Agent and the NVIDIA GPU driver installed. For information about configuring these VMs, see  About the  gpu  metrics .",
+    "description": "The fleetwide and per-instance  Observability  tabs on the Compute Engine  VM instances  page now include charts for GPU metrics the from NVIDIA Management Library (NVML). To view the fleetwide GPU charts, select  Compute Engine  >  VM instances  >  Observability . To view the GPU charts for a VM instance, select  Compute Engine  >  VM instances , click on the name of a VM instance, and then select  Observability . These charts are available only for VM instances with attached GPUs, with both the Ops Agent and the NVIDIA GPU driver installed. For information about configuring these VMs, see  About the  gpu  metrics .",
     "publish_date": "2024-08-30",
     "release_note_type": "FEATURE"
   },
@@ -19665,7 +19665,7 @@
   {
     "product_name": "Mainframe Connector",
     "product_version": "v5.12.0",
-    "description": "The following issues are fixed in Mainframe Connector 5.12.0: \n \n Fixed the issue where the  gsutil cp  command statistic miscounts added rows when \nthe error count was more than 0. This is only applicable if you set the  --max_error_pct  \nflag to a value greater than 0. The  --max_error_pct  argument for  gsutil \ncp  command is also fixed. By default, the value is 0.0, which means failure on copybook or \ndata error. \n Fixed the  --parallelism  argument for the  gsutil cp  command. \n Fixed incorrect error handling for any issues in the copybook. For example, the Mainframe \nConnector job should fails or aborts if there are errors such as data type mismatches the data, or \nthere's a logical record length (LRECL) mismatch. \n Fixed cases where remote transcoding replaced underscore (_) in the column name with (-) in the \ncopybook. To disable this behavior during both local and remote transcoding, set the \n BQSH_FEATURE_CONVERT_UNDERSCORE_IN_FIELDS_NAME  feature flag to true. \n Fixed zoned decimal binary data decoding when the zoned decimal has more than 19 digits, and \ncontains a decimal point. \n Fixed  gsutil cp  command to work with uncompressed files. The command previously \naccepted gzip flies only. \n Shows an explicit error message when you use  REDEFINE  keyword as \n REDEFINE  is not supported. \n Fixed the declaration of big numbers with decimal point (numbers with more than 19 digits) in \nBigQuery. These numbers were declared as   STRINGS  instead of \n BIGNUMERIC .  \n Fixed  gsutil cp  command to work when the source file is located in Cloud Storage \nand the converted file's destination is also in Cloud Storage.",
+    "description": "The following issues are fixed in Mainframe Connector 5.12.0: \n \n Fixed the issue where the  gsutil cp  command statistic miscounts added rows when \nthe error count was more than 0. This is only applicable if you set the  --max_error_pct  \nflag to a value greater than 0. The  --max_error_pct  argument for  gsutil \ncp  command is also fixed. By default, the value is 0.0, which means failure on copybook or \ndata error. \n Fixed the  --parallelism  argument for the  gsutil cp  command. \n Fixed incorrect error handling for any issues in the copybook. For example, the Mainframe \nConnector job should fails or aborts if there are errors such as data type mismatches the data, or \nthere's a logical record length (LRECL) mismatch. \n Fixed cases where remote transcoding replaced underscore (_) in the column name with (-) in the \ncopybook. To disable this behavior during both local and remote transcoding, set the \n BQSH_FEATURE_CONVERT_UNDERSCORE_IN_FIELDS_NAME  feature flag to true. \n Fixed zoned decimal binary data decoding when the zoned decimal has more than 19 digits, and \ncontains a decimal point. \n Fixed  gsutil cp  command to work with uncompressed files. The command previously \naccepted gzip flies only. \n Shows an explicit error message when you use  REDEFINE  keyword as \n REDEFINE  is not supported. \n Fixed the declaration of big numbers with decimal point (numbers with more than 19 digits) in \nBigQuery. These numbers were declared as   STRINGS  instead of \n BIGNUMERIC .  \n Fixed  gsutil cp  command to work when the source file is located in Cloud Storage \nand the converted file's destination is also in Cloud Storage.",
     "publish_date": "2024-07-01",
     "release_note_type": "FIX"
   },
@@ -27638,7 +27638,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for bare metal",
     "product_version": "1.29",
-    "description": "Functionality changes: \n \n Added checks to validate the SSH client certificate file type before saving the certificate as a Secret. \n Deprecated the  spec.gkeVersion  field in  Machine  and  BareMetalMachine  custom resources. After GKE on Bare Metal release 1.30, the value of  gkeVersion  isn't guaranteed to be reliable. \n Added preflight checks for available disk space in specific directories: \n \n During cluster creation, the following directories are checked: \n \n /  (the root directory) has at least 4 GiB of free space \n /var/log/fluent-bit-buffers  has at least 12 GiB of free space \n /var/opt/buffered-metrics  has at least 10016 MiB of free space \n \n During a cluster upgrade, the following directory is checked: \n \n /  (the root directory) has at least 2 GiB of free space",
+    "description": "Functionality changes: \n \n Added checks to validate the SSH client certificate file type before saving the certificate as a Secret. \n Deprecated the  spec.gkeVersion  field in  Machine  and  BareMetalMachine  custom resources. After GKE on Bare Metal release 1.30, the value of  gkeVersion  isn't guaranteed to be reliable. \n Added preflight checks for available disk space in specific directories: \n \n During cluster creation, the following directories are checked: \n \n /  (the root directory) has at least 4 GiB of free space \n /var/log/fluent-bit-buffers  has at least 12 GiB of free space \n /var/opt/buffered-metrics  has at least 10016 MiB of free space \n \n During a cluster upgrade, the following directory is checked: \n \n /  (the root directory) has at least 2 GiB of free space",
     "publish_date": "2024-05-15",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -28821,7 +28821,7 @@
   {
     "product_name": "Apigee X",
     "product_version": null,
-    "description": "This release contains the  General Availability (GA)  release of AppGroups for Apigee and Apigee hybrid (version 1.10.0 and later). \n AppGroups represent a relationship between one or more apps that are managed by the same set of people. For information, see  Using AppGroups to organize app ownership .\nClient support for AppGroups is available with the latest Drupal Teams module.",
+    "description": "This release contains the  General Availability (GA)  release of AppGroups for Apigee and Apigee hybrid (version 1.10.0 and later). \n AppGroups represent a relationship between one or more apps that are managed by the same set of people. For information, see  Using AppGroups to organize app ownership .\nClient support for AppGroups is available with the latest Drupal Teams module.",
     "publish_date": "2024-05-08",
     "release_note_type": "FEATURE"
   },
@@ -30781,7 +30781,7 @@
   {
     "product_name": "AlloyDB",
     "product_version": "v1",
-    "description": "AlloyDB now  supports up to 64 TiB storage per cluster  in all locations. For more information about available locations, see  AlloyDB locations .",
+    "description": "AlloyDB now  supports up to 64 TiB storage per cluster  in all locations. For more information about available locations, see  AlloyDB locations .",
     "publish_date": "2024-04-29",
     "release_note_type": "FEATURE"
   },

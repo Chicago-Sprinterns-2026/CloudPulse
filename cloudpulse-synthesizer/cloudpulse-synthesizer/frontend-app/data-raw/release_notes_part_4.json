@@ -5000,7 +5000,7 @@
   {
     "product_name": "Cloud Data Fusion",
     "product_version": "v1",
-    "description": "A soft limit of 2 MB for pipeline JSON size is introduced in 6.11.0. Pipelines exceeding this size might encounter deployment failures.",
+    "description": "A soft limit of 2 MB for pipeline JSON size is introduced in 6.11.0. Pipelines exceeding this size might encounter deployment failures.",
     "publish_date": "2025-03-17",
     "release_note_type": "BREAKING_CHANGE"
   },
@@ -8577,7 +8577,7 @@
   {
     "product_name": "Network Intelligence Center",
     "product_version": null,
-    "description": "Flow Analyzer  is available in  General availability .",
+    "description": "Flow Analyzer  is available in  General availability .",
     "publish_date": "2025-02-27",
     "release_note_type": "FEATURE"
   },
@@ -10845,7 +10845,7 @@
   {
     "product_name": "Mainframe Connector",
     "product_version": "v5.15.0",
-    "description": "Mainframe Connector 5.15.0 supports the following new features: \n \n Supports the integration of your extraction, transformation, and loading (ETL) tools with \nMainframe Connector using Cloud Run jobs. For more information see,  Use Cloud Run with Mainframe Connector . \n Mainframe Connector uses Google Analytics to collect usage data. This helps us improve \nthe software and provide a better user experience. By default, Google Analytics is enabled. You \ncan disable this feature using the  DISABLE_ANALYTICS  environment variable. \n Supports configuring the maximum time you want Mainframe Connector to wait for a \nBigQuery job to complete using a new flag  max_polling_interval_ms  with the \n bq load  command. The default value is 60000 milliseconds (1 minute). \n For more granular control over data transfer, you can now specify chunk sizes below 64MiB \nusing the  maxChunkSize  flag with the  gsutil cp  command.",
+    "description": "Mainframe Connector 5.15.0 supports the following new features: \n \n Supports the integration of your extraction, transformation, and loading (ETL) tools with \nMainframe Connector using Cloud Run jobs. For more information see,  Use Cloud Run with Mainframe Connector . \n Mainframe Connector uses Google Analytics to collect usage data. This helps us improve \nthe software and provide a better user experience. By default, Google Analytics is enabled. You \ncan disable this feature using the  DISABLE_ANALYTICS  environment variable. \n Supports configuring the maximum time you want Mainframe Connector to wait for a \nBigQuery job to complete using a new flag  max_polling_interval_ms  with the \n bq load  command. The default value is 60000 milliseconds (1 minute). \n For more granular control over data transfer, you can now specify chunk sizes below 64MiB \nusing the  maxChunkSize  flag with the  gsutil cp  command.",
     "publish_date": "2025-02-13",
     "release_note_type": "FEATURE"
   },
@@ -15626,7 +15626,7 @@
   {
     "product_name": "Cloud Interconnect",
     "product_version": null,
-    "description": "Dedicated Interconnect and Cross-Cloud Interconnect VLAN attachments support maximum bandwidths up to 100 Gbps. For more information, see  Limits .",
+    "description": "Dedicated Interconnect and Cross-Cloud Interconnect VLAN attachments support maximum bandwidths up to 100 Gbps. For more information, see  Limits .",
     "publish_date": "2025-01-22",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -16830,7 +16830,7 @@
   {
     "product_name": "Cloud Service Mesh",
     "product_version": "1.23.x",
-    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
+    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
     "publish_date": "2025-01-15",
     "release_note_type": "SECURITY_BULLETIN"
   },
@@ -16928,7 +16928,7 @@
   {
     "product_name": "Cloud Service Mesh",
     "product_version": "1.23.x",
-    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
+    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
     "publish_date": "2025-01-15",
     "release_note_type": "SECURITY_BULLETIN"
   },
@@ -16963,7 +16963,7 @@
   {
     "product_name": "Cloud Service Mesh",
     "product_version": "1.23.x",
-    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
+    "description": "1.23.4-asm.7 is now available for in-cluster Cloud Service Mesh. \n This patch release contains fixes for a bug in envoy config where  opencensus.proto.trace.v1.TraceConfig  has been disabled by default and an issue causing VirtualService header name validation to reject valid header names. \n This patch release also contains the fix for a security vulnerability where  an attacker can craft an input to the Parse functions that would be processed non-linearly with respect to its length, resulting in extremely slow parsing . \n For details on upgrading Cloud Service Mesh, refer to  Upgrade Cloud Service Mesh . Cloud Service Mesh v1.23.4-asm.7 uses Envoy v1.31.5.",
     "publish_date": "2025-01-15",
     "release_note_type": "SECURITY_BULLETIN"
   },
@@ -17159,7 +17159,7 @@
   {
     "product_name": "Virtual Private Cloud",
     "product_version": "v1",
-    "description": "VPC Flow Logs can sample traffic that is sent through VLAN attachments for Cloud Interconnect and Cloud VPN tunnels. This feature is available in  General Availability . To enable VPC Flow Logs for VLAN attachments and Cloud VPN tunnels, see  Configure VPC Flow Logs .",
+    "description": "VPC Flow Logs can sample traffic that is sent through VLAN attachments for Cloud Interconnect and Cloud VPN tunnels. This feature is available in  General Availability . To enable VPC Flow Logs for VLAN attachments and Cloud VPN tunnels, see  Configure VPC Flow Logs .",
     "publish_date": "2025-01-14",
     "release_note_type": "FEATURE"
   },
@@ -20946,7 +20946,7 @@
   {
     "product_name": "Data Studio",
     "product_version": null,
-    "description": "Dimensions in scorecard charts   \n You can now choose whether to display a dimension or a metric as the  primary field in a scorecard chart . When a dimension is selected as the primary field, you can also select a different field for sorting the dimension values.",
+    "description": "Dimensions in scorecard charts   \n You can now choose whether to display a dimension or a metric as the  primary field in a scorecard chart . When a dimension is selected as the primary field, you can also select a different field for sorting the dimension values.",
     "publish_date": "2024-12-17",
     "release_note_type": "FEATURE"
   },
@@ -21947,7 +21947,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Mobile SDK v18.7.0-beta01 is now available for iOS. \n This version contains the following changes: \n \n Mitigation for an issue that caused a  crash after updating to v18.6.0 . \n Public API is moved to Swift along with support for Objective-C. \n New integration architecture with  RecaptchaInterop  for Firebase clients.",
+    "description": "reCAPTCHA Mobile SDK v18.7.0-beta01 is now available for iOS. \n This version contains the following changes: \n \n Mitigation for an issue that caused a  crash after updating to v18.6.0 . \n Public API is moved to Swift along with support for Objective-C. \n New integration architecture with  RecaptchaInterop  for Firebase clients.",
     "publish_date": "2024-12-11",
     "release_note_type": "NON_BREAKING_CHANGE"
   },

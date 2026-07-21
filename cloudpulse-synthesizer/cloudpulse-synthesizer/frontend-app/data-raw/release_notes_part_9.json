@@ -1927,7 +1927,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for VMware",
     "product_version": null,
-    "description": "Fixes: \n \n These security vulnerabilities have been fixed: \n \n CVE-2021-25735 , which is mentioned in the  GCP-2021-001 security bulletin .  CVE-2020-29362 ,  CVE-2020-29361 ,  CVE-2021-24031 ,  CVE-2021-31535 \n \n Fixed the 1.7.1 issue  where Log Forwarder sends an excessive number of OAuth 2.0 requests.",
+    "description": "Fixes: \n \n These security vulnerabilities have been fixed: \n \n CVE-2021-25735 , which is mentioned in the  GCP-2021-001 security bulletin .  CVE-2020-29362 ,  CVE-2020-29361 ,  CVE-2021-24031 ,  CVE-2021-31535 \n \n Fixed the 1.7.1 issue  where Log Forwarder sends an excessive number of OAuth 2.0 requests.",
     "publish_date": "2021-05-27",
     "release_note_type": "FIX"
   },
@@ -4741,7 +4741,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "Generally available : You can now configure  schedule-based autoscaling  for your managed instance groups. Schedule-based autoscaling lets you improve the availability of your application by scheduling capacity ahead of anticipated load.",
+    "description": "Generally available : You can now configure  schedule-based autoscaling  for your managed instance groups. Schedule-based autoscaling lets you improve the availability of your application by scheduling capacity ahead of anticipated load.",
     "publish_date": "2021-04-13",
     "release_note_type": "FEATURE"
   },
@@ -11181,7 +11181,7 @@
   {
     "product_name": "Retail API",
     "product_version": "v2",
-    "description": "Recommendations AI is now generally available. \n This product has migrated to the Retail API from the Recommendations Engine API. \n The previous API (service endpoint  https://recommendationengine.googleapis.com ) and its  documentation set  remain available, but they will no longer be updated. If you used the previous API while it was in beta, we recommend migrating your recommendations to the Retail API (service endpoint  https://retail.googleapis.com ).  \n See the new documentation: \n \n How-to documentation for Recommendations AI \n Reference documentation for the Retail API",
+    "description": "Recommendations AI is now generally available. \n This product has migrated to the Retail API from the Recommendations Engine API. \n The previous API (service endpoint  https://recommendationengine.googleapis.com ) and its  documentation set  remain available, but they will no longer be updated. If you used the previous API while it was in beta, we recommend migrating your recommendations to the Retail API (service endpoint  https://retail.googleapis.com ).  \n See the new documentation: \n \n How-to documentation for Recommendations AI \n Reference documentation for the Retail API",
     "publish_date": "2021-01-15",
     "release_note_type": "SERVICE_ANNOUNCEMENT"
   },
@@ -12448,7 +12448,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for VMware",
     "product_version": null,
-    "description": "Functionality changes: \n \n Gkectl diagnose cluster and snapshot enhancements: \n \n Added a  --log-since  flag to  gkectl diagnose snapshot . Users can use it to collect logs of containers and nodes within a relative time duration in the snapshot. \n Replaced the  --seed-config  flag with the  --config  flag in the  gkectl diagnose cluster  command. Users can use this command with the seed configuration to rule out the VIP issue and provide more debugging information of the cluster. \n Added more validations in  gkectl diagnose cluster . \n \n Added iscsid support: Qualified storage drivers that previously required additional steps benefit from the default iscsi service deployment on the worker nodes. \n On each cluster node, Anthos clusters on VMware now reserves 330 MiB + 5% of the node's memory capacity for operating system components and core Kubernetes components. This is an increase of 50 MiB. For more information see\n Resources available for your workloads .",
+    "description": "Functionality changes: \n \n Gkectl diagnose cluster and snapshot enhancements: \n \n Added a  --log-since  flag to  gkectl diagnose snapshot . Users can use it to collect logs of containers and nodes within a relative time duration in the snapshot. \n Replaced the  --seed-config  flag with the  --config  flag in the  gkectl diagnose cluster  command. Users can use this command with the seed configuration to rule out the VIP issue and provide more debugging information of the cluster. \n Added more validations in  gkectl diagnose cluster . \n \n Added iscsid support: Qualified storage drivers that previously required additional steps benefit from the default iscsi service deployment on the worker nodes. \n On each cluster node, Anthos clusters on VMware now reserves 330 MiB + 5% of the node's memory capacity for operating system components and core Kubernetes components. This is an increase of 50 MiB. For more information see\n Resources available for your workloads .",
     "publish_date": "2020-12-10",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -13519,7 +13519,7 @@
   {
     "product_name": "Cloud Run functions",
     "product_version": "v1",
-    "description": "Cloud Functions now supports   Node.js 12  at the  General Availability release level .",
+    "description": "Cloud Functions now supports   Node.js 12  at the  General Availability release level .",
     "publish_date": "2020-11-16",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -14065,7 +14065,7 @@
   {
     "product_name": "Cloud Run functions",
     "product_version": "v1",
-    "description": "Cloud Functions now supports  Python 3.8  at the  General Availability release level .",
+    "description": "Cloud Functions now supports  Python 3.8  at the  General Availability release level .",
     "publish_date": "2020-11-11",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -19406,7 +19406,7 @@
   {
     "product_name": "Cloud Run functions",
     "product_version": "v1",
-    "description": "The Go 1.11 runtime is deprecated as of 2020-08-05. To ensure that your functions are on a supported version of Go, migrate them to  Go 1.13 . For more discussion of Cloud Functions runtime support policy, see  Runtime Support .",
+    "description": "The Go 1.11 runtime is deprecated as of 2020-08-05. To ensure that your functions are on a supported version of Go, migrate them to  Go 1.13 . For more discussion of Cloud Functions runtime support policy, see  Runtime Support .",
     "publish_date": "2020-08-05",
     "release_note_type": "DEPRECATION"
   },
@@ -21219,7 +21219,7 @@
   {
     "product_name": "BigQuery",
     "product_version": "v2",
-    "description": "Updated version of  Magnitude Simba ODBC  driver. This version includes some performance improvements and bug fixes, and it catches up with the JDBC driver by adding support for user defined functions and variable time zones using the connection string.",
+    "description": "Updated version of  Magnitude Simba ODBC  driver. This version includes some performance improvements and bug fixes, and it catches up with the JDBC driver by adding support for user defined functions and variable time zones using the connection string.",
     "publish_date": "2020-07-06",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -22031,7 +22031,7 @@
   {
     "product_name": "Google Kubernetes Engine",
     "product_version": "Main",
-    "description": "T here is a known that may cause multiple Pods on the same node to be allocated\nwith the same IPv4 address leading to possible service disruption. We will\nautomatically upgrade your cluster master to the next available patch version\nwhich will include a fix to the issue. \n What do I need to know? \n \n Ensure your cluster(s) are subscribed to a  release channel ,\nor you have  node auto-upgrade \nenabled. If so, your cluster(s) will be automatically upgraded as described\nbelow. \n If you are experiencing any issues or do not want to use auto-upgrade you\ncan manually initiate an upgrade at your earliest convenience. \n \n What do I need to do? \n If you are experiencing issues and wish to update proactively: \n \n Follow the steps in the  Manually upgrading a cluster \npage to upgrade the cluster master. \n Upgrade your node pool by applying the latest patch available for your node\nversion. \n Consider using  surge upgrade \nfor your nodepool upgrade. Surge upgrade allows you to set the number of\nadditional nodes to be created temporarily for the upgrade process which the\ndisruption to running workloads. \n Use the following table to determine which patch version is applicable for\nyour cluster(s): \n \n \n \n \n Channel \n Action required \n Upgrade target \n Date available \n \n \n No channel \n Upgrade to the recommended patch version available \n 1.15: Node pool  1.15.12-gke.3 or higher \n June 23, 2020 \n \n \n 1.16: Node pool  1.16.9-gke.6 or higher \n June 30, 2020 \n \n \n Rapid \n Patch will be applied automatically \n Master and node pool 1.17.6.gke-4 or higher \n June 16, 2020 \n \n \n Regular \n Patch will be applied automatically \n Node pool 1.16.9-gke.6 or higher \n June 30, 2020 \n \n \n Stable \n No action is required \n Patch is not required \n N/A",
+    "description": "T here is a known that may cause multiple Pods on the same node to be allocated\nwith the same IPv4 address leading to possible service disruption. We will\nautomatically upgrade your cluster master to the next available patch version\nwhich will include a fix to the issue. \n What do I need to know? \n \n Ensure your cluster(s) are subscribed to a  release channel ,\nor you have  node auto-upgrade \nenabled. If so, your cluster(s) will be automatically upgraded as described\nbelow. \n If you are experiencing any issues or do not want to use auto-upgrade you\ncan manually initiate an upgrade at your earliest convenience. \n \n What do I need to do? \n If you are experiencing issues and wish to update proactively: \n \n Follow the steps in the  Manually upgrading a cluster \npage to upgrade the cluster master. \n Upgrade your node pool by applying the latest patch available for your node\nversion. \n Consider using  surge upgrade \nfor your nodepool upgrade. Surge upgrade allows you to set the number of\nadditional nodes to be created temporarily for the upgrade process which the\ndisruption to running workloads. \n Use the following table to determine which patch version is applicable for\nyour cluster(s): \n \n \n \n \n Channel \n Action required \n Upgrade target \n Date available \n \n \n No channel \n Upgrade to the recommended patch version available \n 1.15: Node pool  1.15.12-gke.3 or higher \n June 23, 2020 \n \n \n 1.16: Node pool  1.16.9-gke.6 or higher \n June 30, 2020 \n \n \n Rapid \n Patch will be applied automatically \n Master and node pool 1.17.6.gke-4 or higher \n June 16, 2020 \n \n \n Regular \n Patch will be applied automatically \n Node pool 1.16.9-gke.6 or higher \n June 30, 2020 \n \n \n Stable \n No action is required \n Patch is not required \n N/A",
     "publish_date": "2020-06-24",
     "release_note_type": "ISSUE"
   },
@@ -22451,7 +22451,7 @@
   {
     "product_name": "Deep Learning VM Images",
     "product_version": null,
-    "description": "M49 release \n TensorFlow Enterprise images updated to 1.15.3 and 2.1.1. \n The  tensorflow-enterprise-addons  package is now available in all deep learning environments. \n XGBoost, MXNet, R, PyTorch, CNTK, and Caffe images have been updated with library upgrades and bug fixes.",
+    "description": "M49 release \n TensorFlow Enterprise images updated to 1.15.3 and 2.1.1. \n The  tensorflow-enterprise-addons  package is now available in all deep learning environments. \n XGBoost, MXNet, R, PyTorch, CNTK, and Caffe images have been updated with library upgrades and bug fixes.",
     "publish_date": "2020-06-11",
     "release_note_type": "FEATURE"
   },
@@ -27792,7 +27792,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "In  beta , you can create an instance with 16 or 24 local SSD partitions for 6 TB and 9 TB of local SSD space, respectively. With 24 local SSD partitions, performance can reach a combined total of 2.4 million read IOPS. For more information, see  9 TB Local SSD maximum capacity beta .",
+    "description": "In  beta , you can create an instance with 16 or 24 local SSD partitions for 6 TB and 9 TB of local SSD space, respectively. With 24 local SSD partitions, performance can reach a combined total of 2.4 million read IOPS. For more information, see  9 TB Local SSD maximum capacity beta .",
     "publish_date": "2020-03-11",
     "release_note_type": "FEATURE"
   },

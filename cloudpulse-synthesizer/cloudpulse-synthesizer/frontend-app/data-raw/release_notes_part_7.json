@@ -2039,7 +2039,7 @@
   {
     "product_name": "AlloyDB",
     "product_version": "v1",
-    "description": "AlloyDB Omni  version  alloydb-omni-0.3.0-preview-postgresql-15.2  is available. This version introduces PostgreSQL 15, and applies various bug fixes and query performance improvements.",
+    "description": "AlloyDB Omni  version  alloydb-omni-0.3.0-preview-postgresql-15.2  is available. This version introduces PostgreSQL 15, and applies various bug fixes and query performance improvements.",
     "publish_date": "2023-08-08",
     "release_note_type": "FEATURE"
   },
@@ -3411,7 +3411,7 @@
   {
     "product_name": "BigQuery",
     "product_version": "v2",
-    "description": "BigQuery Omni is now available in the  AWS - US West (Oregon) (aws-us-west-2)  and the  AWS - Europe (Ireland) (aws-eu-west-1)  regions.",
+    "description": "BigQuery Omni is now available in the  AWS - US West (Oregon) (aws-us-west-2)  and the  AWS - Europe (Ireland) (aws-eu-west-1)  regions.",
     "publish_date": "2023-07-31",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -4412,7 +4412,7 @@
   {
     "product_name": "Cloud Monitoring",
     "product_version": "v3",
-    "description": "We made improvements to the dashboard building experience: \n \n Improved the performance \n Simplified the layout and expanded the configurable settings \n Improved the widget drag and drop experience \n Enhanced the  text widget \n Unified the chart-configuration experience between dashboards and the Metrics Explorer \n \n For more information, see  Add charts and tables to a custom dashboard .",
+    "description": "We made improvements to the dashboard building experience: \n \n Improved the performance \n Simplified the layout and expanded the configurable settings \n Improved the widget drag and drop experience \n Enhanced the  text widget \n Unified the chart-configuration experience between dashboards and the Metrics Explorer \n \n For more information, see  Add charts and tables to a custom dashboard .",
     "publish_date": "2023-07-20",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -4440,7 +4440,7 @@
   {
     "product_name": "Application Integration",
     "product_version": null,
-    "description": "Connector Event triggers  ( Preview ) \n Application Integration introduces  Connector Event triggers ; specialized triggers that let you invoke an integration based on the  event subscriptions  created in various business applications using  Integration Connectors . \n The following Connector Event triggers are available in  preview : \n \n Jira Cloud trigger \n ServiceNow trigger \n Zendesk trigger \n \n For more information, see  Connector Event triggers .",
+    "description": "Connector Event triggers  ( Preview ) \n Application Integration introduces  Connector Event triggers ; specialized triggers that let you invoke an integration based on the  event subscriptions  created in various business applications using  Integration Connectors . \n The following Connector Event triggers are available in  preview : \n \n Jira Cloud trigger \n ServiceNow trigger \n Zendesk trigger \n \n For more information, see  Connector Event triggers .",
     "publish_date": "2023-07-20",
     "release_note_type": "FEATURE"
   },
@@ -6708,7 +6708,7 @@
   {
     "product_name": "Cloud SQL for MySQL",
     "product_version": null,
-    "description": "Cloud SQL now supports  non-RFC 1918 IP address ranges , including privately used public IP addresses. This enables you to create instances and replicas in a non-RFC 1918 IP address range. Additionally, you can connect to an instance from an application that is running in a non-RFC 1918 IP address range.",
+    "description": "Cloud SQL now supports  non-RFC 1918 IP address ranges , including privately used public IP addresses. This enables you to create instances and replicas in a non-RFC 1918 IP address range. Additionally, you can connect to an instance from an application that is running in a non-RFC 1918 IP address range.",
     "publish_date": "2023-07-06",
     "release_note_type": "FEATURE"
   },
@@ -9102,7 +9102,7 @@
   {
     "product_name": "Data Studio",
     "product_version": null,
-    "description": "GA4 API dimensions/metrics \n New Google Analytics 4 data sources that you create get their fields directly from the GA4 API. Previously, GA4 data sources were based on a fixed schema with a predefined list of fields. To see new fields from the GA4 API in an existing data source,  refresh the fields . \n Note:  This update is backwards compatible with the previous version of the connector. Refreshing a Google Analytics 4 data source will preserve the existing schema and simply add new API fields to the data source. \n Learn how  connect to Google Analytics .",
+    "description": "GA4 API dimensions/metrics \n New Google Analytics 4 data sources that you create get their fields directly from the GA4 API. Previously, GA4 data sources were based on a fixed schema with a predefined list of fields. To see new fields from the GA4 API in an existing data source,  refresh the fields . \n Note:  This update is backwards compatible with the previous version of the connector. Refreshing a Google Analytics 4 data source will preserve the existing schema and simply add new API fields to the data source. \n Learn how  connect to Google Analytics .",
     "publish_date": "2023-06-16",
     "release_note_type": "FEATURE"
   },
@@ -11027,7 +11027,7 @@
   {
     "product_name": "Managed Service for Microsoft Active Directory",
     "product_version": "v1",
-    "description": "Support for  joining a Windows Compute Engine VM automatically  to a Managed Microsoft AD domain is  generally available  with the following updates: \n \n Added a new  managed-ad-force  flag to reuse an existing computer account. \n Improved the existing  managed-ad-ou-name  flag to specify the path of the custom OU. \n \n For more information, see  Metadata . \n Using the automated domain join feature, you can also  join GKE Windows Server nodes automatically  to a Managed Microsoft AD domain.",
+    "description": "Support for  joining a Windows Compute Engine VM automatically  to a Managed Microsoft AD domain is  generally available  with the following updates: \n \n Added a new  managed-ad-force  flag to reuse an existing computer account. \n Improved the existing  managed-ad-ou-name  flag to specify the path of the custom OU. \n \n For more information, see  Metadata . \n Using the automated domain join feature, you can also  join GKE Windows Server nodes automatically  to a Managed Microsoft AD domain.",
     "publish_date": "2023-06-02",
     "release_note_type": "FEATURE"
   },
@@ -15787,7 +15787,7 @@
   {
     "product_name": "Cloud Monitoring",
     "product_version": "v3",
-    "description": "The  Observability  tab on the  VM instances  page for Compute Engine has been enhanced. Disk and Network sections with additional charts have been added. The Integrations > Detected section lets you navigate to the dashboards for the third-party integrations, like Apache or NGINX, that you have configured. The page also includes a set of Recommended Alerts for setting up pre-configured alerting policies for CPU, memory, and disk utilization and for host errors.",
+    "description": "The  Observability  tab on the  VM instances  page for Compute Engine has been enhanced. Disk and Network sections with additional charts have been added. The Integrations > Detected section lets you navigate to the dashboards for the third-party integrations, like Apache or NGINX, that you have configured. The page also includes a set of Recommended Alerts for setting up pre-configured alerting policies for CPU, memory, and disk utilization and for host errors.",
     "publish_date": "2023-04-25",
     "release_note_type": "FEATURE"
   },
@@ -15983,7 +15983,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "In the Google Cloud console, the  Observability  tab on the  VM instances  page for Compute Engine has been enhanced.  Disk  and  Network  sections with additional charts have been added. The  Integrations > Detected  section lets you navigate to the dashboards for the third-party integrations that you have configured, like Apache or NGINX. The page also includes a set of recommended alerts for setting up pre-configured alerting policies for CPU, memory, and disk utilization and for host errors.",
+    "description": "In the Google Cloud console, the  Observability  tab on the  VM instances  page for Compute Engine has been enhanced.  Disk  and  Network  sections with additional charts have been added. The  Integrations > Detected  section lets you navigate to the dashboards for the third-party integrations that you have configured, like Apache or NGINX. The page also includes a set of recommended alerts for setting up pre-configured alerting policies for CPU, memory, and disk utilization and for host errors.",
     "publish_date": "2023-04-25",
     "release_note_type": "FEATURE"
   },
@@ -23515,7 +23515,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise account defender  is now generally available ( GA ). \n You can use this feature to detect and prevent account-related fraudulent activities.",
+    "description": "reCAPTCHA Enterprise account defender  is now generally available ( GA ). \n You can use this feature to detect and prevent account-related fraudulent activities.",
     "publish_date": "2023-02-15",
     "release_note_type": "FEATURE"
   },
@@ -24117,7 +24117,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise Mobile SDK v18.1.1 is now available for Android. \n This version contains the following changes: \n \n General stability fixes \n Errors due to a race condition while calling  init()  repeatedly are fixed \n (BREAKING CHANGE): custom events are no longer prepended with  custom_ \n Clients now return  RecaptchaErrorCode.NETWORK_ERROR  instead of  RecaptchaErrorCode.INTERNAL_ERROR  on network errors",
+    "description": "reCAPTCHA Enterprise Mobile SDK v18.1.1 is now available for Android. \n This version contains the following changes: \n \n General stability fixes \n Errors due to a race condition while calling  init()  repeatedly are fixed \n (BREAKING CHANGE): custom events are no longer prepended with  custom_ \n Clients now return  RecaptchaErrorCode.NETWORK_ERROR  instead of  RecaptchaErrorCode.INTERNAL_ERROR  on network errors",
     "publish_date": "2023-02-08",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -24502,7 +24502,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise Mobile SDK v18.1.0 is now available for iOS. \n This version contains the following changes: \n \n General stability fixes \n Errors due to a race condition while calling  init()  repeatedly are fixed \n iOS minimum is now iOS 11 \n getClient  no longer crashes when called on a background thread",
+    "description": "reCAPTCHA Enterprise Mobile SDK v18.1.0 is now available for iOS. \n This version contains the following changes: \n \n General stability fixes \n Errors due to a race condition while calling  init()  repeatedly are fixed \n iOS minimum is now iOS 11 \n getClient  no longer crashes when called on a background thread",
     "publish_date": "2023-02-01",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -25440,7 +25440,7 @@
   {
     "product_name": "Managed Service for Apache Spark",
     "product_version": "v1",
-    "description": "Upgraded Parquet to 1.12.2 for  2.1 images .",
+    "description": "Upgraded Parquet to 1.12.2 for  2.1 images .",
     "publish_date": "2023-01-23",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -27379,7 +27379,7 @@
   {
     "product_name": "Virtual Private Cloud",
     "product_version": "v1",
-    "description": "Preview : You can use  address groups  to combine multiple IP addresses and IP ranges into a single named logical unit. You can then use this unit across multiple rules in the same or different firewall policies.",
+    "description": "Preview : You can use  address groups  to combine multiple IP addresses and IP ranges into a single named logical unit. You can then use this unit across multiple rules in the same or different firewall policies.",
     "publish_date": "2022-12-20",
     "release_note_type": "FEATURE"
   },
@@ -29010,7 +29010,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for VMware",
     "product_version": null,
-    "description": "Fixed OOM events associated with  monitoring-operator-  Pods by increasing memory limit to 1 GB. \n Fixed the issue where deleting a user cluster also deleted  cluster-health-controller  and  vsphere-metrics-exporter  ClusterRole objects. \n Fixed the following vulnerabilities:\n \n Critical container vulnerabilities:\n \n CVE-2022-37434   \n CVE-2022-40674   \n \n High-severity container vulnerabilities:\n \n CVE-2021-46828   \n CVE-2022-2509   \n CVE-2021-40303   \n CVE-2021-43680   \n CVE-2021-42919   \n CVE-2021-3786   \n CVE-2021-3602   \n CVE-2021-3555   \n CVE-2021-3554   \n CVE-2021-44638   \n \n Container-optimized OS vulnerabilities:\n \n CVE-2022-46848   \n CVE-2022-3524",
+    "description": "Fixed OOM events associated with  monitoring-operator-  Pods by increasing memory limit to 1 GB. \n Fixed the issue where deleting a user cluster also deleted  cluster-health-controller  and  vsphere-metrics-exporter  ClusterRole objects. \n Fixed the following vulnerabilities:\n \n Critical container vulnerabilities:\n \n CVE-2022-37434   \n CVE-2022-40674   \n \n High-severity container vulnerabilities:\n \n CVE-2021-46828   \n CVE-2022-2509   \n CVE-2021-40303   \n CVE-2021-43680   \n CVE-2021-42919   \n CVE-2021-3786   \n CVE-2021-3602   \n CVE-2021-3555   \n CVE-2021-3554   \n CVE-2021-44638   \n \n Container-optimized OS vulnerabilities:\n \n CVE-2022-46848   \n CVE-2022-3524",
     "publish_date": "2022-12-08",
     "release_note_type": "FIX"
   },
@@ -30074,7 +30074,7 @@
   {
     "product_name": "Document AI",
     "product_version": "v1",
-    "description": "Expense Parser Releases \n As of November 18, 2022, for the Expense Parser, we have promoted our v1.3 Release Candidate version to a Stable version so that more customers can use it confidently.  \n New Stable version \n Features in the new Stable Expense Parser,  pretrained-expense-v1.3-2022-07-15 : \n \n Support for a new language, Japanese, which has been requested by multiple customers. \n Better entity performance \n Addition of 3 new entity types ( line_item/quantity ,  payment_type ,   credit_card_last_four_digits ) \n Better support for hotel and car-rental related expenses  \n \n New Release Candidate version \n Along with this Stable version, we are also launching a new Release Candidate version of the Expense Parser,  pretrained-expense-v1.4-2022-11-18 , with the following new features, in addition to the features in the Stable version: \n \n Improvements to overall performance \n Support for two (2) new languages, Italian and Portuguese \n Support for Uptraining to improve or add/remove entities in the schema \n Support for Uptraining to add support for unsupported languages \n Addition of 3 new entity types ( traveler_name ,  reservation_id ,   line_item/transaction_date ) \n Maximum pages (online/synchronous requests) limit has been increased to 15. \n \n Deprecation of the old Stable version   \n The  pretrained-expense-v1.1-2021-04-09   version\nof the Expense Parser will be deprecated following this release.  \n Invoice Parser Updates \n The previous Stable invoice processor version,  pretrained-invoice-v1.1-2021-04-09 , is deprecated as of November 22, 2022.",
+    "description": "Expense Parser Releases \n As of November 18, 2022, for the Expense Parser, we have promoted our v1.3 Release Candidate version to a Stable version so that more customers can use it confidently.  \n New Stable version \n Features in the new Stable Expense Parser,  pretrained-expense-v1.3-2022-07-15 : \n \n Support for a new language, Japanese, which has been requested by multiple customers. \n Better entity performance \n Addition of 3 new entity types ( line_item/quantity ,  payment_type ,   credit_card_last_four_digits ) \n Better support for hotel and car-rental related expenses  \n \n New Release Candidate version \n Along with this Stable version, we are also launching a new Release Candidate version of the Expense Parser,  pretrained-expense-v1.4-2022-11-18 , with the following new features, in addition to the features in the Stable version: \n \n Improvements to overall performance \n Support for two (2) new languages, Italian and Portuguese \n Support for Uptraining to improve or add/remove entities in the schema \n Support for Uptraining to add support for unsupported languages \n Addition of 3 new entity types ( traveler_name ,  reservation_id ,   line_item/transaction_date ) \n Maximum pages (online/synchronous requests) limit has been increased to 15. \n \n Deprecation of the old Stable version   \n The  pretrained-expense-v1.1-2021-04-09   version\nof the Expense Parser will be deprecated following this release.  \n Invoice Parser Updates \n The previous Stable invoice processor version,  pretrained-invoice-v1.1-2021-04-09 , is deprecated as of November 22, 2022.",
     "publish_date": "2022-11-21",
     "release_note_type": "SERVICE_ANNOUNCEMENT"
   },
@@ -33896,7 +33896,7 @@
   {
     "product_name": "Retail API",
     "product_version": "v2",
-    "description": "Auto-completion for Retail Search is now GA.  \n Auto-completion predicts the rest of a query a user is typing, which can improve the user search experience and accelerate the shopping process before checkout. \n For more about auto-completion for Retail Search, see the  Auto-completion documentation .",
+    "description": "Auto-completion for Retail Search is now GA.  \n Auto-completion predicts the rest of a query a user is typing, which can improve the user search experience and accelerate the shopping process before checkout. \n For more about auto-completion for Retail Search, see the  Auto-completion documentation .",
     "publish_date": "2022-10-12",
     "release_note_type": "FEATURE"
   },

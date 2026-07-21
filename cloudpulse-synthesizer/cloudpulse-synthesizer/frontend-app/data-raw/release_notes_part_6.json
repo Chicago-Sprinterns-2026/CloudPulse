@@ -730,7 +730,7 @@
   {
     "product_name": "Mainframe Connector",
     "product_version": "v5.10.0",
-    "description": "The following issues are fixed in Mainframe Connector 5.10.0: \n \n Fixed the recursive mode  --recursive  of the  gsutil rm  command. \n Fixed the issue where the  bq export  command with more than nine parts or rows\nwas exported out of order when all the data was loaded. \n Fixed the issue where the  bq export  command issued more queries than necessary. \n Fixed the issue where the  bq export  command generated redundant empty parts. \n Fixed the issue of parsing  Varchar  fields - In the old copybook parser,  Varchar  fields of the size of 1000 and above are parsed as a  Byte  data type. In the new copybook parser,  Varchar  fields of the size of 1000 and above are parsed as a  String  datatype. If you want to parse  Varchar  fields of any size as a  Byte  data type in the new copybook parser, ensure that the Picture (PIC) name ends with  BTYE  or  BT .",
+    "description": "The following issues are fixed in Mainframe Connector 5.10.0: \n \n Fixed the recursive mode  --recursive  of the  gsutil rm  command. \n Fixed the issue where the  bq export  command with more than nine parts or rows\nwas exported out of order when all the data was loaded. \n Fixed the issue where the  bq export  command issued more queries than necessary. \n Fixed the issue where the  bq export  command generated redundant empty parts. \n Fixed the issue of parsing  Varchar  fields - In the old copybook parser,  Varchar  fields of the size of 1000 and above are parsed as a  Byte  data type. In the new copybook parser,  Varchar  fields of the size of 1000 and above are parsed as a  String  datatype. If you want to parse  Varchar  fields of any size as a  Byte  data type in the new copybook parser, ensure that the Picture (PIC) name ends with  BTYE  or  BT .",
     "publish_date": "2024-03-28",
     "release_note_type": "FIX"
   },
@@ -758,7 +758,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise account defender for mobile applications  is now generally available ( GA ). \n You can use this feature to detect and prevent account-related fraudulent activities on mobile applications.",
+    "description": "reCAPTCHA Enterprise account defender for mobile applications  is now generally available ( GA ). \n You can use this feature to detect and prevent account-related fraudulent activities on mobile applications.",
     "publish_date": "2024-03-28",
     "release_note_type": "SERVICE_ANNOUNCEMENT"
   },
@@ -2151,7 +2151,7 @@
   {
     "product_name": "Container Optimized OS",
     "product_version": "113",
-    "description": "The get_metadata_value script will now retry if it experiences a connection error.",
+    "description": "The get_metadata_value script will now retry if it experiences a connection error.",
     "publish_date": "2024-03-25",
     "release_note_type": "FIX"
   },
@@ -2354,7 +2354,7 @@
   {
     "product_name": "Container Optimized OS",
     "product_version": "113",
-    "description": "Enable portmapper registration reporting for lsof. This also fixes an issue where lsof is missing from SOS reports.",
+    "description": "Enable portmapper registration reporting for lsof. This also fixes an issue where lsof is missing from SOS reports.",
     "publish_date": "2024-03-25",
     "release_note_type": "FEATURE"
   },
@@ -2466,7 +2466,7 @@
   {
     "product_name": "Container Optimized OS",
     "product_version": "113",
-    "description": "Fixed a container performance issue that occurred after running systemctl start cloud-audit-setup.",
+    "description": "Fixed a container performance issue that occurred after running systemctl start cloud-audit-setup.",
     "publish_date": "2024-03-25",
     "release_note_type": "FIX"
   },
@@ -2655,7 +2655,7 @@
   {
     "product_name": "Container Optimized OS",
     "product_version": "113",
-    "description": "Fixed an issue in ip6tables where the -C option did not work correctly.",
+    "description": "Fixed an issue in ip6tables where the -C option did not work correctly.",
     "publish_date": "2024-03-25",
     "release_note_type": "FIX"
   },
@@ -5462,7 +5462,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Specify a parser for unstructured content (Public Preview) \n You can control how documents are parsed when they are uploaded to Vertex AI Search. Parser specification is available in Public Preview. \n Vertex AI Search provides a digital parser (GA), an OCR parser for PDFs (Public Preview), and a layout parser (Public Preview). During data store creation for generic search apps with unstructured data, you can set a default parser for the data store and an override parser for specific file types. \n For more information, see  Parse documents .",
+    "description": "Vertex AI Search: Specify a parser for unstructured content (Public Preview) \n You can control how documents are parsed when they are uploaded to Vertex AI Search. Parser specification is available in Public Preview. \n Vertex AI Search provides a digital parser (GA), an OCR parser for PDFs (Public Preview), and a layout parser (Public Preview). During data store creation for generic search apps with unstructured data, you can set a default parser for the data store and an override parser for specific file types. \n For more information, see  Parse documents .",
     "publish_date": "2024-03-12",
     "release_note_type": "FEATURE"
   },
@@ -6155,7 +6155,7 @@
   {
     "product_name": "Secret Manager",
     "product_version": "v1",
-    "description": "Preview:  Secret Manager add-on for Google Kubernetes Engine (GKE) is now available in preview. With the add-on, you can access the secrets stored in Secret Manager as volumes mounted in Kubernetes Pods. You can install the Secret Manager add-on on both Standard clusters and Autopilot clusters. The Secret Manager add-on is a Google managed and officially supported version of the open source  Kubernetes Secrets Store CSI driver .  \n For more information, see  Use Secret Manager add-on with Google Kubernetes Engine .",
+    "description": "Preview:  Secret Manager add-on for Google Kubernetes Engine (GKE) is now available in preview. With the add-on, you can access the secrets stored in Secret Manager as volumes mounted in Kubernetes Pods. You can install the Secret Manager add-on on both Standard clusters and Autopilot clusters. The Secret Manager add-on is a Google managed and officially supported version of the open source  Kubernetes Secrets Store CSI driver .  \n For more information, see  Use Secret Manager add-on with Google Kubernetes Engine .",
     "publish_date": "2024-03-07",
     "release_note_type": "FEATURE"
   },
@@ -6554,7 +6554,7 @@
   {
     "product_name": "Google Kubernetes Engine",
     "product_version": "New Features",
-    "description": "NVIDIA H100 (80 GB) GPUs are  now available  in GKE Autopilot mode in versions 1.28.6-gke.1369000 or later, and 1.29.1-gke.1575000 or later.",
+    "description": "NVIDIA H100 (80 GB) GPUs are  now available  in GKE Autopilot mode in versions 1.28.6-gke.1369000 or later, and 1.29.1-gke.1575000 or later.",
     "publish_date": "2024-03-04",
     "release_note_type": "FEATURE"
   },
@@ -6925,7 +6925,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Access controlled data sources (Public Preview) \n Access control for BigQuery, Cloud Storage, and Confluence data is available in Public Preview. This feature allows you to limit the data that users can view in your search app's results. Google uses your identity provider to identify the end user performing a search and determine if they have access to the documents that are returned as results. Google Identity and third-party identity provider federation are supported. \n For more information, see  Use data source access control .",
+    "description": "Vertex AI Search: Access controlled data sources (Public Preview) \n Access control for BigQuery, Cloud Storage, and Confluence data is available in Public Preview. This feature allows you to limit the data that users can view in your search app's results. Google uses your identity provider to identify the end user performing a search and determine if they have access to the documents that are returned as results. Google Identity and third-party identity provider federation are supported. \n For more information, see  Use data source access control .",
     "publish_date": "2024-02-28",
     "release_note_type": "FEATURE"
   },
@@ -7002,7 +7002,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Blended search (Public Preview) \n Blended search, where multiple data stores can be connected to a single generic search app, is available in Public Preview. This feature allows you to use one generic search app to search across multiple sources and types of data. \n For more information, see  About connecting multiple data stores .",
+    "description": "Vertex AI Search: Blended search (Public Preview) \n Blended search, where multiple data stores can be connected to a single generic search app, is available in Public Preview. This feature allows you to use one generic search app to search across multiple sources and types of data. \n For more information, see  About connecting multiple data stores .",
     "publish_date": "2024-02-28",
     "release_note_type": "FEATURE"
   },
@@ -16760,7 +16760,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise account defender for mobile applications  is available in  Preview . \n You can use this feature to detect and prevent account-related fraudulent activities on mobile applications.",
+    "description": "reCAPTCHA Enterprise account defender for mobile applications  is available in  Preview . \n You can use this feature to detect and prevent account-related fraudulent activities on mobile applications.",
     "publish_date": "2023-12-13",
     "release_note_type": "FEATURE"
   },
@@ -17068,7 +17068,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Support for Access Transparency is GA \n Access Transparency  supports Vertex AI Search in GA. \n See  Enable Access Transparency in Vertex AI Search .",
+    "description": "Vertex AI Search: Support for Access Transparency is GA \n Access Transparency  supports Vertex AI Search in GA. \n See  Enable Access Transparency in Vertex AI Search .",
     "publish_date": "2023-12-13",
     "release_note_type": "FEATURE"
   },
@@ -19784,7 +19784,7 @@
   {
     "product_name": "Cloud SQL for MySQL",
     "product_version": null,
-    "description": "Cloud SQL for MySQL now supports minor version 8.0.35. To upgrade your existing instance to the new version, see  Upgrade the database minor version .",
+    "description": "Cloud SQL for MySQL now supports minor version 8.0.35. To upgrade your existing instance to the new version, see  Upgrade the database minor version .",
     "publish_date": "2023-11-17",
     "release_note_type": "FEATURE"
   },
@@ -21037,7 +21037,7 @@
   {
     "product_name": "reCAPTCHA",
     "product_version": "v1beta1",
-    "description": "reCAPTCHA Enterprise Mobile SDK v18.4.0 is now available for iOS. \n This version contains the following changes: \n \n Internal networking improvements. \n Sample codes  for the iOS SDK and visual reCAPTCHA in GitHub. \n The  -ObjC  flag is not required when integrating with reCAPTCHA Enterprise on iOS.",
+    "description": "reCAPTCHA Enterprise Mobile SDK v18.4.0 is now available for iOS. \n This version contains the following changes: \n \n Internal networking improvements. \n Sample codes  for the iOS SDK and visual reCAPTCHA in GitHub. \n The  -ObjC  flag is not required when integrating with reCAPTCHA Enterprise on iOS.",
     "publish_date": "2023-11-13",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -25951,7 +25951,7 @@
   {
     "product_name": "Looker",
     "product_version": "Looker (original) only changes",
-    "description": "The New Schedules Page  Labs feature  updates the interface of the  Admin settings - Schedules  page.",
+    "description": "The New Schedules Page  Labs feature  updates the interface of the  Admin settings - Schedules  page.",
     "publish_date": "2023-10-11",
     "release_note_type": "FEATURE"
   },
@@ -27659,7 +27659,7 @@
   {
     "product_name": "BigQuery",
     "product_version": "v2",
-    "description": "You can now use  IAM conditions  to control access to BigQuery resources. This feature is in  preview .",
+    "description": "You can now use  IAM conditions  to control access to BigQuery resources. This feature is in  preview .",
     "publish_date": "2023-09-28",
     "release_note_type": "FEATURE"
   },
@@ -28114,7 +28114,7 @@
   {
     "product_name": "BigQuery",
     "product_version": "v2",
-    "description": "Materialized views over BigLake metadata cache-enabled tables  can reference structured data stored in Cloud Storage. These materialized views function like materialized views over BigQuery-managed storage tables, including the benefits of automatic refresh and smart tuning. This feature is now  generally available  (GA).",
+    "description": "Materialized views over BigLake metadata cache-enabled tables  can reference structured data stored in Cloud Storage. These materialized views function like materialized views over BigQuery-managed storage tables, including the benefits of automatic refresh and smart tuning. This feature is now  generally available  (GA).",
     "publish_date": "2023-09-25",
     "release_note_type": "FEATURE"
   },
@@ -28919,7 +28919,7 @@
   {
     "product_name": "Data Catalog",
     "product_version": "v1",
-    "description": "Data Catalog is available in the me-central2 (Dammam) region. \n For more information, see  Regions .",
+    "description": "Data Catalog is available in the me-central2 (Dammam) region. \n For more information, see  Regions .",
     "publish_date": "2023-09-19",
     "release_note_type": "SERVICE_ANNOUNCEMENT"
   },
@@ -29941,7 +29941,7 @@
   {
     "product_name": "BigQuery",
     "product_version": "v2",
-    "description": "You can now  create a federated dataset in BigQuery  that federates to an existing database in AWS Glue. This feature is in  preview .",
+    "description": "You can now  create a federated dataset in BigQuery  that federates to an existing database in AWS Glue. This feature is in  preview .",
     "publish_date": "2023-09-13",
     "release_note_type": "FEATURE"
   },
@@ -31740,7 +31740,7 @@
   {
     "product_name": "Vertex AI",
     "product_version": "v1",
-    "description": "Vertex AI Prediction \n The following prebuilt containers for prediction have been updated:   \n \n tf2-cpu.2-12   \n tf2-gpu.2-12  \n tf2-cpu.2-11 \n tf2-gpu.2-11 \n tf2-cpu.2-10 \n tf2-gpu.2-10 \n tf2-cpu.2-9 \n tf2-gpu.2-9 \n tf2-cpu.2-8 \n tf2-gpu.2-8 \n sklearn-cpu.1-2 \n xgboost-cpu.1-7 \n pytorch-cpu.2-0 \n pytorch-gpu.2-0 \n pytorch-cpu.1-13 \n pytorch-gpu.1-13 \n \n To update your containers, redeploy your models. To learn more, see  Vertex AI framework support policy  and  Prebuilt containers for prediction .",
+    "description": "Vertex AI Prediction \n The following prebuilt containers for prediction have been updated:   \n \n tf2-cpu.2-12   \n tf2-gpu.2-12  \n tf2-cpu.2-11 \n tf2-gpu.2-11 \n tf2-cpu.2-10 \n tf2-gpu.2-10 \n tf2-cpu.2-9 \n tf2-gpu.2-9 \n tf2-cpu.2-8 \n tf2-gpu.2-8 \n sklearn-cpu.1-2 \n xgboost-cpu.1-7 \n pytorch-cpu.2-0 \n pytorch-gpu.2-0 \n pytorch-cpu.1-13 \n pytorch-gpu.1-13 \n \n To update your containers, redeploy your models. To learn more, see  Vertex AI framework support policy  and  Prebuilt containers for prediction .",
     "publish_date": "2023-09-06",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -33007,7 +33007,7 @@
   {
     "product_name": "Cloud Deploy",
     "product_version": "v1",
-    "description": "Cloud Deploy support for  deploy parameters  is now  generally available .",
+    "description": "Cloud Deploy support for  deploy parameters  is now  generally available .",
     "publish_date": "2023-08-23",
     "release_note_type": "SERVICE_ANNOUNCEMENT"
   },
@@ -34526,7 +34526,7 @@
   {
     "product_name": "Cloud Monitoring",
     "product_version": "v3",
-    "description": "The improved dashboard building experience is now GA: \n \n Improved the performance \n Simplified the layout and expanded the configurable settings \n Improved the widget drag and drop experience \n Enhanced the  text widget \n Unified the chart-configuration experience between dashboards and the Metrics Explorer \n \n For more information, see  Add charts and tables to a custom dashboard .",
+    "description": "The improved dashboard building experience is now GA: \n \n Improved the performance \n Simplified the layout and expanded the configurable settings \n Improved the widget drag and drop experience \n Enhanced the  text widget \n Unified the chart-configuration experience between dashboards and the Metrics Explorer \n \n For more information, see  Add charts and tables to a custom dashboard .",
     "publish_date": "2023-08-17",
     "release_note_type": "NON_BREAKING_CHANGE"
   },

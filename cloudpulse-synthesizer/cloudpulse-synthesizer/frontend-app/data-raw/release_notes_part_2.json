@@ -7170,7 +7170,7 @@
   {
     "product_name": "Google Cloud Armor",
     "product_version": null,
-    "description": "Cloud Armor  preconfigured WAF rules  support for\ninspection up to the first 64 kB (either 8 kB, 16 kB, 32 kB,\n48 kB, or 64 kB) of the  request body\ncontent  is Generally\nAvailable.",
+    "description": "Cloud Armor  preconfigured WAF rules  support for\ninspection up to the first 64 kB (either 8 kB, 16 kB, 32 kB,\n48 kB, or 64 kB) of the  request body\ncontent  is Generally\nAvailable.",
     "publish_date": "2026-02-18",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -8983,7 +8983,7 @@
   {
     "product_name": "Cloud Run",
     "product_version": "v1",
-    "description": "You can configure  Direct VPC ingress for Cloud Run worker pools . When you configure Direct VPC ingress,\neach worker instance receives a private IP address on your configured network\nand subnet. To access private IP addresses between instances in your VPC network for secure internal communication, see  Retrieve the private IP addresses using the metadata server (MDS) .",
+    "description": "You can configure  Direct VPC ingress for Cloud Run worker pools . When you configure Direct VPC ingress,\neach worker instance receives a private IP address on your configured network\nand subnet. To access private IP addresses between instances in your VPC network for secure internal communication, see  Retrieve the private IP addresses using the metadata server (MDS) .",
     "publish_date": "2026-02-05",
     "release_note_type": "FEATURE"
   },
@@ -12399,7 +12399,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "Generally available : The N4A machine family is powered by Google's latest\ncustom-designed Axion processor, built on Arm Neoverse N3 compute core and\npowered by Titanium IPU. This machine family has between 1-64 vCPUs with up to\n512 GB of memory, and supports Google Cloud Hyperdisk volume storage.\nIt is available in  standard ,  highmem ,  highcpu , and custom machine types.\nFor detailed information, see\n General-purpose machines .\nSee  Regions and zones  to learn where you can\ncreate N4A VMs.",
+    "description": "Generally available : The N4A machine family is powered by Google's latest\ncustom-designed Axion processor, built on Arm Neoverse N3 compute core and\npowered by Titanium IPU. This machine family has between 1-64 vCPUs with up to\n512 GB of memory, and supports Google Cloud Hyperdisk volume storage.\nIt is available in  standard ,  highmem ,  highcpu , and custom machine types.\nFor detailed information, see\n General-purpose machines .\nSee  Regions and zones  to learn where you can\ncreate N4A VMs.",
     "publish_date": "2026-01-26",
     "release_note_type": "FEATURE"
   },
@@ -17201,7 +17201,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "Public Preview : The C4A VM family now offers a  c4a-highmem-96-metal  bare\nmetal instance. This machine type has 96 vCPUs and 768 GB of DDR5 memory,\n Titanium I/O offload processing ,\nand supports Hyperdisk Balanced, Hyperdisk Extreme, and Hyperdisk ML storage volumes.\nThis bare metal instance is offered\nin select  regions and zones .\nFor more information, see\n C4A machine series .",
+    "description": "Public Preview : The C4A VM family now offers a  c4a-highmem-96-metal  bare\nmetal instance. This machine type has 96 vCPUs and 768 GB of DDR5 memory,\n Titanium I/O offload processing ,\nand supports Hyperdisk Balanced, Hyperdisk Extreme, and Hyperdisk ML storage volumes.\nThis bare metal instance is offered\nin select  regions and zones .\nFor more information, see\n C4A machine series .",
     "publish_date": "2025-12-19",
     "release_note_type": "FEATURE"
   },
@@ -19189,7 +19189,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "The memory-optimized X4 machine series offers additional bare metal machine\ntypes with 6 TB, 8 TB, and 12 TB of memory. For more information,\nsee  X4 machine series .",
+    "description": "The memory-optimized X4 machine series offers additional bare metal machine\ntypes with 6 TB, 8 TB, and 12 TB of memory. For more information,\nsee  X4 machine series .",
     "publish_date": "2025-12-12",
     "release_note_type": "FEATURE"
   },
@@ -20225,7 +20225,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Configurable pricing for custom search (GA) \n Configurable pricing is available for custom search apps and data stores. \n Configurable pricing offers a flexible alternative to the default pay-as-you-go\nmodel. Configurable pricing lets you to choose a subscription that fits your\nneeds. There are two subscriptions, one for storage and one for search queries,\nplus add-ons that let you add more features according to your needs. \n For storage, the minimum subscription is 50 GiB/month and the available\nadd-on is semantic embedding. For search queries, the minimum subscription is\n1000 queries per minute per project, and the available add-ons are semantic\nquery, KPI & personalization, and AI overview. \n After you set up configurable pricing for a project, apply configurable pricing\nto apps and data stores as needed. In a project, you can have some apps and\ndata store using the general pricing and others using configurable pricing. \n Configurable pricing is generally available (GA). For more information, see\n Enable configurable pricing for custom\nsearch  and  Vertex\nAI Search pricing .",
+    "description": "Vertex AI Search: Configurable pricing for custom search (GA) \n Configurable pricing is available for custom search apps and data stores. \n Configurable pricing offers a flexible alternative to the default pay-as-you-go\nmodel. Configurable pricing lets you to choose a subscription that fits your\nneeds. There are two subscriptions, one for storage and one for search queries,\nplus add-ons that let you add more features according to your needs. \n For storage, the minimum subscription is 50 GiB/month and the available\nadd-on is semantic embedding. For search queries, the minimum subscription is\n1000 queries per minute per project, and the available add-ons are semantic\nquery, KPI & personalization, and AI overview. \n After you set up configurable pricing for a project, apply configurable pricing\nto apps and data stores as needed. In a project, you can have some apps and\ndata store using the general pricing and others using configurable pricing. \n Configurable pricing is generally available (GA). For more information, see\n Enable configurable pricing for custom\nsearch  and  Vertex\nAI Search pricing .",
     "publish_date": "2025-12-09",
     "release_note_type": "FEATURE"
   },
@@ -22276,7 +22276,7 @@
   {
     "product_name": "Google Kubernetes Engine",
     "product_version": "New Features",
-    "description": "TPU7x (Ironwood), Google's seventh-generation TPU for large-scale AI workloads,\nis available in  Preview  in GKE\nStandard clusters that run version 1.34.0-gke.2201000 and later, and in\nAutopilot clusters that run version 1.34.1-gke.3084001 and later.\nTPU7x offers a significant performance increase compared to previous\ngenerations, with 2307 TFLOPs of BF16 performance and 192 GB of\nhigh-bandwidth memory (HBM) per chip. For more information, see\n Get started with Ironwood (TPU7x) .",
+    "description": "TPU7x (Ironwood), Google's seventh-generation TPU for large-scale AI workloads,\nis available in  Preview  in GKE\nStandard clusters that run version 1.34.0-gke.2201000 and later, and in\nAutopilot clusters that run version 1.34.1-gke.3084001 and later.\nTPU7x offers a significant performance increase compared to previous\ngenerations, with 2307 TFLOPs of BF16 performance and 192 GB of\nhigh-bandwidth memory (HBM) per chip. For more information, see\n Get started with Ironwood (TPU7x) .",
     "publish_date": "2025-11-27",
     "release_note_type": "FEATURE"
   },
@@ -22570,7 +22570,7 @@
   {
     "product_name": "Google Kubernetes Engine",
     "product_version": "Main",
-    "description": "In GKE versions 1.34.1-gke.2037001 and 1.34.1-gke.2541000, Arm\nnodes that use an Ubuntu node image might incorrectly use an image with a\n64 KB page size instead of the default 4 KB page size. Avoid using\nversion 1.34.1-gke.2037001 and 1.34.1-gke.2541000 for your Ubuntu Arm nodes.",
+    "description": "In GKE versions 1.34.1-gke.2037001 and 1.34.1-gke.2541000, Arm\nnodes that use an Ubuntu node image might incorrectly use an image with a\n64 KB page size instead of the default 4 KB page size. Avoid using\nversion 1.34.1-gke.2037001 and 1.34.1-gke.2541000 for your Ubuntu Arm nodes.",
     "publish_date": "2025-11-21",
     "release_note_type": "ISSUE"
   },
@@ -22857,7 +22857,7 @@
   {
     "product_name": "Vertex AI Search",
     "product_version": null,
-    "description": "Vertex AI Search: Updated file size restrictions for unstructured data \n The file size restrictions for unstructured data import have been unified. For\nunstructured data, you can import files up to 200 MB regardless of the\nparser type. \n For more information, see  Unstructured\ndata .",
+    "description": "Vertex AI Search: Updated file size restrictions for unstructured data \n The file size restrictions for unstructured data import have been unified. For\nunstructured data, you can import files up to 200 MB regardless of the\nparser type. \n For more information, see  Unstructured\ndata .",
     "publish_date": "2025-11-20",
     "release_note_type": "FEATURE"
   },
@@ -25538,7 +25538,7 @@
   {
     "product_name": "Compute Engine",
     "product_version": "v1",
-    "description": "Generally available : N4D VMs are powered by the fifth generation AMD EPYC\nTurin processor and\n Titanium I/O offload processing .\nN4D machine types have up to 96 vCPUs and up to 768 GB of DDR5 memory,\nand a max-boost frequency of 4.1 GHz. They are offered in predefined and\ncustom machine types and are available in select\n regions and zones . \n N4D VM instances support standard networking with up to 50 Gbps of\nnetworking bandwidth and Hyperdisk storage. For more information, see\n General-purpose machine types .",
+    "description": "Generally available : N4D VMs are powered by the fifth generation AMD EPYC\nTurin processor and\n Titanium I/O offload processing .\nN4D machine types have up to 96 vCPUs and up to 768 GB of DDR5 memory,\nand a max-boost frequency of 4.1 GHz. They are offered in predefined and\ncustom machine types and are available in select\n regions and zones . \n N4D VM instances support standard networking with up to 50 Gbps of\nnetworking bandwidth and Hyperdisk storage. For more information, see\n General-purpose machine types .",
     "publish_date": "2025-11-07",
     "release_note_type": "FEATURE"
   },
@@ -29535,7 +29535,7 @@
   {
     "product_name": "Filestore",
     "product_version": "v1",
-    "description": "You can now create regional Filestore instances starting at 100 GiB and scale them in 1 GiB units. The small instances feature is available under Restricted GA in  us-central1  and  us-east4  regions.\nFor more information, see  Small capacity Filestore instances .",
+    "description": "You can now create regional Filestore instances starting at 100 GiB and scale them in 1 GiB units. The small instances feature is available under Restricted GA in  us-central1  and  us-east4  regions.\nFor more information, see  Small capacity Filestore instances .",
     "publish_date": "2025-10-20",
     "release_note_type": "FEATURE"
   },
@@ -29696,7 +29696,7 @@
   {
     "product_name": "Virtual Private Cloud",
     "product_version": "v1",
-    "description": "VPC Flow Logs supports logging for Cloud Run resources that are configured with\n Direct VPC egress . This feature is\navailable in  General Availability . \n For more information, see\n Serverless flows  and\n ServerlessDetails field format .",
+    "description": "VPC Flow Logs supports logging for Cloud Run resources that are configured with\n Direct VPC egress . This feature is\navailable in  General Availability . \n For more information, see\n Serverless flows  and\n ServerlessDetails field format .",
     "publish_date": "2025-10-20",
     "release_note_type": "FEATURE"
   },
@@ -34281,7 +34281,7 @@
   {
     "product_name": "Security Command Center",
     "product_version": "v1",
-    "description": "Model Armor limits the maximum input size for files and text to 4 MB,\nautomatically skipping any content that exceeds this threshold.",
+    "description": "Model Armor limits the maximum input size for files and text to 4 MB,\nautomatically skipping any content that exceeds this threshold.",
     "publish_date": "2025-09-27",
     "release_note_type": "FEATURE"
   },
@@ -34330,7 +34330,7 @@
   {
     "product_name": "Virtual Private Cloud",
     "product_version": "v1",
-    "description": "The following features of VPC Flow Logs are available in  General Availability : \n \n Logging for  RDMA over Falcon transport \n Enhanced round-trip time precision for TCP and Falcon traffic \n \n For more information, see  About VPC Flow Logs records .",
+    "description": "The following features of VPC Flow Logs are available in  General Availability : \n \n Logging for  RDMA over Falcon transport \n Enhanced round-trip time precision for TCP and Falcon traffic \n \n For more information, see  About VPC Flow Logs records .",
     "publish_date": "2025-09-26",
     "release_note_type": "FEATURE"
   },

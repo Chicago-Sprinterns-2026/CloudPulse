@@ -4720,7 +4720,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for VMware",
     "product_version": null,
-    "description": "gkectl diagnose snapshot  now only collects configuration data and excludes logs.  This tool is used to capture details of your environment prior to opening a support case.",
+    "description": "gkectl diagnose snapshot  now only collects configuration data and excludes logs.  This tool is used to capture details of your environment prior to opening a support case.",
     "publish_date": "2019-03-04",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -4818,7 +4818,7 @@
   {
     "product_name": "Google Distributed Cloud (software only) for VMware",
     "product_version": null,
-    "description": "Stackdriver Logging is now enabled on each node. By default, the logging agent replicates logs to your project for only control plane services, cluster API, vSphere controller, Calico, BIG-IP controller, Envoy proxy, Connect, Anthos Config Management, Prometheus and Grafana services, Istio control plane, and Docker. Application container logs are excluded by default, but can be optionally enabled.",
+    "description": "Stackdriver Logging is now enabled on each node. By default, the logging agent replicates logs to your project for only control plane services, cluster API, vSphere controller, Calico, BIG-IP controller, Envoy proxy, Connect, Anthos Config Management, Prometheus and Grafana services, Istio control plane, and Docker. Application container logs are excluded by default, but can be optionally enabled.",
     "publish_date": "2019-03-04",
     "release_note_type": "FEATURE"
   },
@@ -5497,7 +5497,7 @@
   {
     "product_name": "Managed Service for Apache Airflow",
     "product_version": "v1",
-    "description": "New versions  of Cloud Composer images:  composer-1.5.0-airflow-1.9.0 ,  composer-1.5.0-airflow-1.10.0 , and  composer-1.5.0-airflow-1.10.1 \n Increased the disk size  for the Apache Airflow webserver from 10 to 20 GB. \n We now install Airflow dependencies of \"mysql\" instead of \"devel\". \n If your DAG uses dependencies that are available only in \"devel\", add the dependencies to your DAG as PyPI dependencies.",
+    "description": "New versions  of Cloud Composer images:  composer-1.5.0-airflow-1.9.0 ,  composer-1.5.0-airflow-1.10.0 , and  composer-1.5.0-airflow-1.10.1 \n Increased the disk size  for the Apache Airflow webserver from 10 to 20 GB. \n We now install Airflow dependencies of \"mysql\" instead of \"devel\". \n If your DAG uses dependencies that are available only in \"devel\", add the dependencies to your DAG as PyPI dependencies.",
     "publish_date": "2019-02-06",
     "release_note_type": "NON_BREAKING_CHANGE"
   },
@@ -5553,7 +5553,7 @@
   {
     "product_name": "Dataflow",
     "product_version": "v1b3",
-    "description": "In a specific case, users of Apache Beam Java SDKs (2.9.0 and earlier) and Cloud Dataflow Java SDKs (2.5.0 and earlier) might experience data duplication when reading files from Cloud Storage. Duplication might occur when all of the following conditions are true: \n \n You are reading files with the content-encoding set to gzip, and the files are  dynamically decompressive transcoded  by Cloud Storage. \n The file size (decompressed) is larger than 2.14 GB. \n The input stream runs into an error (and is recreated) after 2.14 GB is read. \n \n As a workaround, do not set the content-encoding header, and store compressed files in Cloud Storage with the proper extension (for example, gz for gzip). For existing files, you can update the content-encoding header and file name with the  gsutil tool .",
+    "description": "In a specific case, users of Apache Beam Java SDKs (2.9.0 and earlier) and Cloud Dataflow Java SDKs (2.5.0 and earlier) might experience data duplication when reading files from Cloud Storage. Duplication might occur when all of the following conditions are true: \n \n You are reading files with the content-encoding set to gzip, and the files are  dynamically decompressive transcoded  by Cloud Storage. \n The file size (decompressed) is larger than 2.14 GB. \n The input stream runs into an error (and is recreated) after 2.14 GB is read. \n \n As a workaround, do not set the content-encoding header, and store compressed files in Cloud Storage with the proper extension (for example, gz for gzip). For existing files, you can update the content-encoding header and file name with the  gsutil tool .",
     "publish_date": "2019-02-04",
     "release_note_type": "ISSUE"
   },
@@ -10614,7 +10614,7 @@
   {
     "product_name": "Managed Service for Apache Airflow",
     "product_version": "v1",
-    "description": "New version  of the Cloud Composer image:  composer-0.5.2-airflow-1.9.0 . \n Added OAuth scope configuration  on the Google Cloud Platform Console  Environment creation  page \n Increased the minimum disk size from 10 GB to 20 GB. \n Improved error reporting. \n Improved stability of the CeleryExecutor Redis message backend.",
+    "description": "New version  of the Cloud Composer image:  composer-0.5.2-airflow-1.9.0 . \n Added OAuth scope configuration  on the Google Cloud Platform Console  Environment creation  page \n Increased the minimum disk size from 10 GB to 20 GB. \n Improved error reporting. \n Improved stability of the CeleryExecutor Redis message backend.",
     "publish_date": "2018-06-15",
     "release_note_type": "NON_BREAKING_CHANGE"
   },

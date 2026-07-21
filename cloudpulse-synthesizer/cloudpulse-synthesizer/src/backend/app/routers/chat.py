@@ -1,3 +1,4 @@
+# routers/agent.py
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.agent import run_agent
@@ -10,5 +11,9 @@ class ChatRequest(BaseModel):
 
 @router.post("/chat")
 async def chat(request: ChatRequest):
-    response = await run_agent(request.message, request.session_id)
-    return {"response": response}
+    result = await run_agent(request.message, request.session_id)
+
+    return {
+        "answer": result["answer"],
+        "source_documents": result.get("source_documents", [])
+    }
