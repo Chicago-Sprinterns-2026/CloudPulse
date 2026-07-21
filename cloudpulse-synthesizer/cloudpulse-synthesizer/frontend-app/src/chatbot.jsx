@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const QUICK_QUESTIONS = [
   "What recent changes affect my deployment?",
@@ -19,13 +20,9 @@ export default function Chatbot() {
     setInput('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: query })
+      const { data } = await axios.post('http://localhost:8000/api/chat', {
+        message: query
       });
-
-      const data = await response.json();
 
       const botMsg = {
         sender: 'bot',

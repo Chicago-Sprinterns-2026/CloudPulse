@@ -24,3 +24,10 @@ root_agent = Agent(
         ),
     ),
 )
+
+async def run_agent(message: str, session_id: str | None = None):
+    result = await root_agent.run({"input": message})
+    return {
+        "answer": result.get("output_text", ""),
+        "source_documents": result.get("source_documents", []),
+    }
