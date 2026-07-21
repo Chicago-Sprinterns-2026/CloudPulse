@@ -1,118 +1,62 @@
 import os
 from typing import Optional, Any, Dict, List
- 
-import agentplatform
-from agentplatform import types
+
+from google import genai
 from google.genai import types as genai_types
 from google.cloud import bigquery
 
-
-from langchain_google_community import VertexAIAgentBuilderRetriever
- 
 _PROJECT_ID = "sprinternship-chi1-2026"
 _LOCATION = "us-central1"
 _CORPUS_ID = "5175911405336920064"
-_DATA_STORE_LOCATION = "global"
-_DATA_STORE_ID = "google-cloud-official-docs_1784562830724"
- 
- 
+
+
 def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     """Internal helper: runs Vertex AI RAG retrieval, not exposed to the model."""
     if not query or not query.strip() or limit <= 0:
         return []
- 
+
     query = query.strip()
     corpus_name = (
         f"projects/{_PROJECT_ID}/locations/{_LOCATION}/ragCorpora/{_CORPUS_ID}"
     )
-    client = agentplatform.Client(project=_PROJECT_ID, location=_LOCATION)
- 
-    try:
-        response = client.rag.retrieve_contexts(
+    client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
+    rag_tool = genai_types.Tool(
+        retrieval=genai_types.Retrieval(
             vertex_rag_store=genai_types.VertexRagStore(
-                rag_resources=[
-                    genai_types.VertexRagStoreRagResource(rag_corpus=corpus_name)
-                ]
-            ),
-            query=types.RagQuery(
-                text=query,
-                rag_retrieval_config=genai_types.RagRetrievalConfig(top_k=limit),
-            ),
+                rag_corpora=[corpus_name],
+                similarity_top_k=limit,
+            )
+        )
+    )
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=query,
+            config=genai_types.GenerateContentConfig(tools=[rag_tool], temperature=0.2),
         )
     except Exception as error:
         raise RuntimeError(f"RAG document search failed: {error}") from error
- 
+
     chunks: List[Dict[str, str]] = []
-    if response.contexts:
-        for context in response.contexts.contexts:
-            if not context.text or not context.text.strip():
+    try:
+        grounding_chunks = response.candidates[0].grounding_metadata.grounding_chunks
+        for gc in grounding_chunks[:limit]:
+            ctx = getattr(gc, "retrieved_context", None)
+            if not ctx or not getattr(ctx, "text", None):
                 continue
-            chunks.append(
-                {
-                    "text": context.text.strip(),
-                    "source_url": context.source_uri or "",
-                    "title": context.source_display_name or "",
-                }
-            )
-            if len(chunks) >= limit:
-                break
+            chunks.append({
+                "text": ctx.text.strip(),
+                "source_url": getattr(ctx, "uri", "") or "",
+                "title": getattr(ctx, "title", "") or "",
+            })
+    except (AttributeError, IndexError, TypeError):
+        if response.text:
+            chunks.append({"text": response.text.strip(), "source_url": "", "title": ""})
+
     return chunks
 
 
-def _search_datastore_raw(
-    query: str,
-    limit: int = 5,
-) -> List[Dict[str, str]]:
-    """Internal helper: searches the Google Cloud documentation data store."""
-
-
-    if not query or not query.strip() or limit <= 0:
-        return []
-
-
-    retriever = VertexAIAgentBuilderRetriever(
-        project_id=_PROJECT_ID,
-        location_id=_DATA_STORE_LOCATION,
-        data_store_id=_DATA_STORE_ID,
-    )
-
-
-    try:
-        documents = retriever.invoke(query.strip())
-    except Exception as error:
-        raise RuntimeError(
-            f"Data store search failed: {error}"
-        ) from error
-
-
-    results: List[Dict[str, str]] = []
-
-
-    for document in documents[:limit]:
-        metadata = document.metadata or {}
-        text = (document.page_content or "").strip()
-
-
-        if not text:
-            continue
-
-
-        results.append(
-            {
-                "text": text,
-                "title": metadata.get("title", ""),
-                "source_url": (
-                    metadata.get("source", "")
-                    or metadata.get("uri", "")
-                    or metadata.get("link", "")
-                    or metadata.get("source_url", "")
-                ),
-            }
-        )
-
-
-    return results
- 
 def cloudpulse_tool(
     action: str,
     query: Optional[str] = None,
@@ -122,12 +66,10 @@ def cloudpulse_tool(
     limit: int = 5,
 ) -> Any:
     """Single tool for docs search, product metadata, release notes, and MSAs.
- 
+
     Args:
         action: Which operation to perform. Must be one of:
             "search_docs" -- free-text documentation search (RAG). Requires `query`.
-            "search_datastore" -- searches the Google Cloud documentation data store.
-            Requires `query`.
             "metadata" -- structured product lookup. Requires `product_name`.
             "release_notes" -- release notes since a date. Requires `product_name`
                 and `start_date`.
@@ -141,10 +83,9 @@ def cloudpulse_tool(
         severity: Optional severity filter, e.g. "CRITICAL". Only used when
             action="msas".
         limit: Max number of results for "search_docs". Defaults to 5.
- 
+
     Returns:
         - "search_docs": list of dicts with "text", "source_url", "title".
-        - "search_datastore": list of dicts with "text", "source_url", "title".
         - "metadata": dict with product metadata, or {"error": ...}.
         - "release_notes": list of dicts with "product_name", "release_date",
           "description", "release_note_type".
@@ -154,26 +95,7 @@ def cloudpulse_tool(
     if action == "search_docs":
         if not query:
             return {"error": "query is required for search_docs."}
-
-
-        return _search_docs_raw(
-            query=query,
-            limit=limit,
-        )
-
-
-    elif action == "search_datastore":
-        if not query:
-            return {
-                "error": "query is required for search_datastore."
-            }
-
-
-        return _search_datastore_raw(
-            query=query,
-            limit=limit,
-        )
-
+        return _search_docs_raw(query=query, limit=limit)
 
     elif action == "metadata":
         if not product_name:
@@ -182,7 +104,7 @@ def cloudpulse_tool(
             client = bigquery.Client()
             project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
             dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
- 
+
             sql_query = f"""
                 SELECT product_name, owner_team, current_version, shutdown_protocol, status
                 FROM `{project_id}.{dataset_id}.product_metadata`
@@ -195,7 +117,7 @@ def cloudpulse_tool(
                 ]
             )
             results = client.query(sql_query, job_config=job_config).result()
- 
+
             for row in results:
                 return {
                     "product_name": row.product_name,
@@ -205,10 +127,10 @@ def cloudpulse_tool(
                     "status": row.status,
                 }
             return {"product": product_name, "error": "No metadata found."}
- 
+
         except Exception as e:
             return {"error": f"Failed to query BigQuery: {str(e)}"}
- 
+
     elif action == "release_notes":
         if not product_name or not start_date:
             return {"error": "product_name and start_date are required for release notes."}
@@ -217,7 +139,7 @@ def cloudpulse_tool(
             project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
             dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
             table_id = f"{project_id}.{dataset_id}.release_notes_table"
- 
+
             sql_query = f"""
                 SELECT product_name, release_date, description, release_note_type
                 FROM `{table_id}`
@@ -233,15 +155,15 @@ def cloudpulse_tool(
             )
             results = client.query(sql_query, job_config=job_config).result()
             return [dict(row) for row in results]
- 
+
         except Exception as e:
             print(f"Error fetching release notes from BigQuery: {e}")
             return []
- 
+
     elif action == "msas":
         if not product_name or not product_name.strip():
             return []
- 
+
         search_query = (
             f"Mandatory Service Announcements for {product_name}. "
             "Find required actions, deprecations, security changes, "
@@ -249,7 +171,7 @@ def cloudpulse_tool(
         )
         if severity:
             search_query += f" Only return announcements with severity {severity}."
- 
+
         chunks = _search_docs_raw(query=search_query, limit=5)
         return [
             {
@@ -261,10 +183,9 @@ def cloudpulse_tool(
             }
             for chunk in chunks
         ]
- 
+
     else:
         return {
             "error": f"Unknown action '{action}'. Must be one of: "
-            "search_docs, search_datastore, metadata, release_notes, msas."
+            "search_docs, metadata, release_notes, msas."
         }
-
