@@ -1,0 +1,303 @@
+TITLE: Migrate Gemini Enterprise Agent Platform API workflows to GA models before Aug 31, 2026
+CATEGORY: Deprecation and Endpoint Retirement
+SERVICE: Vertex AI (Gemini Enterprise Agent Platform)
+SEVERITY: CRITICAL
+DATE: 2026-08-31
+ACTION_REQUIRED: TRUE
+CONTENT:
+Hello Gemini Enterprise Agent Platform customer,
+
+You are receiving this communication because one or more of your projects currently use unpublished preview models on Vertex AI.
+
+As we continue to advance our Gemini model capabilities, we will discontinue the following unpublished Vertex AI endpoints on Gemini Enterprise Agent Platform on August 31, 2026:
+
+gemini-flash-lite-latest
+gemini-flash-latest
+This update applies exclusively to Gemini Enterprise Agent Platform. If you maintain projects that use Gemini models via Google AI Studio, different retirement timelines apply. You can locate those dates in the Gemini model deprecation documentation.
+
+We understand this change may require some planning, so we’ve provided additional information below to help you with the transition.
+
+What you need to know
+Key change:
+
+The Gemini model versions on Gemini Enterprise Agent Platform listed above will be discontinued on August 31, 2026.
+
+Impacted customers/accounts:
+
+The following project list is not categorized by model. Please verify the associated model for each project.
+
+Your affected projects are listed below:
+
+(project-ids listed here)
+What you need to do
+Action required before August 31, 2026:
+
+Test your workflows: Validate your existing workflows to ensure they are ready for the switch to the recommended migration path on Gemini Enterprise Agent Platform (see below). We encourage you to test multiple migration paths in preparation for transitioning models.
+Update model endpoints: Transition your workflows to the following recommended generally available (GA) migration targets:
+Current model	Recommended GA migration target
+gemini-flash-lite-latest	Gemini 3.1 Flash-Lite / Gemma 4
+gemini-flash-latest	Gemini 3.5 flash
+Implement thought signature circulation: To ensure the Gemini 3 model maintains its reasoning capabilities, you must capture the thought signatures from each response and include them in your follow-up request to the model, exactly as they were received. Refer to the Thought signatures guide for implementation details.
+Recommended for review:
+
+Review updated pricing tiers: Evaluate the Agent Platform Pricing documentation for Gemini 3 models as costs will change. Many use cases may find a better balance by migrating from Flash to Flash-Lite or Pro to Flash.
+Update Provisioned Throughput (PT): If you’ve purchased PT (including having projects with an active PT order on these models, and/or any projects that recently had traffic on these models), you will have until the retirement date to migrate to another model. To migrate to another model through the self service console, follow instructions in the Change a standard Provisioned Throughput order guide.
+We’re here to help
+We've compiled these guidelines to assist you with the transition:
+
+Migrate to the latest Gemini models
+For details on Gemini 3.1 and 3.5 regional availability, refer to our Deployments and endpoints documentation
+If you have any questions or need help, check the product documentation and migration guide.
+
+Thanks for choosing Gemini Enterprise Agent Platform.
+
+– The Google Cloud Team
+
+---
+
+TITLE: Review and tune Google Cloud Armor stable rulesets before Jul 20, 2026
+CATEGORY: Action Advised
+SERVICE: Google Cloud Armor
+SEVERITY: HIGH
+DATE: 2026-07-20
+ACTION_REQUIRED: TRUE
+CONTENT:
+Hello Google Cloud Armor customer,
+
+This is a follow up to our April 7, 2026 communication: [Action Advised] Review and tune Google Cloud Armor canary rulesets before Jul 7, 2026.
+
+We’re updating Google Cloud Armor preconfigured WAF rules to enhance parsing and security. We have already deployed these enhancements to the canary rulesets within Core Rule Set (CRS) 3.0 and 3.3, and a rollout to the stable rulesets is scheduled to start July 20, 2026.
+
+If you are using CRS 4.22 you can ignore this communication given these updates are already integrated from its initial release.
+
+We’ve provided additional details below on how these enhancements will operate and the actions required to configure the rulesets.
+
+What you need to know
+Key changes:
+The security enhancements introduce changes to the detection logic within your preconfigured WAF rules, which will impact the traffic they match. Existing rules may stop matching traffic that was previously detected and may also start matching new traffic that was not detected before.
+
+Potential impact:
+While we are confident that these enhancements will improve the accuracy and effectiveness of the rules, these changes may impact legitimate requests in your applications and require additional or new tuning to ensure optimal performance. See the Cloud Armor WAF tuning page for more details on how to tune your rules.
+
+What you need to do
+Action advised:
+We recommend evaluating canary rulesets in preview mode to validate expected behavior and perform any necessary tuning.
+
+Stable rulesets are scheduled to be synchronized with canary rulesets starting July 20, 2026. Ensure you conduct validation and tuning using the canary versions prior to the stable rulesets release.
+
+When configuring these rulesets in preview mode, it is essential to assign them a higher priority (represented by a lower numerical value) within the Cloud Armor security policy relative to enforced rulesets to ensure the generation of detailed logging.
+
+You can preview the effects of a rule without enforcing it. In preview mode, actions are noted in Cloud Monitoring. Cloud Armor has extensive logging and lets you define how verbose your logging is.
+
+For complete information about logging, see Use request logging
+For more information about verbose logging, see Verbose logging
+For more information about Cloud Armor logs, see Viewing logs
+Additionally, with CRS 4.22 Generally Availability (GA) this month (July), we highly recommend migrating your rulesets from older versions (CRS 3.0 and 3.3) to this newest ruleset for enhanced protection. To ensure a smooth transition, we advise deploying CRS 4.22 in preview mode first to validate performance and complete any required tuning.
+
+Timelines:
+
+Canary rulesets: These updates are already integrated
+Stable rulesets: A rollout to stable rulesets is scheduled to launch starting July 20, 2026
+Impacted customers/accounts:
+
+Your affected projects are listed below:
+
+
+We’re here to help
+If you have any questions or require assistance, please contact Google Cloud Support.
+
+Thanks for choosing Google Cloud Armor.
+
+– The Google Cloud Team
+
+---
+
+TITLE: Update for Managed Service for Apache Spark Conda channels and deprecated images
+CATEGORY: Reminder
+SERVICE: Managed Service for Apache Spark
+SEVERITY: HIGH
+DATE: 2026-08-25
+ACTION_REQUIRED: TRUE
+CONTENT:
+Hello Managed Service for Apache Spark customer,
+
+This message is a reminder of a few upcoming changes to Managed Service for Apache Spark (formerly Dataproc and Serverless for Apache Spark). These changes require further action to ensure your workloads continue to work without disruption beyond August 25, 2026.
+
+We understand this change may require some planning and have provided information below to help you with the transition. You will need to take action, if you are doing any of the following:
+
+Using pre-configured conda channels in any of your Managed Service for Apache Spark clusters (Compute Engine or GKE) or serverless workloads to install packages via `conda install <package>`, including for 2.1 and above cluster images and serverless runtimes
+Running clusters on Compute Engine on already unsupported 1.x or 2.0 images
+What you need to know
+Key change:
+
+Starting on August 25, 2026, Google Cloud will remove pre-configured channels including conda from all Managed Service for Apache Spark cluster images and serverless runtimes (including already released images). If your workloads rely on pre-configured channels, packages will fail to install.
+
+Potential impacts:
+
+Pre-configured package channel removal: Cluster images (including for 2.1 and above) and serverless runtimes, will no longer have pre-configured package channels. You may still configure package channels manually if you have the necessary license from respective providers.
+Image end-of-life: August 25, 2026 marks the official end-of-life for clusters on Compute Engine images 1.x to 2.0. You will no longer be able to create new clusters with new projects using these images.
+Existing cluster end-of-life: Existing clusters that are not upgraded to the latest supported sub-minor image versions (without pre-configured channels) may stop working and could be deleted as early as September 15, 2026.
+What you need to do
+Actions required:
+
+To prevent service interruptions, please take the following actions based on your deployment type before August 25, 2026:
+
+For Compute Engine cluster deployments:
+
+Explicitly provide channels: If your clusters utilize `conda`, you must provide your own channel configurations for package installations to avoid package installation errors. If you do not pin cluster image versions and do not use `conda install`, no action is required. If you require conda to install packages, you can either pre-configure the channel using initialization actions or directly use the CLI command `conda install --channel <CHANNEL> <PACKAGE>` with the --channel flag to specify the channel you want to install from.
+Note: Google does not provide a commercial license for using Anaconda repository packages. If you want to independently use repo.anaconda.com or other repositories, you must review their license agreements to ensure your usage compliance.
+Upgrade image versions: You need to remove the dependency on pre-configured conda channels in your image before August 25, 2026 by transitioning to any of the following subminor image versions that do not have pre-configured conda channels: 1.3.96, 1.4.81, 1.5.92, 2.0.161, 2.1.117, 2.2.85 and 2.3.32 (see release notes). You can verify the dependency and take necessary actions using these image versions. After August 25, 2026, all supported images will not have pre-configured channels.
+Upgrade unsupported images: If you’re running on unsupported image versions 1.x or 2.0, we strongly recommend you upgrade your clusters to supported versions (2.1 or later) after the image versions without pre-configured package channels are released.
+Delete unused workloads: For workloads you no longer need, you can go to the Clusters page in the Google Cloud console and delete your clusters.
+Note: We will release the new sub-minor versions without pre-configured channels (for versions 1.x and 2.x) by July 10, 2026, but they will not be chosen by default if you have not pinned the image versions. They will be chosen by default only after August 25, 2026. You can verify your workloads on these ‘channels-free’ images before August 25, 2026 by pinning to these specific image versions.
+
+For serverless deployments:
+
+Provide own channels: Starting August 25, 2026, new workloads created on serverless deployment will be running an updated runtime without pre-configured package channels. If your workloads require conda or similar channels, you need to explicitly provide your own channel for installation of packages following the runtime update. When installing packages, use the CLI command `conda install --channel <CHANNEL> <PACKAGE>` with the --channel flag to specify the channel you want to install from. If you fail to take action, you will experience package installation errors.
+For GKE cluster deployments:
+
+Upgrade GKE workloads: Once new images are available, upgrade your workloads to the latest image that does not have pre-configured channels. Check the release notes for the image release, which will be available by July 30, 2026. If your workloads require conda, you must then explicitly provide your own channel for installation of packages following the image update. If you fail to take action, you will experience package installation errors.
+Impacted customers/accounts:
+
+Your affected projects are listed below:
+
+
+
+We’re here to help
+We understand that these updates may require some changes to your workflow, but please know that we’re here to support you. If you have any questions or require assistance, please contact Google Cloud Support, Google Cloud Professional Services Organization, or dataproc-msa-support@google.com.
+
+Thanks for choosing Managed Service for Apache Spark.
+
+– The Google Cloud Team
+	SUPPORT
+
+---
+
+TITLE: Update Cloud SQL permissions by Aug 1, 2026
+CATEGORY: Security Update
+SERVICE: Cloud SQL
+SEVERITY: HIGH
+DATE: 2026-08-01
+ACTION_REQUIRED: TRUE
+CONTENT:
+Hello Cloud SQL customer,
+
+You’re receiving this communication because you have projects using Cloud SQL. Starting August 1, 2026, we are updating the Identity and Access Management (IAM) permissions of Cloud SQL to improve the security of your database instances.
+
+We understand this change may require some planning and have provided additional information below to help you with the transition.
+
+What you need to know
+Key changes:
+
+Cloud SQL currently allows you to export data from MySQL, PostgreSQL, and SQL Server instances to Cloud Storage. Users currently require the Viewer (roles/cloudsql.viewer) or legacy Reader (READER) roles to export data.
+
+To prevent the potential unauthorized export of sensitive system and administrative information, we are proactively updating this functionality to require elevated permissions.
+
+The cloudsql.instances.export permission will be removed from the following roles:
+
+Cloud SQL Viewer: roles/cloudsql.viewer
+Legacy Reader role: READER
+Following the notice period, this permission will be restricted to more highly-privileged roles to minimize security risks.
+
+Potential impact:
+
+Once this change is enforced, users with only the Viewer or the legacy Reader role will no longer be able to export data via the Google Cloud console, Google Cloud CLI, or the Cloud SQL API.
+
+What you need to do
+Action required:
+
+To maintain export functionality, ensure users are assigned a role with the necessary permissions before the rollout date:
+
+Use predefined roles: Assign the Cloud SQL Editor (roles/cloudsql.editor) role to users who require export capabilities
+Update custom roles: If you use custom IAM roles, ensure they explicitly include the cloudsql.instances.export permission for users requiring export access
+Timelines:
+
+These changes will take effect on August 1, 2026. Ensure all role updates are completed before this date.
+
+Impacted customers/accounts:
+
+Your affected projects are listed below:
+
+
+We’re here to help
+If you have any questions or require assistance, please contact Google Cloud Support.
+
+Thanks for choosing Cloud SQL.
+
+– The Google Cloud Team
+	DOCUMENTATION
+	SUPPORT
+
+---
+
+TITLE: Update IAM policies for Google Cloud before Nov 26, 2026
+CATEGORY: Security Update
+SERVICE: Identity and Access Management (IAM)
+SEVERITY: CRITICAL
+DATE: 2026-11-26
+ACTION_REQUIRED: TRUE
+CONTENT:
+Hello Google Cloud customer,
+
+We are writing to inform you of changes to the IAM Viewer (roles/viewer) role to improve security starting from May 26, 2026. Basic roles include thousands of permissions across all Google Cloud services and should not be relied upon for authorization in production environments. Your organization has been identified as one using these basic roles, which is not a security best practice.
+
+To avoid service disruption, we will temporarily allow-list your organization to continue using the basic roles/viewer role for the specific operations listed below, and these operations will continue to function until the allow-list period ends on November 26, 2026. We’ve provided additional details below to help you understand these changes and take any necessary actions.
+
+What you need to know
+Key changes:
+
+Effective May 26, 2026, Google Cloud will remove the following permissions from the roles/viewer IAM basic role:
+
+compute.snapshots.useReadOnly
+compute.disks.useReadOnly
+compute.disks.createSnapshot
+compute.images.useReadOnly
+compute.instances.useReadOnly
+compute.machineImages.useReadOnly
+compute.instantSnaphots.useReadOnly
+These operations will fail after the November enforcement date for any applications relying solely on the roles/viewer role to grant the above permissions.
+
+Potential impact:
+
+Below operations will fail after the enforcement date for any applications or workflows relying on a principal that only has the roles/viewer role.
+
+VM instance creation from machine images
+Standalone disks from snapshots, cloned disks, or instant snapshots creation
+Image creation from snapshots, disks, or other images
+Snapshots from disks or instant snapshots creation
+Machine image creation
+Managed Instance Group operations
+What you need to do
+To minimize disruption, organizations currently using only the basic roles/viewer role for these operations are temporarily allow-listed, and operations will continue to function.
+
+Action required before November 26, 2026:
+
+Review affected usage: Identify any principals currently using roles/viewer to perform operations that will be restricted.
+You can view all potentially-affected principals in a project by running the below gCloud command:
+   gcloud projects get-iam-policy {your_project} \
+     --flatten="bindings[].members" \
+     --format="table(bindings.role, bindings.members)" \
+     --filter="bindings.role:(roles/viewer OR roles/reader)"
+You can follow the Analyze allow policies guide to identify operations where the principal is bound to roles/viewer for a given resource. You can also make use of IAM role recommendations.
+Adjust IAM policies: For any identified workflows, you must update your IAM policies. Instead of relying on roles/viewer, grant more specific, curated roles or create custom roles that explicitly include the permissions required for your operations. For example, to ensure proper permissions for your resources:
+Creating disks from snapshots: Grant a role that includes compute.disks.create and compute.snapshots.useReadOnly
+Creating VM instances from machine images: Grant a role including compute.instances.create and compute.machineImages.useReadOnly
+Timeline:
+
+After the November 26, 2026 deadline, the temporary allowlist will be fully removed, and you must make use of an alternative custom or curated IAM role to grant the permission(s) listed above. Otherwise, operations that rely on roles/viewer for useReadOnly or createSnapshot authorization will fail with a permissions error.
+
+Impacted customers/accounts:
+
+Your affected projects are listed below:
+
+
+We’re here to help
+We understand that these changes might require you to make some adjustments. We're committed to working closely with you to ensure a smooth transition. If you have any questions or require assistance, please contact Google Cloud Support.
+
+Thanks for choosing Google Cloud.
+
+– The Google Cloud Team
+	DOCUMENTATION
+	SUPPORT
+
+
