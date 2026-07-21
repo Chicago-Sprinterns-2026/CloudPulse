@@ -5,10 +5,15 @@ import agentplatform
 from agentplatform import types
 from google.genai import types as genai_types
 from google.cloud import bigquery
+
+
+from langchain_google_community import VertexAIAgentBuilderRetriever
  
 _PROJECT_ID = "sprinternship-chi1-2026"
 _LOCATION = "us-central1"
 _CORPUS_ID = "5175911405336920064"
+_DATA_STORE_LOCATION = "global"
+_DATA_STORE_ID = "google-cloud-official-docs_1784562830724"
  
  
 def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
@@ -52,7 +57,61 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
             if len(chunks) >= limit:
                 break
     return chunks
- 
+
+
+def _search_datastore_raw(
+    query: str,
+    limit: int = 5,
+) -> List[Dict[str, str]]:
+    """Internal helper: searches the Google Cloud documentation data store."""
+
+
+    if not query or not query.strip() or limit <= 0:
+        return []
+
+
+    retriever = VertexAIAgentBuilderRetriever(
+        project_id=_PROJECT_ID,
+        location_id=_DATA_STORE_LOCATION,
+        data_store_id=_DATA_STORE_ID,
+    )
+
+
+    try:
+        documents = retriever.invoke(query.strip())
+    except Exception as error:
+        raise RuntimeError(
+            f"Data store search failed: {error}"
+        ) from error
+
+
+    results: List[Dict[str, str]] = []
+
+
+    for document in documents[:limit]:
+        metadata = document.metadata or {}
+        text = (document.page_content or "").strip()
+
+
+        if not text:
+            continue
+
+
+        results.append(
+            {
+                "text": text,
+                "title": metadata.get("title", ""),
+                "source_url": (
+                    metadata.get("source", "")
+                    or metadata.get("uri", "")
+                    or metadata.get("link", "")
+                    or metadata.get("source_url", "")
+                ),
+            }
+        )
+
+
+    return results
  
 def cloudpulse_tool(
     action: str,
@@ -67,6 +126,8 @@ def cloudpulse_tool(
     Args:
         action: Which operation to perform. Must be one of:
             "search_docs" -- free-text documentation search (RAG). Requires `query`.
+            "search_datastore" -- searches the Google Cloud documentation data store.
+            Requires `query`.
             "metadata" -- structured product lookup. Requires `product_name`.
             "release_notes" -- release notes since a date. Requires `product_name`
                 and `start_date`.
@@ -83,6 +144,7 @@ def cloudpulse_tool(
  
     Returns:
         - "search_docs": list of dicts with "text", "source_url", "title".
+        - "search_datastore": list of dicts with "text", "source_url", "title".
         - "metadata": dict with product metadata, or {"error": ...}.
         - "release_notes": list of dicts with "product_name", "release_date",
           "description", "release_note_type".
@@ -92,8 +154,27 @@ def cloudpulse_tool(
     if action == "search_docs":
         if not query:
             return {"error": "query is required for search_docs."}
-        return _search_docs_raw(query=query, limit=limit)
- 
+
+
+        return _search_docs_raw(
+            query=query,
+            limit=limit,
+        )
+
+
+    elif action == "search_datastore":
+        if not query:
+            return {
+                "error": "query is required for search_datastore."
+            }
+
+
+        return _search_datastore_raw(
+            query=query,
+            limit=limit,
+        )
+
+
     elif action == "metadata":
         if not product_name:
             return {"error": "product_name is required for metadata lookup."}
@@ -184,5 +265,6 @@ def cloudpulse_tool(
     else:
         return {
             "error": f"Unknown action '{action}'. Must be one of: "
-            "search_docs, metadata, release_notes, msas."
+            "search_docs, search_datastore, metadata, release_notes, msas."
         }
+
