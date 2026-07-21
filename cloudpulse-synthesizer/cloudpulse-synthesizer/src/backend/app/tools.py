@@ -8,10 +8,11 @@ from google.cloud import bigquery
 _PROJECT_ID = "sprinternship-chi1-2026"
 _LOCATION = "us-central1"
 _CORPUS_ID = "5175911405336920064"
+_DATASTORE_PATH = f"projects/{_PROJECT_ID}/locations/global/collections/default_collection/dataStores/google-cloud-official-docs_1784562830724"
 
 
 def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
-    """Internal helper: runs Vertex AI RAG retrieval, not exposed to the model."""
+    """Internal helper: runs Vertex AI RAG retrieval on internal corpus."""
     if not query or not query.strip() or limit <= 0:
         return []
 
@@ -36,7 +37,8 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
             config=genai_types.GenerateContentConfig(tools=[rag_tool], temperature=0.2),
         )
     except Exception as error:
-        raise RuntimeError(f"RAG document search failed: {error}") from error
+        print(f"RAG document search warning: {error}")
+        return []
 
     chunks: List[Dict[str, str]] = []
     try:
@@ -57,6 +59,62 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     return chunks
 
 
+def _search_google_docs_datastore(query: str) -> List[Dict[str, str]]:
+    """Internal helper: queries the official Google Docs Vertex AI Search Data Store."""
+    if not query or not query.strip():
+        return []
+
+    try:
+        search_client = genai.Client(
+            vertexai=True,
+            project=_PROJECT_ID,
+            location="global"
+        )
+
+        datastore_tool = genai_types.Tool(
+            retrieval=genai_types.Retrieval(
+                vertex_ai_search=genai_types.VertexAISearch(
+                    datastore=_DATASTORE_PATH
+                )
+            )
+        )
+
+        response = search_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=query,
+            config=genai_types.GenerateContentConfig(
+                tools=[datastore_tool],
+                temperature=0.2
+            )
+        )
+
+        chunks: List[Dict[str, str]] = []
+        candidate = response.candidates[0] if response.candidates else None
+        grounding_meta = getattr(candidate, "grounding_metadata", None) if candidate else None
+        grounding_chunks = getattr(grounding_meta, "grounding_chunks", []) or []
+
+        if grounding_chunks:
+            for chunk in grounding_chunks:
+                if hasattr(chunk, "web") and chunk.web:
+                    chunks.append({
+                        "text": response.text or "",
+                        "source_url": chunk.web.uri or "",
+                        "title": chunk.web.title or "Google Cloud Documentation"
+                    })
+        elif response.text:
+            chunks.append({
+                "text": response.text.strip(),
+                "source_url": "https://docs.cloud.google.com",
+                "title": "Google Cloud Documentation"
+            })
+
+        return chunks
+
+    except Exception as e:
+        print(f"Data Store Search warning: {e}")
+        return []
+
+
 def cloudpulse_tool(
     action: str,
     query: Optional[str] = None,
@@ -69,7 +127,7 @@ def cloudpulse_tool(
 
     Args:
         action: Which operation to perform. Must be one of:
-            "search_docs" -- free-text documentation search (RAG). Requires `query`.
+            "search_docs" -- free-text documentation search (RAG + Data Store). Requires `query`.
             "metadata" -- structured product lookup. Requires `product_name`.
             "release_notes" -- release notes since a date. Requires `product_name`
                 and `start_date`.
@@ -95,14 +153,22 @@ def cloudpulse_tool(
     if action == "search_docs":
         if not query:
             return {"error": "query is required for search_docs."}
-        return _search_docs_raw(query=query, limit=limit)
+
+        # 1. Search internal RAG corpus
+        results = _search_docs_raw(query=query, limit=limit)
+
+        # 2. Fallback to Google Docs Data Store if no internal results found
+        if not results:
+            results = _search_google_docs_datastore(query=query)
+
+        return results
 
     elif action == "metadata":
         if not product_name:
             return {"error": "product_name is required for metadata lookup."}
         try:
             client = bigquery.Client()
-            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
             dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
 
             sql_query = f"""
@@ -136,7 +202,7 @@ def cloudpulse_tool(
             return {"error": "product_name and start_date are required for release notes."}
         try:
             client = bigquery.Client()
-            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-default-project")
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
             dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
             table_id = f"{project_id}.{dataset_id}.release_notes_table"
 
@@ -172,14 +238,20 @@ def cloudpulse_tool(
         if severity:
             search_query += f" Only return announcements with severity {severity}."
 
+        # 1. Try internal search
         chunks = _search_docs_raw(query=search_query, limit=5)
+
+        # 2. Fallback to Google Docs Data Store
+        if not chunks:
+            chunks = _search_google_docs_datastore(query=search_query)
+
         return [
             {
                 "product": product_name,
                 "severity_filter": severity,
-                "title": chunk["title"],
-                "description": chunk["text"],
-                "source_url": chunk["source_url"],
+                "title": chunk.get("title", ""),
+                "description": chunk.get("text", ""),
+                "source_url": chunk.get("source_url", ""),
             }
             for chunk in chunks
         ]
