@@ -188,11 +188,70 @@
   background: var(--surface-tint);
 }
 
+.carousel-tiles-viewport {
+  width: 100%;
+}
+
 .carousel-tiles {
   width: 100%;
   display: flex;
   justify-content: center;
   gap: 18px;
+  animation: slide-in-next 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-tiles.slide-prev {
+  animation-name: slide-in-prev;
+}
+
+.carousel-caption-viewport {
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+.carousel-caption {
+  animation: fade-in-caption 0.32s ease;
+}
+
+@keyframes slide-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-caption {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-tiles,
+  .carousel-caption {
+    animation: none;
+  }
 }
 
 .carousel-tile {

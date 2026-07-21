@@ -3,16 +3,7 @@
 //
 //   public/release-data/recent.json          — last RECENT_MONTHS, all products (small, fast)
 //   public/release-data/manifest.json        — { product, slug, count } for every product
-//   public/release-data/by-product/<slug>.json  — one file per product, FULL history
-//
-// Why: the raw files total ~21MB across ~10 files. Doing the
-// normalize/merge/dedupe in the BROWSER on every visit — even streamed —
-// means every user's browser re-downloads and re-processes all 21MB before
-// the app is usable. Doing it once here, at build time, means the browser
-// only ever fetches the small slice it actually needs: recent.json for the
-// default ledger, and a single per-product file only when someone clicks
-// "show full history" for that specific product.
-//
+//   public/release-data/by-product/<slug>.json  — one file per product, FULL histo
 // Run with: npm run build:data
 // Re-run this any time a file is added to/changed in ./data-raw.
 

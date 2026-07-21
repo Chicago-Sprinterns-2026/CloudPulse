@@ -55,6 +55,7 @@ export default function App() {
   // --- Core Application View Routing State ---
   const [viewState, setViewState] = useState('carousel');
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState('next');
   const [selectedProduct, setSelectedProduct] = useState('Compute Engine');
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -65,10 +66,16 @@ export default function App() {
   useEffect(() => {
     if (viewState !== 'carousel') return;
     const interval = setInterval(() => {
+      setSlideDirection('next');
       setCarouselIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [viewState]);
+
+  const goToCarouselSlide = (index, direction) => {
+    setSlideDirection(direction);
+    setCarouselIndex(index);
+  };
 
   const activeSlide = CAROUSEL_SLIDES[carouselIndex];
 
@@ -145,27 +152,29 @@ export default function App() {
               <button
                 className="arrow-btn"
                 aria-label="Previous category"
-                onClick={() => setCarouselIndex((prev) => (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length)}
+                onClick={() => goToCarouselSlide((carouselIndex - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length, 'prev')}
               >
                 ❬
               </button>
 
               <div className="carousel-band">
-                <div className="carousel-tiles">
-                  {activeSlide.products.map((prod, i) => (
-                    <button
-                      key={prod.name}
-                      className="carousel-tile active"
-                      style={{ '--tile-color': BRAND_COLORS[i % 4] }}
-                      onClick={() => {
-                        setSelectedProduct(prod.name);
-                        setViewState('login');
-                      }}
-                    >
-                      <span className="tile-swatch" />
-                      <span className="tile-label">{prod.name}</span>
-                    </button>
-                  ))}
+                <div className="carousel-tiles-viewport">
+                  <div className={`carousel-tiles slide-${slideDirection}`} key={carouselIndex}>
+                    {activeSlide.products.map((prod, i) => (
+                      <button
+                        key={prod.name}
+                        className="carousel-tile active"
+                        style={{ '--tile-color': BRAND_COLORS[i % 4] }}
+                        onClick={() => {
+                          setSelectedProduct(prod.name);
+                          setViewState('login');
+                        }}
+                      >
+                        <span className="tile-swatch" />
+                        <span className="tile-label">{prod.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="dots-container">
@@ -174,7 +183,7 @@ export default function App() {
                       key={slide.category}
                       className={`dot ${i === carouselIndex ? 'active' : ''}`}
                       style={{ '--dot-color': BRAND_COLORS[i % 4] }}
-                      onClick={() => setCarouselIndex(i)}
+                      onClick={() => goToCarouselSlide(i, i > carouselIndex ? 'next' : 'prev')}
                     />
                   ))}
                 </div>
@@ -183,15 +192,17 @@ export default function App() {
               <button
                 className="arrow-btn"
                 aria-label="Next category"
-                onClick={() => setCarouselIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length)}
+                onClick={() => goToCarouselSlide((carouselIndex + 1) % CAROUSEL_SLIDES.length, 'next')}
               >
                 ❭
               </button>
             </div>
 
-            <div className="carousel-caption">
-              <h2>{activeSlide.category}</h2>
-              <p>{CATEGORY_BLURBS[activeSlide.category] || 'Explore this category of Google Cloud products.'}</p>
+            <div className="carousel-caption-viewport">
+              <div className={`carousel-caption slide-${slideDirection}`} key={carouselIndex}>
+                <h2>{activeSlide.category}</h2>
+                <p>{CATEGORY_BLURBS[activeSlide.category] || 'Explore this category of Google Cloud products.'}</p>
+              </div>
             </div>
 
             <div className="carousel-actions">
