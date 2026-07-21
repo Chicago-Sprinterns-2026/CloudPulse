@@ -3,14 +3,9 @@ import { useReleaseNotes } from './useReleaseNotes';
 import { GCP_PRODUCTS } from './products';
 import { stripHtml, truncate, productsMatch } from './utils';
 
-// Google's four brand colors, canonical logo order — same rhythm used
-// throughout the app (carousel tiles, dots, category chips).
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
-// MOCK DATA: there's no account/subscription backend yet, so this stands in
-// for "the products this client is already using." Swap for a real
-// per-account product list once that API exists — everything below reads
-// from this one array, so nothing else needs to change.
+//Mock Data
 const MOCK_USER_PRODUCTS = ['Compute Engine', 'Cloud SQL', 'BigQuery'];
 
 export default function Dashboard({ onSelectProduct }) {

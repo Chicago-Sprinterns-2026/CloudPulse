@@ -10,14 +10,11 @@ import ReleaseHistory from "./releaseHistory";
 import { GCP_PRODUCTS, CATEGORIES } from "./products";
 import googleCloudIcon from "./assets/google-cloud-icon.png";
 
-// Google's four brand colors, canonical logo order — reused as the app's
-// recurring wayfinding rhythm (carousel tiles, dots, category chips).
+//Real brand colors.
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
 // Carousel slides: one per category, each spotlighting up to 4 example
-// products from that category. This scales to any catalog size — adding
-// more products or categories to products.js just adds more slides,
-// nothing here needs to change.
+// products from that category.
 function buildCarouselSlides() {
   return CATEGORIES.map((category) => ({
     category,
@@ -35,8 +32,7 @@ const HISTORY_ORIGIN_LABELS = {
   products: '← Back to all products',
 };
 
-// One-line blurb per category for the carousel caption. Falls back to a
-// generic line if a category isn't listed here yet.
+// One-line blurb per category for the carousel caption. 
 const CATEGORY_BLURBS = {
   'Compute': 'Run workloads on VMs, containers, or fully managed serverless.',
   'Storage': 'Object, block, and file storage for any workload.',
@@ -53,7 +49,6 @@ const CATEGORY_BLURBS = {
 };
 
 export default function App() {
-  // --- Core Application View Routing State ---
   const [viewState, setViewState] = useState('carousel');
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState('next');
@@ -63,7 +58,7 @@ export default function App() {
   const [historyProduct, setHistoryProduct] = useState(null);
   const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
 
-  // --- Automatic Rotating Carousel Timer Logic ---
+  // Carousel timing logic
   useEffect(() => {
     if (viewState !== 'carousel') return;
     const interval = setInterval(() => {
@@ -82,7 +77,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* GLOBAL TOP NAVBAR HEADER */}
       <header className="global-header-bar">
         <div className="brand" onClick={() => setViewState(isSignedIn ? 'dashboard' : 'carousel')} style={{ cursor: 'pointer' }}>
           <img src={googleCloudIcon} alt="Google Cloud" style={{ width: '22px', height: '20px', marginRight: '8px' }} />
@@ -144,9 +138,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* CORE CONTENT SWITCH ROUTER */}
       <main className="main-content">
-        {/* VIEW 1: STAGE CAROUSEL */}
+        {/* carousel view*/}
         {viewState === 'carousel' && (
           <div className="carousel-view">
             <div className="carousel-frame">
@@ -213,7 +206,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 2 + 2b: PRODUCT BROWSING (directory or recent updates) */}
+        {/* Product Browsing View */}
         {(viewState === 'products' || viewState === 'catalog') && (
           <div className="browse-view">
             <div className="browse-tabs">
@@ -261,7 +254,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 3: ACCOUNT LOGIN */}
+        {/* Login View*/}
         {viewState === 'login' && (
           <div className="login-view">
             <div className="login-card">
@@ -287,7 +280,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 3b: POST-SIGN-IN DASHBOARD */}
+        {/* Dashboard post sign in */}
         {viewState === 'dashboard' && isSignedIn && (
           <Dashboard onSelectProduct={(productName) => {
             setSelectedProduct(productName);
@@ -295,7 +288,7 @@ export default function App() {
           }} />
         )}
 
-        {/* VIEW 4: INTERACTIVE WORKSPACE */}
+        {/* Synthesizer view */}
         {viewState === 'synthesizer' && (
           <div className="workspace-view">
             <Synthesizer
@@ -309,7 +302,7 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 5: FULL RELEASE HISTORY FOR ONE PRODUCT */}
+        {/* Release History View */}
         {viewState === 'history' && historyProduct && (
           <ReleaseHistory
             product={historyProduct}
@@ -319,7 +312,7 @@ export default function App() {
         )}
       </main>
 
-      {/* GLOBAL POSITIONED FOOTER HUD BAR */}
+      
       <footer className={`global-footer-bar ${isSignedIn ? 'has-chat-dock' : ''}`}>
         {isSignedIn ? (
           <div className="footer-chat-dock">

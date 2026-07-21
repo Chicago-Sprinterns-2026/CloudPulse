@@ -24,9 +24,7 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
 
   const ledgerItems = productName.trim() ? matchingReleases : RECENT_RELEASES.slice(0, RECENT_COUNT);
 
-  // Total history (all time) for the typed product, from the manifest —
-  // used only to decide whether "show full history" has anything to add
-  // beyond what's already in the last-12-months ledger.
+  // Total history for the typed product
   const totalCount = useMemo(() => {
     if (!productName.trim()) return 0;
     const entry = manifest.find((m) => productsMatch(m.product, productName));

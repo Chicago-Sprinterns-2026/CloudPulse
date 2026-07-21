@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { GCP_PRODUCTS, CATEGORIES } from './products';
 
-// Same four-color rhythm established in the carousel, cycling by category index.
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
 export default function ProductDirectory({ onSelectProduct, onViewHistory }) {

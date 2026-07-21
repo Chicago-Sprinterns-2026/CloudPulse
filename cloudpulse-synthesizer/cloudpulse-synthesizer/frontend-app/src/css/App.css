@@ -153,14 +153,14 @@
   font-size: 14px;
 }
 
-/* ---------- Main content shell ---------- */
+/* main content */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* ---------- Carousel ---------- */
+/* carousel */
 .carousel-view {
   display: flex;
   flex-direction: column;
@@ -214,7 +214,7 @@
   animation: fade-in-caption 0.32s ease;
 }
 
-@keyframes slide-in-next {
+@keyframes slide-in-next { /*animation*/
   from {
     opacity: 0;
     transform: translateX(28px);
@@ -255,9 +255,6 @@
 }
 
 .carousel-tile {
-  /* Fixed width matching a 4-up grid track, so tile size stays constant
-     no matter how many tiles a slide has — flexbox then centers the row
-     when there are fewer than 4. */
   flex: 0 0 calc((100% - 54px) / 4);
   aspect-ratio: 1 / 0.85;
   display: flex;
@@ -393,7 +390,7 @@
   color: var(--ink);
 }
 
-/* ---------- Catalog ---------- */
+/* catalog */
 .catalog-view {
   padding: 16px 48px 64px;
 }
@@ -463,7 +460,7 @@
   gap: 8px;
 }
 
-/* ---------- Dashboard (post-sign-in) ---------- */
+/* dashboard styling */
 .dashboard-view {
   padding: 32px 48px 64px;
 }
@@ -591,7 +588,7 @@
   color: var(--ink-faint);
 }
 
-/* ---------- Browse shell (tabs above directory / catalog) ---------- */
+/* browsing tabs */
 .browse-view {
   padding-top: 24px;
 }
@@ -625,7 +622,7 @@
   border-bottom-color: var(--g-blue);
 }
 
-/* ---------- Product Directory ---------- */
+/* Product directory */
 .directory-view {
   padding: 16px 48px 64px;
 }
@@ -772,7 +769,7 @@
   color: var(--ink-soft);
 }
 
-/* ---------- Login ---------- */
+/* login page */
 .login-view {
   flex: 1;
   display: flex;
@@ -836,7 +833,7 @@
   margin-top: 6px;
 }
 
-/* ---------- Release History (per-product, full timeline) ---------- */
+/* Release History page */
 .history-view {
   padding: 32px 48px 64px;
   max-width: 760px;
@@ -951,7 +948,7 @@
   white-space: pre-wrap;
 }
 
-/* ---------- Workspace / Synthesizer ---------- */
+/* Synthesizer */
 .workspace-view {
   flex: 1;
   padding: 32px 32px 0;
@@ -1020,7 +1017,7 @@
   margin-bottom: 12px;
 }
 
-/* ---------- One-pager PDF export (print) ---------- */
+/* PDF Export button */
 @media print {
   body * {
     visibility: hidden;
@@ -1074,7 +1071,7 @@
   margin: 10px 0 0;
 }
 
-/* ---------- Chatbot (full-width bottom dock) ---------- */
+/* Chatbot styling */
 .workspace-chatbot {
   width: 100%;
   background: var(--surface);
@@ -1174,7 +1171,7 @@
   outline-offset: 1px;
 }
 
-/* ---------- Footer ---------- */
+/* bottom of page */
 .global-footer-bar {
   display: flex;
   align-items: center;
@@ -1203,7 +1200,7 @@
   50% { text-shadow: 0 0 6px rgba(52, 168, 83, 0.7); }
 }
 
-/* ---------- Responsive ---------- */
+
 @media (max-width: 860px) {
   .workspace-grid {
     grid-template-columns: 1fr;

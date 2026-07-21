@@ -1,11 +1,5 @@
 // Preprocesses every release_notes*.json file in ./data-raw into small,
 // purpose-built files the app actually fetches at runtime:
-//
-//   public/release-data/recent.json          — last RECENT_MONTHS, all products (small, fast)
-//   public/release-data/manifest.json        — { product, slug, count } for every product
-//   public/release-data/by-product/<slug>.json  — one file per product, FULL histo
-// Run with: npm run build:data
-// Re-run this any time a file is added to/changed in ./data-raw.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -97,11 +91,9 @@ function main() {
 
   fs.mkdirSync(path.join(OUT_DIR, 'by-product'), { recursive: true });
 
-  // recent.json — everything within the buffer window, all products
   const recent = merged.filter((r) => isWithinMonths(r.date, RECENT_MONTHS));
   fs.writeFileSync(path.join(OUT_DIR, 'recent.json'), JSON.stringify(recent));
 
-  // by-product/<slug>.json — full history per product, plus a manifest
   const byProduct = new Map();
   merged.forEach((r) => {
     if (!byProduct.has(r.product)) byProduct.set(r.product, []);

@@ -26,7 +26,6 @@ export default function ReleaseHistory({ product, onBack, backLabel }) {
     });
   }, [history, dateFrom, dateTo]);
 
-  // Keep pagination in range whenever the filtered set shrinks.
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);

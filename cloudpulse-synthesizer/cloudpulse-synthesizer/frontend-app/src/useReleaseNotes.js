@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadRecentReleases, loadProductHistory, loadManifest } from './releaseNotesData';
 
-// Returns { releases, loading, error } for the last 12 months, across every
-// product. Backed by a single ~3MB fetch of the prebuilt recent.json
-// (see releaseNotesData.js) instead of processing all raw source files.
+
 export function useReleaseNotes() {
   const [releases, setReleases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +30,7 @@ export function useReleaseNotes() {
   return { releases, loading, error };
 }
 
-// Returns { releases, loading, error } for ONE product's full history
-// (all dates, not just the last 12 months). Fetches only that product's
-// small prebuilt file — not the full dataset. `product` may be null/empty
-// while a selection hasn't been made yet; the hook just stays idle.
+
 export function useProductHistory(product) {
   const [releases, setReleases] = useState([]);
   const [loading, setLoading] = useState(Boolean(product));
@@ -74,9 +69,7 @@ export function useProductHistory(product) {
   return { releases, loading, error };
 }
 
-// Returns { manifest, loading } — the small [{ product, slug, count }] list
-// covering every product's TOTAL release count (not just last-12-months),
-// used to decide whether a "show full history" link is worth showing.
+
 export function useManifest() {
   const [manifest, setManifest] = useState([]);
   const [loading, setLoading] = useState(true);

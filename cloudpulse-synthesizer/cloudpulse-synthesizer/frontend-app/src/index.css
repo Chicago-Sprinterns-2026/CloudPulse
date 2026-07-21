@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap');
 
 :root {
-  /* --- Google Cloud brand colors (official) --- */
+  
   --g-blue: #4285f4;
   --g-red: #ea4335;
   --g-yellow: #fbbc04;
   --g-green: #34a853;
 
-  /* --- Neutral scale, matched to Google Material's own grays --- */
   --bg: #ffffff;
   --surface: #ffffff;
   --surface-tint: #f1f3f4;

@@ -1,13 +1,3 @@
-// Fetches the small, prebuilt files in /public/release-data instead of
-// processing the ~21MB of raw source data in the browser. Those raw files
-// live in /data-raw at the project root and are merged/deduped/split ONCE
-// by `npm run build:data` (scripts/build-release-data.mjs) — re-run that
-// any time a file is added to or changed in /data-raw.
-//
-//   recent.json           — last 12 months, every product (~3MB, one fetch)
-//   manifest.json         — [{ product, slug, count }] for every product (~20KB)
-//   by-product/<slug>.json — one product's FULL history, fetched on demand
-
 const BASE = '/release-data';
 
 let recentCache = null;
@@ -62,9 +52,7 @@ export function loadManifest() {
 
 const productHistoryCache = new Map();
 
-// Product names in the app don't always exactly match the manifest's
-// (same fuzzy-match issue as everywhere else — e.g. "Cloud SQL" vs
-// "Cloud SQL for MySQL"). Exact match first, fall back to substring.
+//Matches names based on exact match and substring
 function findManifestEntry(manifest, product) {
   const exact = manifest.find((m) => m.product === product);
   if (exact) return exact;
