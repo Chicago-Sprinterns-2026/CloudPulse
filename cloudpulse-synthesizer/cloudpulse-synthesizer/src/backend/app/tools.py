@@ -1,5 +1,6 @@
 import os
 from typing import Optional, Any, Dict, List
+from google.cloud import discoveryengine
 
 from google import genai
 from google.genai import types as genai_types
@@ -59,59 +60,49 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     return chunks
 
 
-def _search_google_docs_datastore(query: str) -> List[Dict[str, str]]:
+def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, str]]:
     """Internal helper: queries the official Google Docs Vertex AI Search Data Store."""
     if not query or not query.strip():
         return []
 
     try:
-        search_client = genai.Client(
-            vertexai=True,
+        client = discoveryengine.SearchServiceClient()
+        serving_config = client.serving_config_path(
             project=_PROJECT_ID,
-            location="global"
+            location="global",
+            data_store="google-cloud-official-docs_1784562830724",
+            serving_config="default_config",
         )
 
-        datastore_tool = genai_types.Tool(
-            retrieval=genai_types.Retrieval(
-                vertex_ai_search=genai_types.VertexAISearch(
-                    datastore=_DATASTORE_PATH
-                )
-            )
+        request = discoveryengine.SearchRequest(
+            serving_config=serving_config,
+            query=query,
+            page_size=limit,
         )
 
-        response = search_client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=query,
-            config=genai_types.GenerateContentConfig(
-                tools=[datastore_tool],
-                temperature=0.2
-            )
-        )
-
+        response = client.search(request)
         chunks: List[Dict[str, str]] = []
-        candidate = response.candidates[0] if response.candidates else None
-        grounding_meta = getattr(candidate, "grounding_metadata", None) if candidate else None
-        grounding_chunks = getattr(grounding_meta, "grounding_chunks", []) or []
 
-        if grounding_chunks:
-            for chunk in grounding_chunks:
-                if hasattr(chunk, "web") and chunk.web:
-                    chunks.append({
-                        "text": response.text or "",
-                        "source_url": chunk.web.uri or "",
-                        "title": chunk.web.title or "Google Cloud Documentation"
-                    })
-        elif response.text:
-            chunks.append({
-                "text": response.text.strip(),
-                "source_url": "https://docs.cloud.google.com",
-                "title": "Google Cloud Documentation"
-            })
+        for result in response.results:
+            data = result.document.derived_struct_data
+            title = data.get("title", "Google Cloud Documentation")
+            link = data.get("link", "")
+            
+            # Extract text snippet from search result
+            snippets = data.get("snippets", [])
+            text_content = snippets[0].get("snippet", "") if snippets else ""
+
+            if text_content:
+                chunks.append({
+                    "text": text_content,
+                    "source_url": link,
+                    "title": title,
+                })
 
         return chunks
 
     except Exception as e:
-        print(f"Data Store Search warning: {e}")
+        print(f"Data Store Search error: {e}")
         return []
 
 
