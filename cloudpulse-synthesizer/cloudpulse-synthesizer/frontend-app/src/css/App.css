@@ -1020,6 +1020,28 @@
   margin-bottom: 12px;
 }
 
+/* ---------- One-pager PDF export (print) ---------- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #one-pager-print,
+  #one-pager-print * {
+    visibility: visible;
+  }
+
+  #one-pager-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
+
 .scrolling-ledger {
   max-height: 360px;
   overflow-y: auto;

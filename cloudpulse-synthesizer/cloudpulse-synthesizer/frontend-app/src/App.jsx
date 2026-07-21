@@ -8,6 +8,7 @@ import ProductDirectory from "./productDirectory";
 import Dashboard from "./dashboard";
 import ReleaseHistory from "./releaseHistory";
 import { GCP_PRODUCTS, CATEGORIES } from "./products";
+import googleCloudIcon from "./assets/google-cloud-icon.png";
 
 // Google's four brand colors, canonical logo order — reused as the app's
 // recurring wayfinding rhythm (carousel tiles, dots, category chips).
@@ -84,8 +85,8 @@ export default function App() {
       {/* GLOBAL TOP NAVBAR HEADER */}
       <header className="global-header-bar">
         <div className="brand" onClick={() => setViewState(isSignedIn ? 'dashboard' : 'carousel')} style={{ cursor: 'pointer' }}>
-          <span style={{ fontSize: '1.4rem', marginRight: '8px' }}>☁️</span>
-          <strong style={{ fontSize: '1.1rem', color: '#202124' }}>CloudPulse Engine Workspace</strong>
+          <img src={googleCloudIcon} alt="Google Cloud" style={{ width: '22px', height: '20px', marginRight: '8px' }} />
+          <strong style={{ fontSize: '1.1rem', color: '#202124' }}>CloudPulse</strong>
         </div>
 
         <div className="header-right-actions">

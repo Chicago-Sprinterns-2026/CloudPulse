@@ -73,9 +73,19 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
         </form>
 
         {output && (
-          <div className="synthesis-output">
-            <pre>{output}</pre>
-          </div>
+          <>
+            <div className="synthesis-output" id="one-pager-print">
+              <pre>{output}</pre>
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary full-width"
+              style={{ marginTop: '10px' }}
+              onClick={() => window.print()}
+            >
+              Export as PDF
+            </button>
+          </>
         )}
       </div>
 
