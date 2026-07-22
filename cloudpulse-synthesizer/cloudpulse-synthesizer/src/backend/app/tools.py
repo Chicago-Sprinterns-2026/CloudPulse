@@ -161,53 +161,43 @@ def cloudpulse_tool(
     limit: int = 5,
 ) -> Any:
     """Single tool for docs search, product metadata, release notes, and MSAs.
-
+    
     Args:
         action: Which operation to perform. Must be one of:
             "search_docs" -- free-text documentation search (RAG + Data Store). Requires `query`.
             "metadata" -- structured product lookup. Requires `product_name`.
-            "release_notes" -- release notes since a date. Requires `product_name`
-                and `start_date`.
-            "msas" -- Mandatory Service Announcements. Requires `product_name`;
-                `severity` is optional.
+            "release_notes" -- release notes since a date. Requires `product_name` and `start_date`.
+            "msas" -- Mandatory Service Announcements. Requires `product_name`; `severity` is optional.
         query: Search text. Only used when action="search_docs".
-        product_name: Exact Google Cloud product name. Used by "metadata",
-            "release_notes", and "msas".
-        start_date: Earliest date to include, format YYYY-MM-DD. Only used
-            when action="release_notes".
-        severity: Optional severity filter, e.g. "CRITICAL". Only used when
-            action="msas".
+        product_name: Exact Google Cloud product name. Used by "metadata", "release_notes", and "msas".
+        start_date: Earliest date to include, format YYYY-MM-DD. Only used when action="release_notes".
+        severity: Optional severity filter, e.g. "CRITICAL". Only used when action="msas".
         limit: Max number of results for "search_docs". Defaults to 5.
-
+        
     Returns:
         - "search_docs": list of dicts with "text", "source_url", "title".
-        - "metadata": dict with product metadata, or {"error": ...}.
-        - "release_notes": list of dicts with "product_name", "release_date",
-          "description", "release_note_type".
-        - "msas": list of dicts with "product", "severity_filter", "title",
-          "description", "source_url".
+        - "metadata": dict with product metadata and documentation search results.
+        - "release_notes": dict with BigQuery release notes and fallback documentation search results.
+        - "msas": list of dicts with "product", "severity_filter", "title", "description", "source_url".
     """
     if action == "search_docs":
         if not query:
             return {"error": "query is required for search_docs."}
-
-        # 1. Search internal RAG corpus
+        
+        # Always execute both RAG and Data Store searches
         results = _search_docs_raw(query=query, limit=limit)
-
-        # 2. Fallback to Google Docs Data Store if no internal results found
-        if not results:
-            results = _search_google_docs_datastore(query=query)
-
+        results.extend(_search_google_docs_datastore(query=query))
         return results
 
     elif action == "metadata":
         if not product_name:
             return {"error": "product_name is required for metadata lookup."}
+        
+        metadata_res = {}
         try:
             client = bigquery.Client()
             project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
             dataset_id = os.environ.get("BIGQUERY_DATASET", "cloudpulse_dataset")
-
             sql_query = f"""
                 SELECT product_name, owner_team, current_version, shutdown_protocol, status
                 FROM `{project_id}.{dataset_id}.product_metadata`
@@ -220,45 +210,42 @@ def cloudpulse_tool(
                 ]
             )
             results = client.query(sql_query, job_config=job_config).result()
-
             for row in results:
-                return {
+                metadata_res = {
                     "product_name": row.product_name,
                     "owner_team": row.owner_team,
                     "current_version": row.current_version,
                     "shutdown_protocol": row.shutdown_protocol,
                     "status": row.status,
                 }
-            
-            # Fallback to docs search if product not found in BigQuery
-            return _search_docs_raw(f"{product_name} status documentation") or _search_google_docs_datastore(f"{product_name} status")
-
         except Exception as e:
-            # Fallback to docs search if BigQuery dataset/table is missing
-            print(f"BigQuery metadata lookup fallback: {e}")
-            return _search_docs_raw(f"{product_name} status documentation") or _search_google_docs_datastore(f"{product_name} status")
+            print(f"BigQuery metadata lookup error: {e}")
+        
+        # Always execute both RAG and Data Store searches for status documentation
+        docs_results = _search_docs_raw(f"{product_name} status documentation")
+        docs_results.extend(_search_google_docs_datastore(f"{product_name} status"))
+        
+        metadata_res["documentation_search_results"] = docs_results
+        return metadata_res
 
     elif action == "release_notes":
         if not product_name:
             return {"error": "product_name is required for release notes lookup."}
         
-        # Default start_date to a broad window if not provided
         if not start_date or start_date.strip() == "":
             start_date = "2020-01-01"
-
+            
+        notes = []
         try:
             client = bigquery.Client()
-            
-            # Use LOWER() matching so 'BigQuery', 'bigquery', 'Cloud Run' all match cleanly
             sql_query = """
                 SELECT product_name, product_version_name, description, published_at, release_note_type
                 FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
                 WHERE LOWER(product_name) LIKE LOWER(@product_name)
-                  AND published_at >= TIMESTAMP(@start_date)
+                AND published_at >= TIMESTAMP(@start_date)
                 ORDER BY published_at DESC
                 LIMIT 15
             """
-            
             job_config = bigquery.QueryJobConfig(
                 query_parameters=[
                     bigquery.ScalarQueryParameter("product_name", "STRING", f"%{product_name}%"),
@@ -266,8 +253,6 @@ def cloudpulse_tool(
                 ]
             )
             results = client.query(sql_query, job_config=job_config).result()
-
-            notes = []
             for row in results:
                 soup_text = BeautifulSoup(row.description or "", "html.parser").get_text(separator=" ")
                 notes.append({
@@ -277,21 +262,24 @@ def cloudpulse_tool(
                     "date": str(row.published_at)[:10],
                     "summary": soup_text[:300]
                 })
-
-            if notes:
-                return {"product": product_name, "count": len(notes), "notes": notes}
-
-            # Fallback to Datastore Search if BigQuery returns 0 records
-            return _search_google_docs_datastore(f"{product_name} release notes updates")
-
         except Exception as e:
             print(f"BigQuery release notes search error: {e}")
-            return _search_google_docs_datastore(f"{product_name} release notes updates")
+            
+        # Always execute both RAG and Data Store documentation searches
+        docs_results = _search_docs_raw(f"{product_name} release notes updates")
+        docs_results.extend(_search_google_docs_datastore(f"{product_name} release notes updates"))
+        
+        return {
+            "product": product_name,
+            "bq_notes_count": len(notes),
+            "bq_notes": notes,
+            "documentation_search_results": docs_results
+        }
 
     elif action == "msas":
         if not product_name or not product_name.strip():
             return []
-
+            
         search_query = (
             f"Mandatory Service Announcements for {product_name}. "
             "Find required actions, deprecations, security changes, "
@@ -299,14 +287,11 @@ def cloudpulse_tool(
         )
         if severity:
             search_query += f" Only return announcements with severity {severity}."
-
-        # 1. Try internal search
+            
+        # Always execute both RAG and Data Store searches for MSAs
         chunks = _search_docs_raw(query=search_query, limit=5)
-
-        # 2. Fallback to Google Docs Data Store
-        if not chunks:
-            chunks = _search_google_docs_datastore(query=search_query)
-
+        chunks.extend(_search_google_docs_datastore(query=search_query))
+        
         return [
             {
                 "product": product_name,
@@ -317,7 +302,7 @@ def cloudpulse_tool(
             }
             for chunk in chunks
         ]
-
+        
     else:
         return {
             "error": f"Unknown action '{action}'. Must be one of: "
