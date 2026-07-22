@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import "./css/App.css";
 import Catalog from "./catalog";    
 import Synthesizer from "./synthesizer"; 
 import Chatbot from "./chatbot";
 import ProductDirectory from "./productDirectory";
+import ProductDetail from "./productDetail";
 import Dashboard from "./dashboard";
 import ReleaseHistory from "./releaseHistory";
 import { GCP_PRODUCTS, CATEGORIES } from "./products";
@@ -57,13 +58,12 @@ export default function App() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
   const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
-  const isTileHoveredRef = useRef(false);
+  const [detailProduct, setDetailProduct] = useState(null);
 
   // Carousel timing logic
   useEffect(() => {
     if (viewState !== 'carousel') return;
     const interval = setInterval(() => {
-      if (isTileHoveredRef.current) return;
       setSlideDirection('next');
       setCarouselIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
     }, 5000);
@@ -99,7 +99,7 @@ export default function App() {
                 Dashboard
               </button>
               <button
-                className={`header-nav-link ${viewState === 'products' ? 'active' : ''}`}
+                className={`header-nav-link ${(viewState === 'products' || viewState === 'productDetail') ? 'active' : ''}`}
                 onClick={() => setViewState('products')}
               >
                 Products
@@ -165,8 +165,6 @@ export default function App() {
                           setSelectedProduct(prod.name);
                           setViewState('login');
                         }}
-                        onMouseEnter={() => { isTileHoveredRef.current = true; }}
-                        onMouseLeave={() => { isTileHoveredRef.current = false; }}
                       >
                         <span className="tile-swatch" />
                         <span className="tile-label">{prod.name}</span>
@@ -236,10 +234,9 @@ export default function App() {
                   setIsSignedIn(true);
                   setViewState('synthesizer');
                 }}
-                onViewHistory={(productName) => {
-                  setHistoryProduct(productName);
-                  setHistoryOrigin('products');
-                  setViewState('history');
+                onSeeMore={(productName) => {
+                  setDetailProduct(productName);
+                  setViewState('productDetail');
                 }}
               />
             )}
@@ -314,6 +311,14 @@ export default function App() {
             product={historyProduct}
             backLabel={HISTORY_ORIGIN_LABELS[historyOrigin]}
             onBack={() => setViewState(historyOrigin)}
+          />
+        )}
+
+        {/* Product Detail View (Documentation + Release History tabs) */}
+        {viewState === 'productDetail' && detailProduct && (
+          <ProductDetail
+            product={detailProduct}
+            onBack={() => setViewState('products')}
           />
         )}
       </main>

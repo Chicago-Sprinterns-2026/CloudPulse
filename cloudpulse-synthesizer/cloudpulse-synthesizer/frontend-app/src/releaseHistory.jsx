@@ -4,7 +4,7 @@ import { stripHtml } from './utils';
 
 const PAGE_SIZE = 15;
 
-export default function ReleaseHistory({ product, onBack, backLabel }) {
+export default function ReleaseHistory({ product, onBack, backLabel, embedded = false }) {
   const { releases: history, loading, error } = useProductHistory(product);
 
   const [dateFrom, setDateFrom] = useState('');
@@ -36,9 +36,12 @@ export default function ReleaseHistory({ product, onBack, backLabel }) {
 
   return (
     <div className="history-view">
-      <button className="history-back" onClick={onBack}>{backLabel || '← Back'}</button>
-
-      <h3>Full release history — {product}</h3>
+      {!embedded && (
+        <>
+          <button className="history-back" onClick={onBack}>{backLabel || '← Back'}</button>
+          <h3>Full release history — {product}</h3>
+        </>
+      )}
       <p className="subtitle">
         {loading
           ? 'Loading full history…'

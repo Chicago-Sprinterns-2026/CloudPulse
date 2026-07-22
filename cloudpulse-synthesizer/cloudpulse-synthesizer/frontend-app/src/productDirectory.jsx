@@ -3,7 +3,7 @@ import { GCP_PRODUCTS, CATEGORIES } from './products';
 
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
-export default function ProductDirectory({ onSelectProduct, onViewHistory }) {
+export default function ProductDirectory({ onSelectProduct, onSeeMore }) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -66,8 +66,8 @@ export default function ProductDirectory({ onSelectProduct, onViewHistory }) {
                   <span className="directory-card-name">{p.name}</span>
                   <span className="directory-card-category">{p.category}</span>
                 </button>
-                <button className="directory-card-history-link" onClick={() => onViewHistory(p.name)}>
-                  View release history →
+                <button className="directory-card-history-link" onClick={() => onSeeMore(p.name)}>
+                  See more →
                 </button>
               </div>
             );
