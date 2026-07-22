@@ -2,7 +2,7 @@ from google.adk.agents.llm_agent import Agent
 from google.genai import types
 
 from .tools import cloudpulse_tool
-from .prompt_template import (
+from .prompt_templates import (
     SYSTEM_PROMPT,
     ONE_PAGER_PROMPT,
     TROUBLESHOOTING_PROMPT,
