@@ -1,8 +1,12 @@
+import uuid
+
 from google.adk.agents.llm_agent import Agent
 from google import genai
 from google.genai import types
 from google.adk.agents import Agent
 from google.adk.agents.callback_context import CallbackContext
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
 from .tools import cloudpulse_tool
 from .prompt_templates import (
     SYSTEM_PROMPT,
@@ -130,3 +134,94 @@ root_agent = Agent(
         ),
     ),
 )
+
+_APP_NAME = "cloudpulse"
+_USER_ID = "cloudpulse-user"
+
+_session_service = InMemorySessionService()
+_runner = Runner(
+    app_name=_APP_NAME,
+    agent=root_agent,
+    session_service=_session_service,
+)
+
+
+async def run_agent(message: str, session_id: str | None = None):
+    session_id = session_id or str(uuid.uuid4())
+
+    session = await _session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    if session is None:
+        await _session_service.create_session(
+            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        )
+
+    content = types.Content(role="user", parts=[types.Part(text=message)])
+
+    answer = ""
+    async for event in _runner.run_async(
+        user_id=_USER_ID, session_id=session_id, new_message=content
+    ):
+        if event.is_final_response() and event.content and event.content.parts:
+            answer = "".join(part.text or "" for part in event.content.parts)
+
+    return {"answer": answer, "source_documents": []}
+
+
+# Dedicated agent for one-pager generation (pdf.py), skipping root_agent's
+# before_agent_callback. That callback spends a full extra Gemini round-trip
+# classifying a chat persona, but SYSTEM_PROMPT/ONE_PAGER_PROMPT reference
+# persona via unresolved {{persona}} placeholders (not ADK's {persona} state
+# templating), and the callback itself sets `context.session.state[...]`
+# (undefined `context`) instead of `callback_context...` — so the classified
+# persona never actually reaches the instruction either way. One-pagers don't
+# need per-message audience adaptation, so this path just skips it outright.
+one_pager_agent = Agent(
+    model='gemini-2.5-flash',
+    name='one_pager_agent',
+    description='Generates CloudPulse product one-pagers.',
+    instruction=(
+        "Write a one-pager for the requested Google Cloud product using "
+        "`cloudpulse_tool`, which supports: 'metadata' (product_name), "
+        "'release_notes' (product_name, start_date), and 'msas' (product_name). "
+        "Always set the `action` argument explicitly. Structure the response as: "
+        "1. Executive Summary, 2. What Changed / Active Alerts, "
+        "3. Recommended Actions & Deadlines, 4. Sources & Citations."
+    ),
+    tools=[cloudpulse_tool],
+    generate_content_config=types.GenerateContentConfig(
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
+        ),
+    ),
+)
+
+_one_pager_runner = Runner(
+    app_name=_APP_NAME,
+    agent=one_pager_agent,
+    session_service=_session_service,
+)
+
+
+async def run_one_pager_agent(message: str, session_id: str | None = None):
+    session_id = session_id or str(uuid.uuid4())
+
+    session = await _session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    if session is None:
+        await _session_service.create_session(
+            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        )
+
+    content = types.Content(role="user", parts=[types.Part(text=message)])
+
+    answer = ""
+    async for event in _one_pager_runner.run_async(
+        user_id=_USER_ID, session_id=session_id, new_message=content
+    ):
+        if event.is_final_response() and event.content and event.content.parts:
+            answer = "".join(part.text or "" for part in event.content.parts)
+
+    return {"answer": answer, "source_documents": []}

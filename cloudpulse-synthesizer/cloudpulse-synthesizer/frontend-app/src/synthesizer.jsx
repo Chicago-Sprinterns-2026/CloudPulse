@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import axios from 'axios';
 import { useReleaseNotes, useManifest } from './useReleaseNotes';
 import { productsMatch } from './utils';
 import { GCP_PRODUCTS } from './products';
@@ -12,6 +13,8 @@ function matchesProduct(release, query) {
 export default function Synthesizer({ defaultProduct, onViewHistory }) {
   const [productName, setProductName] = useState(defaultProduct || '');
   const [output, setOutput] = useState('');
+  const [pdfUrl, setPdfUrl] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Already scoped to the last 12 months — see public/release-data/recent.json
   // and scripts/build-release-data.mjs.
@@ -46,17 +49,24 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
     );
   }, [productName]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!productName.trim()) return;
 
-    if (matchingReleases.length === 0) {
-      setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${productName}\n\nNo release notes found for "${productName}" in the last 12 months.`);
-      return;
-    }
+    setIsGenerating(true);
+    setPdfUrl('');
 
-    const latest = matchingReleases[0];
-    setOutput(`### MOCK SYNTHESIS ONE-PAGER\n**Product:** ${latest.product}\n**Date:** ${latest.date}\n\n${latest.update}`);
+    try {
+      const { data } = await axios.post('http://localhost:8000/api/generate-pdf', {
+        product_name: productName.trim(),
+      });
+      setOutput(data.content_text);
+      setPdfUrl(data.pdf_url);
+    } catch (error) {
+      setOutput('⚠️ Unable to reach the PDF generation backend. Ensure the API server is running on localhost:8000.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -78,8 +88,8 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary full-width">
-            Generate one-pager
+          <button type="submit" className="btn btn-primary full-width" disabled={isGenerating}>
+            {isGenerating ? 'Generating…' : 'Generate one-pager'}
           </button>
         </form>
 
