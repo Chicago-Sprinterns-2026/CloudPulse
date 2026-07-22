@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+
 
 const QUICK_QUESTIONS = [
   "What recent changes affect my deployment?",
@@ -6,26 +8,27 @@ const QUICK_QUESTIONS = [
   "What troubleshooting steps should I try first?"
 ];
 
+
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+
 
   const handleSend = async (text) => {
     const query = text || input;
     if (!query.trim()) return;
 
+
     const userMsg = { sender: 'user', text: query };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
 
+
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: query })
+      const { data } = await axios.post('http://localhost:8000/api/chat', {
+        message: query
       });
 
-      const data = await response.json();
 
       const botMsg = {
         sender: 'bot',
@@ -33,6 +36,7 @@ export default function Chatbot() {
         sources: data.source_documents || [],
         showChips: true
       };
+
 
       setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
@@ -43,8 +47,10 @@ export default function Chatbot() {
     }
   };
 
+
   const handleChipClick = (choice) => {
     setMessages((prev) => prev.map((m) => ({ ...m, showChips: false })));
+
 
     const botFollowUp = {
       sender: 'bot',
@@ -55,10 +61,12 @@ export default function Chatbot() {
     setMessages((prev) => [...prev, botFollowUp]);
   };
 
+
   return (
     <div className="workspace-chatbot">
       <h4>💬 Troubleshooting Assistant</h4>
       <hr />
+
 
       <div className="chat-history">
         {messages.length === 0 && <p className="subtitle">Select a quick prompt or type below to begin.</p>}
@@ -75,6 +83,7 @@ export default function Chatbot() {
         ))}
       </div>
 
+
       <div className="quick-questions-row">
         {QUICK_QUESTIONS.map((q, i) => (
           <button key={i} className="btn btn-secondary quick-question" onClick={() => handleSend(q)}>
@@ -82,6 +91,7 @@ export default function Chatbot() {
           </button>
         ))}
       </div>
+
 
       <div className="chat-input-wrapper">
         <input
