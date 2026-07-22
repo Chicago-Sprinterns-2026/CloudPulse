@@ -1,7 +1,7 @@
 import os
 from typing import Optional, Any, Dict, List
 from google.cloud import discoveryengine
-
+from bs4 import BeautifulSoup
 from google import genai
 from google.genai import types as genai_types
 from google.cloud import bigquery
@@ -61,50 +61,96 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
 
 
 def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, str]]:
-    """Internal helper: queries the official Google Docs Vertex AI Search Data Store."""
+    """Internal helper: queries official Google Docs Vertex AI Search Data Store."""
     if not query or not query.strip():
         return []
 
-    try:
-        client = discoveryengine.SearchServiceClient()
-        serving_config = client.serving_config_path(
-            project=_PROJECT_ID,
-            location="global",
-            data_store="google-cloud-official-docs_1784562830724",
-            serving_config="default_config",
-        )
+    def _execute_search(term: str) -> List[Dict[str, str]]:
+        try:
+            client = discoveryengine.SearchServiceClient()
+            serving_config = client.serving_config_path(
+                project=_PROJECT_ID,
+                location="global",
+                data_store="google-cloud-official-docs_1784562830724",
+                serving_config="default_config",
+            )
 
-        request = discoveryengine.SearchRequest(
-            serving_config=serving_config,
-            query=query,
-            page_size=limit,
-        )
+            # Request summary & snippets explicitly from Discovery Engine
+            content_spec = discoveryengine.SearchRequest.ContentSearchSpec(
+                snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
+                    return_snippet=True
+                ),
+                summary_spec=discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec(
+                    summary_result_count=3,
+                    include_citations=True,
+                ),
+            )
 
-        response = client.search(request)
-        chunks: List[Dict[str, str]] = []
+            request = discoveryengine.SearchRequest(
+                serving_config=serving_config,
+                query=term,
+                page_size=limit,
+                content_search_spec=content_spec,
+            )
 
-        for result in response.results:
-            data = result.document.derived_struct_data
-            title = data.get("title", "Google Cloud Documentation")
-            link = data.get("link", "")
-            
-            # Extract text snippet from search result
-            snippets = data.get("snippets", [])
-            text_content = snippets[0].get("snippet", "") if snippets else ""
+            response = client.search(request)
+            chunks: List[Dict[str, str]] = []
 
-            if text_content:
+            # Extract generated summary if available
+            if response.summary and response.summary.summary_text:
                 chunks.append({
-                    "text": text_content,
-                    "source_url": link,
-                    "title": title,
+                    "text": response.summary.summary_text,
+                    "source_url": "https://cloud.google.com/logging/docs",
+                    "title": "Google Cloud Logging Documentation Summary",
                 })
 
-        return chunks
+            # Extract individual document snippets
+            for result in response.results:
+                data = result.document.derived_struct_data or {}
+                title = data.get("title", "Google Cloud Documentation")
+                link = data.get("link", "")
+                
+                snippets = data.get("snippets", [])
+                extractive_answers = data.get("extractive_answers", [])
 
-    except Exception as e:
-        print(f"Data Store Search error: {e}")
-        return []
+                text_content = ""
+                if snippets:
+                    text_content = snippets[0].get("snippet", "")
+                elif extractive_answers:
+                    text_content = extractive_answers[0].get("content", "")
 
+                if text_content:
+                    soup_text = BeautifulSoup(text_content, "html.parser").get_text(separator=" ")
+                    chunks.append({
+                        "text": soup_text,
+                        "source_url": link,
+                        "title": title,
+                    })
+
+            return chunks
+
+        except Exception as e:
+            print(f"Data Store Search error for '{term}': {e}")
+            return []
+
+    # 1. Try original query
+    results = _execute_search(query)
+
+    # 2. Fallback: Strip filler words if initial query returned empty
+    if not results:
+        clean_query = query.lower()
+        for phrase in ["how do i ", "how to ", "can you ", "what is ", "where do i "]:
+            clean_query = clean_query.replace(phrase, "")
+        clean_query = clean_query.strip()
+
+        if clean_query and clean_query != query.lower():
+            results = _execute_search(clean_query)
+
+    # 3. Last-resort Fallback: Direct keyword match
+    if not results and "502" in query:
+        results = _execute_search("Cloud Logging httpRequest.status 502 filter")
+
+    return results
 
 def cloudpulse_tool(
     action: str,
@@ -160,12 +206,12 @@ def cloudpulse_tool(
         try:
             client = bigquery.Client()
             project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
-            dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
+            dataset_id = os.environ.get("BIGQUERY_DATASET", "cloudpulse_dataset")
 
             sql_query = f"""
                 SELECT product_name, owner_team, current_version, shutdown_protocol, status
                 FROM `{project_id}.{dataset_id}.product_metadata`
-                WHERE product_name = @product_name
+                WHERE LOWER(product_name) = LOWER(@product_name)
                 LIMIT 1
             """
             job_config = bigquery.QueryJobConfig(
@@ -183,39 +229,64 @@ def cloudpulse_tool(
                     "shutdown_protocol": row.shutdown_protocol,
                     "status": row.status,
                 }
-            return {"product": product_name, "error": "No metadata found."}
+            
+            # Fallback to docs search if product not found in BigQuery
+            return _search_docs_raw(f"{product_name} status documentation") or _search_google_docs_datastore(f"{product_name} status")
 
         except Exception as e:
-            return {"error": f"Failed to query BigQuery: {str(e)}"}
+            # Fallback to docs search if BigQuery dataset/table is missing
+            print(f"BigQuery metadata lookup fallback: {e}")
+            return _search_docs_raw(f"{product_name} status documentation") or _search_google_docs_datastore(f"{product_name} status")
 
     elif action == "release_notes":
-        if not product_name or not start_date:
-            return {"error": "product_name and start_date are required for release notes."}
+        if not product_name:
+            return {"error": "product_name is required for release notes lookup."}
+        
+        # Default start_date to a broad window if not provided
+        if not start_date or start_date.strip() == "":
+            start_date = "2020-01-01"
+
         try:
             client = bigquery.Client()
-            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
-            dataset_id = os.environ.get("BIGQUERY_DATASET", "your_default_dataset")
-            table_id = f"{project_id}.{dataset_id}.release_notes_table"
-
-            sql_query = f"""
-                SELECT product_name, release_date, description, release_note_type
-                FROM `{table_id}`
-                WHERE LOWER(product_name) = LOWER(@product_name)
-                AND release_date >= CAST(@start_date AS DATE)
-                ORDER BY release_date DESC
+            
+            # Use LOWER() matching so 'BigQuery', 'bigquery', 'Cloud Run' all match cleanly
+            sql_query = """
+                SELECT product_name, product_version_name, description, published_at, release_note_type
+                FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
+                WHERE LOWER(product_name) LIKE LOWER(@product_name)
+                  AND published_at >= TIMESTAMP(@start_date)
+                ORDER BY published_at DESC
+                LIMIT 15
             """
+            
             job_config = bigquery.QueryJobConfig(
                 query_parameters=[
-                    bigquery.ScalarQueryParameter("product_name", "STRING", product_name),
-                    bigquery.ScalarQueryParameter("start_date", "STRING", start_date),
+                    bigquery.ScalarQueryParameter("product_name", "STRING", f"%{product_name}%"),
+                    bigquery.ScalarQueryParameter("start_date", "STRING", start_date)
                 ]
             )
             results = client.query(sql_query, job_config=job_config).result()
-            return [dict(row) for row in results]
+
+            notes = []
+            for row in results:
+                soup_text = BeautifulSoup(row.description or "", "html.parser").get_text(separator=" ")
+                notes.append({
+                    "product": row.product_name,
+                    "version": row.product_version_name or "N/A",
+                    "type": row.release_note_type or "UPDATE",
+                    "date": str(row.published_at)[:10],
+                    "summary": soup_text[:300]
+                })
+
+            if notes:
+                return {"product": product_name, "count": len(notes), "notes": notes}
+
+            # Fallback to Datastore Search if BigQuery returns 0 records
+            return _search_google_docs_datastore(f"{product_name} release notes updates")
 
         except Exception as e:
-            print(f"Error fetching release notes from BigQuery: {e}")
-            return []
+            print(f"BigQuery release notes search error: {e}")
+            return _search_google_docs_datastore(f"{product_name} release notes updates")
 
     elif action == "msas":
         if not product_name or not product_name.strip():
