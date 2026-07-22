@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import "./css/App.css";
 import Catalog from "./catalog";    
@@ -59,11 +59,13 @@ export default function App() {
   const [historyProduct, setHistoryProduct] = useState(null);
   const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
   const [detailProduct, setDetailProduct] = useState(null);
+  const isTileHoveredRef = useRef(false);
 
   // Carousel timing logic
   useEffect(() => {
     if (viewState !== 'carousel') return;
     const interval = setInterval(() => {
+      if (isTileHoveredRef.current) return;
       setSlideDirection('next');
       setCarouselIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
     }, 5000);
@@ -165,6 +167,8 @@ export default function App() {
                           setSelectedProduct(prod.name);
                           setViewState('login');
                         }}
+                        onMouseEnter={() => { isTileHoveredRef.current = true; }}
+                        onMouseLeave={() => { isTileHoveredRef.current = false; }}
                       >
                         <span className="tile-swatch" />
                         <span className="tile-label">{prod.name}</span>

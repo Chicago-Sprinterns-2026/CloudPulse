@@ -302,13 +302,12 @@
   font-size: 11.5px;
   line-height: 1.45;
   color: var(--ink);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
 }
 
-.carousel-tile:hover .tile-swatch,
 .carousel-tile:hover .tile-label {
   opacity: 0;
 }
@@ -343,10 +342,9 @@
   font-weight: 700;
 }
 
-/* .active sets swatch/label opacity:1 permanently (every tile carries
-   .active) — these need to win over that on hover, or the fade never
+/* .active sets label opacity:1 permanently (every tile carries
+   .active) — this needs to win over that on hover, or the fade never
    actually shows. */
-.carousel-tile.active:hover .tile-swatch,
 .carousel-tile.active:hover .tile-label {
   opacity: 0;
 }
