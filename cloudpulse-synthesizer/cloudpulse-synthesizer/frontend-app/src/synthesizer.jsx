@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useReleaseNotes, useManifest } from './useReleaseNotes';
 import { productsMatch } from './utils';
+import { GCP_PRODUCTS } from './products';
 
 const RECENT_COUNT = 6;
 
@@ -32,6 +33,18 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
   }, [manifest, productName]);
 
   const hasOlderHistory = productName.trim() && totalCount > matchingReleases.length;
+
+  // Catalog entry for the typed/selected product, used for the description
+  // blurb above the ledger. Exact match first (this is what a directory
+  // click sends in), falls back to fuzzy match for free-typed queries.
+  const catalogEntry = useMemo(() => {
+    if (!productName.trim()) return null;
+    return (
+      GCP_PRODUCTS.find((p) => p.name === productName.trim()) ||
+      GCP_PRODUCTS.find((p) => productsMatch(p.name, productName)) ||
+      null
+    );
+  }, [productName]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -89,6 +102,14 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
 
       {/* Right Scrollable Panel Ledger */}
       <div className="ledger-panel">
+        {catalogEntry && (
+          <div className="ledger-service-blurb">
+            <span className="ledger-service-name">{catalogEntry.name}</span>
+            <span className="ledger-service-category">{catalogEntry.category}</span>
+            <p>{catalogEntry.description}</p>
+          </div>
+        )}
+
         <h4>Release Notes Ledger</h4>
         <p className="subtitle" style={{ marginBottom: '10px' }}>
           Last 12 months{loading && ' · loading…'}

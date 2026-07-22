@@ -1017,6 +1017,36 @@
   margin-bottom: 12px;
 }
 
+.ledger-service-blurb {
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: var(--surface-tint, rgba(66, 133, 244, 0.06));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.ledger-service-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  margin-right: 8px;
+}
+
+.ledger-service-category {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint, var(--ink-soft));
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ledger-service-blurb p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
 /* PDF Export button */
 @media print {
   body * {
@@ -1040,7 +1070,7 @@
 }
 
 .scrolling-ledger {
-  max-height: 360px;
+  max-height: 240px;
   overflow-y: auto;
   padding-right: 4px;
 }

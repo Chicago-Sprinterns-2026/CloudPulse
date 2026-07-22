@@ -228,7 +228,8 @@ export default function App() {
               <ProductDirectory
                 onSelectProduct={(productName) => {
                   setSelectedProduct(productName);
-                  setViewState('login');
+                  setIsSignedIn(true);
+                  setViewState('synthesizer');
                 }}
                 onViewHistory={(productName) => {
                   setHistoryProduct(productName);
