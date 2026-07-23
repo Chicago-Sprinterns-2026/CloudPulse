@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 import { useReleaseNotes, useManifest } from './useReleaseNotes';
 import { productsMatch } from './utils';
 import { GCP_PRODUCTS } from './products';
@@ -96,7 +97,7 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
         {output && (
           <>
             <div className="synthesis-output" id="one-pager-print">
-              <pre>{output}</pre>
+              <ReactMarkdown>{output}</ReactMarkdown>
             </div>
             <button
               type="button"
