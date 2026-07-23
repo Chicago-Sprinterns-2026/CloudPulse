@@ -8,6 +8,27 @@ const QUICK_QUESTIONS = [
   "What troubleshooting steps should I try first?",
 ];
 
+// Small talk (greetings, thanks, acknowledgements) never warrants offering
+// a "more technical" / "simpler" follow-up — there's no substance to
+// re-explain. Same for answers too short to have a technical/simple axis.
+const SMALL_TALK_PATTERN =
+  /^(hi|hello|hey+|yo|sup|thanks|thank you|thx|ty|bye|goodbye|see ya|ok|okay|k|cool|nice|great|got it|sounds good|awesome|perfect|np|no problem|you're welcome)[\s!.,]*$/i;
+
+function shouldOfferFollowUpChips(query, answer) {
+  if (SMALL_TALK_PATTERN.test(query.trim())) return false;
+  if (!answer || answer.trim().length < 40) return false;
+  return true;
+}
+
+// Staged labels for the "still working" indicator — timestamps are ms
+// after the request starts. Keeps a long-running call from just sitting
+// on a static "Thinking..." with no sense of progress.
+const THINKING_STAGES = [
+  { at: 0, label: "Thinking" },
+  { at: 1800, label: "Gathering information" },
+  { at: 4200, label: "Finalizing" },
+];
+
 // Single chatbot surface for the workspace: handles free-form Q&A through
 // the general chat agent (/api/chat) AND, when a product is selected, a
 // one-click structured one-pager (/api/generate-pdf) rendered as a bot
@@ -20,10 +41,27 @@ export default function Chatbot({ product }) {
   const [lastOnePagerId, setLastOnePagerId] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [selectionMenu, setSelectionMenu] = useState(null);
+  const [thinkingLabel, setThinkingLabel] = useState(THINKING_STAGES[0].label);
   const nextIdRef = useRef(0);
   const chatHistoryRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const thinkingTimeoutsRef = useRef([]);
+
+  const clearThinkingSequence = () => {
+    thinkingTimeoutsRef.current.forEach(clearTimeout);
+    thinkingTimeoutsRef.current = [];
+  };
+
+  const startThinkingSequence = () => {
+    clearThinkingSequence();
+    setThinkingLabel(THINKING_STAGES[0].label);
+    thinkingTimeoutsRef.current = THINKING_STAGES.slice(1).map((stage) =>
+      setTimeout(() => setThinkingLabel(stage.label), stage.at)
+    );
+  };
+
+  useEffect(() => clearThinkingSequence, []);
 
   const nextId = () => {
     nextIdRef.current += 1;
@@ -36,10 +74,11 @@ export default function Chatbot({ product }) {
     return withId.id;
   };
 
-  // Keep the newest message in view without requiring a manual scroll.
+  // Keep the newest message (or the typing indicator) in view without
+  // requiring a manual scroll.
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages]);
+  }, [messages, isSending, isGeneratingOnePager]);
 
   // Dismiss the "Reply" popup on any click that isn't the popup itself.
   useEffect(() => {
@@ -98,6 +137,7 @@ export default function Chatbot({ product }) {
     setInput("");
     setReplyTo(null);
     setIsSending(true);
+    startThinkingSequence();
 
     try {
       const { data } = await axios.post("http://localhost:8000/api/chat", {
@@ -108,7 +148,7 @@ export default function Chatbot({ product }) {
         sender: "bot",
         text: data.answer,
         sources: data.source_documents || [],
-        showChips: true,
+        showChips: shouldOfferFollowUpChips(query, data.answer),
       });
     } catch (error) {
       pushMessage({
@@ -116,6 +156,7 @@ export default function Chatbot({ product }) {
         text: "⚠️ Unable to reach the retrieval backend. Ensure the API server is running on localhost:8000.",
       });
     } finally {
+      clearThinkingSequence();
       setIsSending(false);
     }
   };
@@ -132,6 +173,7 @@ export default function Chatbot({ product }) {
 
     pushMessage({ sender: "user", text: `Generate a one-pager for ${targetProduct}` });
     setIsGeneratingOnePager(true);
+    startThinkingSequence();
 
     try {
       const { data } = await axios.post("http://localhost:8000/api/generate-pdf", {
@@ -150,6 +192,7 @@ export default function Chatbot({ product }) {
         text: `⚠️ Unable to generate a one-pager for ${targetProduct}. Ensure the API server is running on localhost:8000.`,
       });
     } finally {
+      clearThinkingSequence();
       setIsGeneratingOnePager(false);
     }
   };
@@ -230,6 +273,17 @@ export default function Chatbot({ product }) {
             )}
           </div>
         ))}
+
+        {(isSending || isGeneratingOnePager) && (
+          <div className="chat-bubble bot typing-indicator">
+            <span className="typing-label">{thinkingLabel}…</span>
+            <span className="typing-dots">
+              <span />
+              <span />
+              <span />
+            </span>
+          </div>
+        )}
 
         {selectionMenu && (
           <button
