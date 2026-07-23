@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.agent import run_one_pager_agent
+from app.agent import generate_one_pager
 
 router = APIRouter(prefix="/api", tags=["pdf"])
 
@@ -15,12 +15,8 @@ class PdfRequest(BaseModel):
 
 async def _get_one_pager_content(product_name: str) -> str:
     try:
-        result = await run_one_pager_agent(
-            f"Write a one-pager summary for the Google Cloud product "
-            f"'{product_name}': current status, recent release notes, "
-            f"and any mandatory service announcements (MSAs)."
-        )
-        return result["answer"] or f"No synthesis content returned for {product_name}."
+        text = await generate_one_pager(product_name)
+        return text or f"No synthesis content returned for {product_name}."
     except Exception as error:
         return f"⚠️ Failed to generate one-pager for {product_name}: {error}"
 

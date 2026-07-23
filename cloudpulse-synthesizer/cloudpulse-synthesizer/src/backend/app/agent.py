@@ -1,4 +1,7 @@
+import asyncio
+import json
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from google.adk.agents.llm_agent import Agent
 from google import genai
@@ -7,7 +10,7 @@ from google.adk.agents import Agent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from .tools import cloudpulse_tool
+from .tools import cloudpulse_tool, _PROJECT_ID, _LOCATION
 from .prompt_templates import (
     SYSTEM_PROMPT,
     ONE_PAGER_PROMPT,
@@ -169,83 +172,75 @@ async def run_agent(message: str, session_id: str | None = None):
     return {"answer": answer, "source_documents": []}
 
 
-# Dedicated agent for one-pager generation (pdf.py), skipping root_agent's
-# before_agent_callback. That callback spends a full extra Gemini round-trip
-# classifying a chat persona, but SYSTEM_PROMPT/ONE_PAGER_PROMPT reference
-# persona via unresolved {{persona}} placeholders (not ADK's {persona} state
-# templating), and the callback itself sets `context.session.state[...]`
-# (undefined `context`) instead of `callback_context...` — so the classified
-# persona never actually reaches the instruction either way. One-pagers don't
-# need per-message audience adaptation, so this path just skips it outright.
-one_pager_agent = Agent(
-    model='gemini-2.5-flash',
-    name='one_pager_agent',
-    description='Generates CloudPulse product one-pagers.',
-    instruction=(
-        "Write a one-pager for the requested Google Cloud product using "
-        "`cloudpulse_tool`, which supports: 'metadata' (product_name), "
-        "'release_notes' (product_name, start_date), and 'msas' (product_name). "
-        "Always set the `action` argument explicitly.\n\n"
-        "The output must fit exactly one printed page — every response must "
-        "use this exact structure, in this exact order, with these exact "
-        "Markdown headers, and stay within the word budget per section "
-        "(target ~500-600 words total; treat these as hard caps, not "
-        "suggestions):\n\n"
-        "## Executive Summary\n"
-        "60-80 words. One paragraph, no bullets. What the product is and its "
-        "current state.\n\n"
-        "## What Changed / Active Alerts\n"
-        "150-180 words. Bulleted. The most important recent release notes "
-        "and any active MSAs, most impactful first.\n\n"
-        "## Why It Matters\n"
-        "60-80 words. One paragraph. The business/technical impact of the "
-        "above changes.\n\n"
-        "## Impacted Users/Workloads\n"
-        "50-70 words. Bulleted or one short paragraph. Who/what is affected.\n\n"
-        "## Recommended Actions & Deadlines\n"
-        "100-120 words. Bulleted, one action per bullet, with a deadline "
-        "date when one exists in the source data.\n\n"
-        "## Sources & Citations\n"
-        "30-50 words. Short bulleted list of the specific tool calls/source "
-        "URLs used.\n\n"
-        "Never add, remove, rename, or reorder sections. Never add extra "
-        "commentary outside these six sections. If a section has nothing "
-        "relevant to report, keep the header and write one line stating "
-        "that plainly rather than omitting or padding it."
-    ),
-    tools=[cloudpulse_tool],
-    generate_content_config=types.GenerateContentConfig(
-        http_options=types.HttpOptions(
-            retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
+# One-pagers always need exactly the same three lookups (metadata,
+# release_notes, msas) — there's no need to spend a Gemini round-trip
+# having an agent "decide" to call them. Fetching them directly in
+# parallel and doing a single synthesis call cuts out that whole extra
+# round-trip (previously: one call to choose tools, then the tool calls,
+# then a final call to write the text — now: tool calls, then one call).
+ONE_PAGER_INSTRUCTION = (
+    "You are given pre-fetched data for a Google Cloud product from three "
+    "sources: product metadata, recent release notes, and mandatory service "
+    "announcements (MSAs). Write a one-pager from that data alone — do not "
+    "invent facts not present in it.\n\n"
+    "The output must fit exactly one printed page — use this exact "
+    "structure, in this exact order, with these exact Markdown headers, "
+    "and stay within the word budget per section (target ~500-600 words "
+    "total; treat these as hard caps, not suggestions):\n\n"
+    "## Executive Summary\n"
+    "60-80 words. One paragraph, no bullets. What the product is and its "
+    "current state.\n\n"
+    "## What Changed / Active Alerts\n"
+    "150-180 words. Bulleted. The most important recent release notes "
+    "and any active MSAs, most impactful first.\n\n"
+    "## Why It Matters\n"
+    "60-80 words. One paragraph. The business/technical impact of the "
+    "above changes.\n\n"
+    "## Impacted Users/Workloads\n"
+    "50-70 words. Bulleted or one short paragraph. Who/what is affected.\n\n"
+    "## Recommended Actions & Deadlines\n"
+    "100-120 words. Bulleted, one action per bullet, with a deadline "
+    "date when one exists in the source data.\n\n"
+    "## Sources & Citations\n"
+    "30-50 words. Short bulleted list of the specific tool calls/source "
+    "URLs used.\n\n"
+    "Never add, remove, rename, or reorder sections. Never add extra "
+    "commentary outside these six sections. If a section has nothing "
+    "relevant to report, keep the header and write one line stating "
+    "that plainly rather than omitting or padding it."
+)
+
+_one_pager_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
+
+
+async def generate_one_pager(product_name: str) -> str:
+    start_date = (datetime.now(timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%d")
+
+    metadata_result, release_notes_result, msas_result = await asyncio.gather(
+        asyncio.to_thread(cloudpulse_tool, action="metadata", product_name=product_name),
+        asyncio.to_thread(
+            cloudpulse_tool, action="release_notes", product_name=product_name, start_date=start_date
         ),
-    ),
-)
-
-_one_pager_runner = Runner(
-    app_name=_APP_NAME,
-    agent=one_pager_agent,
-    session_service=_session_service,
-)
-
-
-async def run_one_pager_agent(message: str, session_id: str | None = None):
-    session_id = session_id or str(uuid.uuid4())
-
-    session = await _session_service.get_session(
-        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        asyncio.to_thread(cloudpulse_tool, action="msas", product_name=product_name),
     )
-    if session is None:
-        await _session_service.create_session(
-            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
-        )
 
-    content = types.Content(role="user", parts=[types.Part(text=message)])
+    prompt = (
+        f"{ONE_PAGER_INSTRUCTION}\n\n"
+        f"Product: {product_name}\n\n"
+        f"metadata tool result:\n{json.dumps(metadata_result, default=str)}\n\n"
+        f"release_notes tool result:\n{json.dumps(release_notes_result, default=str)}\n\n"
+        f"msas tool result:\n{json.dumps(msas_result, default=str)}"
+    )
 
-    answer = ""
-    async for event in _one_pager_runner.run_async(
-        user_id=_USER_ID, session_id=session_id, new_message=content
-    ):
-        if event.is_final_response() and event.content and event.content.parts:
-            answer = "".join(part.text or "" for part in event.content.parts)
+    response = _one_pager_client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            http_options=types.HttpOptions(
+                retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
+            ),
+        ),
+    )
 
-    return {"answer": answer, "source_documents": []}
+    return response.text or ""
