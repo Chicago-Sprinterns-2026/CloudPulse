@@ -184,9 +184,9 @@ def cloudpulse_tool(
         if not query:
             return {"error": "query is required for search_docs."}
         
+        # Always execute both RAG and Data Store searches
         results = _search_docs_raw(query=query, limit=limit)
-        if not results:
-            results = _search_google_docs_datastore(query=query)
+        results.extend(_search_google_docs_datastore(query=query))
         return results
 
     elif action == "metadata":
@@ -194,43 +194,38 @@ def cloudpulse_tool(
             return {"error": "product_name is required for metadata lookup."}
         
         metadata_res = {}
-        dataset_id = os.environ.get("BIGQUERY_DATASET")
-        if dataset_id:
-            try:
-                client = bigquery.Client()
-                project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
-                sql_query = f"""
-                    SELECT product_name, owner_team, current_version, shutdown_protocol, status
-                    FROM `{project_id}.{dataset_id}.product_metadata`
-                    WHERE LOWER(product_name) = LOWER(@product_name)
-                    LIMIT 1
-                """
-                job_config = bigquery.QueryJobConfig(
-                    query_parameters=[
-                        bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
-                    ]
-                )
-                results = client.query(sql_query, job_config=job_config).result()
-                for row in results:
-                    metadata_res = {
-                        "product_name": row.product_name,
-                        "owner_team": row.owner_team,
-                        "current_version": row.current_version,
-                        "shutdown_protocol": row.shutdown_protocol,
-                        "status": row.status,
-                    }
-            except Exception as e:
-                print(f"BigQuery metadata lookup error: {e}")
-
-        # Fall back to docs search only if BigQuery found nothing (no
-        # dataset configured, or no matching row) — avoids doubling every
-        # metadata lookup with a search that's redundant when BQ succeeds.
-        if not metadata_res:
-            docs_results = _search_docs_raw(f"{product_name} status documentation")
-            if not docs_results:
-                docs_results = _search_google_docs_datastore(f"{product_name} status")
-            metadata_res["documentation_search_results"] = docs_results
-
+        try:
+            client = bigquery.Client()
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
+            dataset_id = os.environ.get("BIGQUERY_DATASET", "cloudpulse_dataset")
+            sql_query = f"""
+                SELECT product_name, owner_team, current_version, shutdown_protocol, status
+                FROM `{project_id}.{dataset_id}.product_metadata`
+                WHERE LOWER(product_name) = LOWER(@product_name)
+                LIMIT 1
+            """
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("product_name", "STRING", product_name)
+                ]
+            )
+            results = client.query(sql_query, job_config=job_config).result()
+            for row in results:
+                metadata_res = {
+                    "product_name": row.product_name,
+                    "owner_team": row.owner_team,
+                    "current_version": row.current_version,
+                    "shutdown_protocol": row.shutdown_protocol,
+                    "status": row.status,
+                }
+        except Exception as e:
+            print(f"BigQuery metadata lookup error: {e}")
+        
+        # Always execute both RAG and Data Store searches for status documentation
+        docs_results = _search_docs_raw(f"{product_name} status documentation")
+        docs_results.extend(_search_google_docs_datastore(f"{product_name} status"))
+        
+        metadata_res["documentation_search_results"] = docs_results
         return metadata_res
 
     elif action == "release_notes":
@@ -247,7 +242,7 @@ def cloudpulse_tool(
                 SELECT product_name, product_version_name, description, published_at, release_note_type
                 FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
                 WHERE LOWER(product_name) LIKE LOWER(@product_name)
-                AND published_at >= CAST(@start_date AS DATE)
+                AND published_at >= TIMESTAMP(@start_date)
                 ORDER BY published_at DESC
                 LIMIT 15
             """
@@ -269,14 +264,11 @@ def cloudpulse_tool(
                 })
         except Exception as e:
             print(f"BigQuery release notes search error: {e}")
-
-        # Fall back to docs search only if BigQuery returned nothing.
-        docs_results = []
-        if not notes:
-            docs_results = _search_docs_raw(f"{product_name} release notes updates")
-            if not docs_results:
-                docs_results = _search_google_docs_datastore(f"{product_name} release notes updates")
-
+            
+        # Always execute both RAG and Data Store documentation searches
+        docs_results = _search_docs_raw(f"{product_name} release notes updates")
+        docs_results.extend(_search_google_docs_datastore(f"{product_name} release notes updates"))
+        
         return {
             "product": product_name,
             "bq_notes_count": len(notes),
@@ -296,9 +288,9 @@ def cloudpulse_tool(
         if severity:
             search_query += f" Only return announcements with severity {severity}."
             
+        # Always execute both RAG and Data Store searches for MSAs
         chunks = _search_docs_raw(query=search_query, limit=5)
-        if not chunks:
-            chunks = _search_google_docs_datastore(query=search_query)
+        chunks.extend(_search_google_docs_datastore(query=search_query))
         
         return [
             {
