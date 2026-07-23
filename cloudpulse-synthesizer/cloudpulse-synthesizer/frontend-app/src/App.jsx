@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import "./css/App.css";
 import Catalog from "./catalog";    
 import Synthesizer from "./synthesizer"; 
-import Chatbot from "./chatbot";
 import ProductDirectory from "./productDirectory";
 import ProductDetail from "./productDetail";
 import Dashboard from "./dashboard";
@@ -328,21 +327,13 @@ export default function App() {
       </main>
 
       
-      <footer className={`global-footer-bar ${isSignedIn ? 'has-chat-dock' : ''}`}>
-        {isSignedIn ? (
-          <div className="footer-chat-dock">
-            <Chatbot />
-          </div>
-        ) : (
-          <>
-            <div style={{ fontSize: '0.85rem', color: '#5F6368' }}>
-              Status: <span style={{ color: '#0F9D58', fontWeight: 'bold' }}>● Operational</span> (Mock Mode Engine)
-            </div>
-            <div style={{ fontSize: '0.85rem', color: '#9AA0A6' }}>
-              Secure session environment backed by enterprise workspace credentials.
-            </div>
-          </>
-        )}
+      <footer className="global-footer-bar">
+        <div style={{ fontSize: '0.85rem', color: '#5F6368' }}>
+          Status: <span style={{ color: '#0F9D58', fontWeight: 'bold' }}>● Operational</span> (Mock Mode Engine)
+        </div>
+        <div style={{ fontSize: '0.85rem', color: '#9AA0A6' }}>
+          Secure session environment backed by enterprise workspace credentials.
+        </div>
       </footer>
     </div>
   );

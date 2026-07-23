@@ -1,9 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
+import React, { useMemo, useState } from 'react';
 import { useReleaseNotes, useManifest } from './useReleaseNotes';
 import { productsMatch } from './utils';
-import { GCP_PRODUCTS } from './products';
+import Chatbot from './chatbot';
 
 const RECENT_COUNT = 6;
 
@@ -13,9 +11,6 @@ function matchesProduct(release, query) {
 
 export default function Synthesizer({ defaultProduct, onViewHistory }) {
   const [productName, setProductName] = useState(defaultProduct || '');
-  const [output, setOutput] = useState('');
-  const [pdfUrl, setPdfUrl] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
 
   // Already scoped to the last 12 months — see public/release-data/recent.json
   // and scripts/build-release-data.mjs.
@@ -38,90 +33,27 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
 
   const hasOlderHistory = productName.trim() && totalCount > matchingReleases.length;
 
-  // Catalog entry for the typed/selected product, used for the description
-  // blurb above the ledger. Exact match first (this is what a directory
-  // click sends in), falls back to fuzzy match for free-typed queries.
-  const catalogEntry = useMemo(() => {
-    if (!productName.trim()) return null;
-    return (
-      GCP_PRODUCTS.find((p) => p.name === productName.trim()) ||
-      GCP_PRODUCTS.find((p) => productsMatch(p.name, productName)) ||
-      null
-    );
-  }, [productName]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!productName.trim()) return;
-
-    setIsGenerating(true);
-    setPdfUrl('');
-
-    try {
-      const { data } = await axios.post('http://localhost:8000/api/generate-pdf', {
-        product_name: productName.trim(),
-      });
-      setOutput(data.content_text);
-      setPdfUrl(data.pdf_url);
-    } catch (error) {
-      setOutput('⚠️ Unable to reach the PDF generation backend. Ensure the API server is running on localhost:8000.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <div className="workspace-grid">
-      {/* Left Input/Output Panel */}
-      <div className="form-panel">
-        <h3>Product One-Pager Synthesizer</h3>
-        <p className="subtitle">Configure synthesis target layout.</p>
-        <hr />
-
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label>Google Cloud product</label>
-            <input
-              type="text"
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="e.g. Compute Engine, Vertex AI"
-            />
-          </div>
-
-          <button type="submit" className="btn btn-primary full-width" disabled={isGenerating}>
-            {isGenerating ? 'Generating…' : 'Generate one-pager'}
-          </button>
-        </form>
-
-        {output && (
-          <>
-            <div className="synthesis-output" id="one-pager-print">
-              <ReactMarkdown>{output}</ReactMarkdown>
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary full-width"
-              style={{ marginTop: '10px' }}
-              onClick={() => window.print()}
-            >
-              Export as PDF
-            </button>
-          </>
-        )}
+      {/* Left: full chatbot — Q&A and one-pager generation in one thread */}
+      <div className="form-panel chat-panel">
+        <Chatbot product={productName.trim()} />
       </div>
 
-      {/* Right Scrollable Panel Ledger */}
+      {/* Right: release notes ledger */}
       <div className="ledger-panel">
-        {catalogEntry && (
-          <div className="ledger-service-blurb">
-            <span className="ledger-service-name">{catalogEntry.name}</span>
-            <span className="ledger-service-category">{catalogEntry.category}</span>
-            <p>{catalogEntry.description}</p>
-          </div>
-        )}
-
         <h4>Release Notes Ledger</h4>
+
+        <div className="input-group">
+          <label>Google Cloud product</label>
+          <input
+            type="text"
+            value={productName}
+            onChange={(e) => setProductName(e.target.value)}
+            placeholder="e.g. Compute Engine, Vertex AI"
+          />
+        </div>
+
         <p className="subtitle" style={{ marginBottom: '10px' }}>
           Last 12 months{loading && ' · loading…'}
         </p>
