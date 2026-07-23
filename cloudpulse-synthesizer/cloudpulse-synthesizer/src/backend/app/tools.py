@@ -187,19 +187,12 @@ def cloudpulse_tool(
         if not query:
             return {"error": "query is required for search_docs."}
         
-<<<<<<< Updated upstream
-        # Always execute both RAG and Data Store searches
-        results = _search_docs_raw(query=query, limit=limit)
-        results.extend(_search_google_docs_datastore(query=query))
-        return results
-=======
         # Query both sources and combine results so Data Store is never skipped
         rag_results = _search_docs_raw(query=query, limit=limit)
         ds_results = _search_google_docs_datastore(query=query, limit=limit)
         
         combined_results = rag_results + ds_results
         return combined_results
->>>>>>> Stashed changes
 
     elif action == "metadata":
         if not product_name:
