@@ -140,7 +140,7 @@ export default function Chatbot({ product }) {
     startThinkingSequence();
 
     try {
-      const { data } = await axios.post("http://localhost:8000/api/chat", {
+      const { data } = await axios.post("https://cloudpulsebackend-1098468887328.us-central1.run.app/", {
         message: query,
       });
 

@@ -18,9 +18,7 @@ app = FastAPI(title="Agent API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5175",      # local React dev
-        "https://your-frontend.web.app"  # your deployed frontend, once you have it
+        "http://localhost:5173", "*"  # your deployed frontend, once you have it
     ],
     allow_credentials=True,
     allow_methods=["*"],
