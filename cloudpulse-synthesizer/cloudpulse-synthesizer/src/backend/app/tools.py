@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from google import genai
 from google.genai import types as genai_types
 from google.cloud import bigquery
+from datetime import datetime
 
 _PROJECT_ID = "sprinternship-chi1-2026"
 _LOCATION = "us-central1"
@@ -236,27 +237,41 @@ def cloudpulse_tool(
     elif action == "release_notes":
         if not product_name:
             return {"error": "product_name is required for release notes lookup."}
-        
-        if not start_date or start_date.strip() == "":
-            start_date = "2020-01-01"
             
         notes = []
         try:
             client = bigquery.Client()
-            sql_query = """
-                SELECT product_name, product_version_name, description, published_at, release_note_type
-                FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
-                WHERE LOWER(product_name) LIKE LOWER(@product_name)
-                AND published_at >= TIMESTAMP(@start_date)
-                ORDER BY published_at DESC
-                LIMIT 15
-            """
-            job_config = bigquery.QueryJobConfig(
-                query_parameters=[
-                    bigquery.ScalarQueryParameter("product_name", "STRING", f"%{product_name}%"),
-                    bigquery.ScalarQueryParameter("start_date", "STRING", start_date)
-                ]
-            )
+            
+            # Explicitly CAST published_at to TIMESTAMP for correct chronological order
+            if start_date and start_date.strip():
+                sql_query = """
+                    SELECT product_name, product_version_name, description, published_at, release_note_type
+                    FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
+                    WHERE LOWER(product_name) LIKE LOWER(@product_name)
+                    AND CAST(published_at AS TIMESTAMP) >= TIMESTAMP(@start_date)
+                    ORDER BY CAST(published_at AS TIMESTAMP) DESC
+                    LIMIT 20
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter("product_name", "STRING", f"%{product_name}%"),
+                        bigquery.ScalarQueryParameter("start_date", "STRING", start_date)
+                    ]
+                )
+            else:
+                sql_query = """
+                    SELECT product_name, product_version_name, description, published_at, release_note_type
+                    FROM `bigquery-public-data.google_cloud_release_notes.release_notes`
+                    WHERE LOWER(product_name) LIKE LOWER(@product_name)
+                    ORDER BY CAST(published_at AS TIMESTAMP) DESC
+                    LIMIT 20
+                """
+                job_config = bigquery.QueryJobConfig(
+                    query_parameters=[
+                        bigquery.ScalarQueryParameter("product_name", "STRING", f"%{product_name}%")
+                    ]
+                )
+
             results = client.query(sql_query, job_config=job_config).result()
             for row in results:
                 soup_text = BeautifulSoup(row.description or "", "html.parser").get_text(separator=" ")
@@ -270,9 +285,12 @@ def cloudpulse_tool(
         except Exception as e:
             print(f"BigQuery release notes search error: {e}")
             
-        # Always execute both RAG and Data Store documentation searches
-        docs_results = _search_docs_raw(f"{product_name} release notes updates")
-        docs_results.extend(_search_google_docs_datastore(f"{product_name} release notes updates"))
+        # Include current year and fetch up to 15 chunks to retrieve 2026 notes
+        current_year = datetime.now().year
+        recent_search_query = f"{product_name} release notes {current_year} latest updates"
+
+        docs_results = _search_docs_raw(query=recent_search_query, limit=15)
+        docs_results.extend(_search_google_docs_datastore(query=recent_search_query, limit=15))
         
         return {
             "product": product_name,

@@ -46,7 +46,7 @@ TOOL USAGE INSTRUCTIONS:
 You have access to `cloudpulse_tool`, which supports four actions:
 - 'search_docs' for general how-to/conceptual questions, troubleshooting, and technical documentation (pass `query`).
 - 'metadata' for product status/ownership lookups (pass `product_name`).
-- 'release_notes' for what changed since a date (pass `product_name` and `start_date` in YYYY-MM-DD format).
+- 'release_notes' for product release notes and recent updates (pass `product_name`). Do NOT ask the user for a start date; omit `start_date` to automatically retrieve the latest notes.
 - 'msas' for required actions or deprecations (pass `product_name` and optionally `severity`).
 
 Always set the `action` argument explicitly when calling `cloudpulse_tool`.
@@ -117,7 +117,7 @@ async def determine_and_set_persona(callback_context):
         chosen_persona_prompt = PERSONA_PROMPTS.get(selected_key, PERSONA_PROMPTS["support_engineer"])
         
         # 7. Inject the text block straight into the state variable expected by your SYSTEM_PROMPT
-        context.session.state["persona"] = chosen_persona_prompt
+        callback_context.state["persona"] = chosen_persona_prompt
         
     except Exception as e:
         # Fallback guardrail to keep the system operational if the API call fails
@@ -214,13 +214,9 @@ _one_pager_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_L
 
 
 async def generate_one_pager(product_name: str) -> str:
-    start_date = (datetime.now(timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%d")
-
     metadata_result, release_notes_result, msas_result = await asyncio.gather(
         asyncio.to_thread(cloudpulse_tool, action="metadata", product_name=product_name),
-        asyncio.to_thread(
-            cloudpulse_tool, action="release_notes", product_name=product_name, start_date=start_date
-        ),
+        asyncio.to_thread(cloudpulse_tool, action="release_notes", product_name=product_name),
         asyncio.to_thread(cloudpulse_tool, action="msas", product_name=product_name),
     )
 
