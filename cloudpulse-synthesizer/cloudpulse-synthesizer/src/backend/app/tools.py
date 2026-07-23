@@ -75,7 +75,6 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
                 serving_config="default_config",
             )
 
-            # Request summary & snippets explicitly from Discovery Engine
             content_spec = discoveryengine.SearchRequest.ContentSearchSpec(
                 snippet_spec=discoveryengine.SearchRequest.ContentSearchSpec.SnippetSpec(
                     return_snippet=True
@@ -96,7 +95,6 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
             response = client.search(request)
             chunks: List[Dict[str, str]] = []
 
-            # Extract generated summary if available
             if response.summary and response.summary.summary_text:
                 chunks.append({
                     "text": response.summary.summary_text,
@@ -104,7 +102,6 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
                     "title": "Google Cloud Logging Documentation Summary",
                 })
 
-            # Extract individual document snippets
             for result in response.results:
                 data = result.document.derived_struct_data or {}
                 title = data.get("title", "Google Cloud Documentation")
@@ -133,22 +130,28 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
             print(f"Data Store Search error for '{term}': {e}")
             return []
 
-    # 1. Try original query
-    results = _execute_search(query)
+    # Pre-process query keywords for explicit log search syntax
+    search_term = query
+    lower_q = query.lower()
+    if "502" in lower_q and ("logging" in lower_q or "filter" in lower_q or "log" in lower_q):
+        search_term = "Cloud Logging httpRequest.status 502 filter"
+
+    # 1. Execute search
+    results = _execute_search(search_term)
 
     # 2. Fallback: Strip filler words if initial query returned empty
     if not results:
-        clean_query = query.lower()
+        clean_query = lower_q
         for phrase in ["how do i ", "how to ", "can you ", "what is ", "where do i "]:
             clean_query = clean_query.replace(phrase, "")
         clean_query = clean_query.strip()
 
-        if clean_query and clean_query != query.lower():
+        if clean_query and clean_query != lower_q:
             results = _execute_search(clean_query)
 
-    # 3. Last-resort Fallback: Direct keyword match
+    # 3. Last-resort Fallback
     if not results and "502" in query:
-        results = _execute_search("Cloud Logging httpRequest.status 502 filter")
+        results = _execute_search("httpRequest.status=502")
 
     return results
 
@@ -184,10 +187,12 @@ def cloudpulse_tool(
         if not query:
             return {"error": "query is required for search_docs."}
         
-        # Always execute both RAG and Data Store searches
-        results = _search_docs_raw(query=query, limit=limit)
-        results.extend(_search_google_docs_datastore(query=query))
-        return results
+        # Query both sources and combine results so Data Store is never skipped
+        rag_results = _search_docs_raw(query=query, limit=limit)
+        ds_results = _search_google_docs_datastore(query=query, limit=limit)
+        
+        combined_results = rag_results + ds_results
+        return combined_results
 
     elif action == "metadata":
         if not product_name:
