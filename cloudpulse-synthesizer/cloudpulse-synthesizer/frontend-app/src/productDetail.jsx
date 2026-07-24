@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReleaseHistory from './releaseHistory';
 import { GCP_PRODUCTS } from './products';
 import { productsMatch } from './utils';
+import api from './api';
+import ReactMarkdown from 'react-markdown';
 
 export default function ProductDetail({ product, onBack }) {
   const [activeTab, setActiveTab] = useState('documentation');
+  const [docContent, setDocContent] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (activeTab !== 'documentation' || !product) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    api.get(`/api/products/summary?product_name=${encodeURIComponent(product)}`)
+      .then((res) => {
+        if (!cancelled) {
+          setDocContent(res.data.summary);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [product, activeTab]);
 
   const catalogEntry =
     GCP_PRODUCTS.find((p) => p.name === product) ||
@@ -41,13 +70,21 @@ export default function ProductDetail({ product, onBack }) {
 
       {activeTab === 'documentation' && (
         <div className="product-doc-panel">
-          {/* PLACEHOLDER: no backend data store wired up yet. Once one
-              exists, replace this with a fetch (same pattern as
-              useReleaseNotes.js) rather than inventing a contract here
-              ahead of what the backend team actually builds. */}
-          <div className="product-doc-placeholder">
-            📄 Documentation for {product} will appear here once it's connected to the backend data store.
-          </div>
+          {loading && <p className="subtitle">Loading documentation…</p>}
+          {error && (
+            <p className="subtitle" style={{ color: 'var(--coral)' }}>
+              Couldn't load documentation: {error.message}
+            </p>
+          )}
+          {!loading && !error && docContent ? (
+            <div className="synthesis-output">
+              <ReactMarkdown>{docContent}</ReactMarkdown>
+            </div>
+          ) : !loading && !error && (
+            <div className="product-doc-placeholder">
+              📄 Documentation for {product} will appear here once it's connected to the backend data store.
+            </div>
+          )}
         </div>
       )}
 

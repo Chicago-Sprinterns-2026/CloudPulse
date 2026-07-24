@@ -3,7 +3,7 @@ import { GCP_PRODUCTS, CATEGORIES } from './products';
 
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
-export default function ProductDirectory({ onSelectProduct, onSeeMore }) {
+export default function ProductDirectory({ onSeeMore }) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -18,7 +18,7 @@ export default function ProductDirectory({ onSelectProduct, onSeeMore }) {
   return (
     <div className="directory-view">
       <h3>All Google Cloud products</h3>
-      <p className="subtitle">Browse or filter by category, then select a product to synthesize its latest updates.</p>
+      <p className="subtitle">Browse or filter by category, then select a product to view its documentation and release notes.</p>
 
       <div className="directory-controls">
         <input
@@ -61,7 +61,7 @@ export default function ProductDirectory({ onSelectProduct, onSeeMore }) {
                 className="directory-card"
                 style={{ '--chip-color': BRAND_COLORS[colorIndex] }}
               >
-                <button className="directory-card-main" onClick={() => onSelectProduct(p.name)}>
+                <button className="directory-card-main" onClick={() => onSeeMore(p.name)}>
                   <span className="directory-card-dot" />
                   <span className="directory-card-name">{p.name}</span>
                   <span className="directory-card-category">{p.category}</span>
