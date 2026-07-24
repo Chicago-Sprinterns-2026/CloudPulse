@@ -232,11 +232,6 @@ export default function App() {
 
             {viewState === 'products' && (
               <ProductDirectory
-                onSelectProduct={(productName) => {
-                  setSelectedProduct(productName);
-                  setIsSignedIn(true);
-                  setViewState('synthesizer');
-                }}
                 onSeeMore={(productName) => {
                   setDetailProduct(productName);
                   setViewState('productDetail');
@@ -277,7 +272,7 @@ export default function App() {
                 className="btn btn-primary full-width"
                 onClick={() => {
                   setIsSignedIn(true);
-                  setViewState('dashboard');
+                  setViewState('synthesizer');
                 }}
               >
                 Authenticate Workspace Access
