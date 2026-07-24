@@ -8,7 +8,7 @@ from google.cloud import bigquery
 from datetime import datetime
 
 _PROJECT_ID = "sprinternship-chi1-2026"
-_LOCATION = "global"
+_LOCATION = "us-central1"
 _CORPUS_ID = "5175911405336920064"
 _DATASTORE_PATH = f"projects/{_PROJECT_ID}/locations/global/collections/default_collection/dataStores/google-cloud-official-docs_1784562830724"
 
