@@ -17,7 +17,11 @@ _DATASTORE_PATH = f"projects/{_PROJECT_ID}/locations/global/collections/default_
 # gets paid on every single tool invocation.
 _rag_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
 _discovery_client = discoveryengine.SearchServiceClient()
-_bigquery_client = bigquery.Client()
+# Explicit project (not left to ADC auto-detection) — with user-credential
+# auth (gcloud auth application-default login), BigQuery's client can't
+# always infer a project on its own, which is what was crashing at import
+# time locally.
+_bigquery_client = bigquery.Client(project=os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID))
 
 
 def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
@@ -68,8 +72,15 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     return chunks
 
 
-def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, str]]:
-    """Internal helper: queries official Google Docs Vertex AI Search Data Store."""
+def _search_google_docs_datastore(query: str, limit: int = 5, raise_on_error: bool = False) -> List[Dict[str, str]]:
+    """Internal helper: queries official Google Docs Vertex AI Search Data Store.
+
+    raise_on_error=False (default, used by the agent's tool calls) keeps the
+    existing behavior: any failure is logged and swallowed to an empty list,
+    so a flaky search never crashes an agent turn. Callers that need to tell
+    "search failed" apart from "search succeeded with zero results" (e.g. the
+    /api/products/summary endpoint) should pass raise_on_error=True.
+    """
     if not query or not query.strip():
         return []
 
@@ -136,6 +147,8 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
 
         except Exception as e:
             print(f"Data Store Search error for '{term}': {e}")
+            if raise_on_error:
+                raise
             return []
 
     # Pre-process query keywords for explicit log search syntax

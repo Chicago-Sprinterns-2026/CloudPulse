@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from typing import Dict
 from google import genai
 from app.tools import _search_google_docs_datastore, _PROJECT_ID, _LOCATION
@@ -25,7 +25,16 @@ async def product_summary(
     product_name: str = Query(..., description="Google Cloud product name, e.g. 'Compute Engine'")
 ) -> Dict:
     """Return one synthesized paragraph summarizing a product, built from datastore snippets."""
-    chunks = _search_google_docs_datastore(query=product_name, limit=5)
+    try:
+        # raise_on_error=True here (unlike the agent's own tool calls) so a
+        # genuine datastore/permissions failure surfaces as a real error
+        # instead of silently looking identical to "no docs exist".
+        chunks = _search_google_docs_datastore(query=product_name, limit=5, raise_on_error=True)
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Documentation search backend failed: {error}",
+        )
 
     if not chunks:
         return {"product": product_name, "summary": "No documentation found for this product."}
