@@ -114,12 +114,15 @@ def _search_google_docs_datastore(query: str, limit: int = 5, raise_on_error: bo
             response = client.search(request)
             chunks: List[Dict[str, str]] = []
 
+            # FIXED: Dynamically capture summaries without hardcoding Cloud Logging metadata
             if response.summary and response.summary.summary_text:
-                chunks.append({
-                    "text": response.summary.summary_text,
-                    "source_url": "https://cloud.google.com/logging/docs",
-                    "title": "Google Cloud Logging Documentation Summary",
-                })
+                lower_summary = response.summary.summary_text.lower()
+                if "not found" not in lower_summary and "could not find" not in lower_summary:
+                    chunks.append({
+                        "text": response.summary.summary_text,
+                        "source_url": "https://cloud.google.com",
+                        "title": f"Google Cloud Search Summary for '{term}'",
+                    })
 
             for result in response.results:
                 data = result.document.derived_struct_data or {}
@@ -154,8 +157,6 @@ def _search_google_docs_datastore(query: str, limit: int = 5, raise_on_error: bo
     # Pre-process query keywords for explicit log search syntax
     search_term = query
     lower_q = query.lower()
-    if "502" in lower_q and ("logging" in lower_q or "filter" in lower_q or "log" in lower_q):
-        search_term = "Cloud Logging httpRequest.status 502 filter"
 
     # 1. Execute search
     results = _execute_search(search_term)
@@ -169,10 +170,6 @@ def _search_google_docs_datastore(query: str, limit: int = 5, raise_on_error: bo
 
         if clean_query and clean_query != lower_q:
             results = _execute_search(clean_query)
-
-    # 3. Last-resort Fallback
-    if not results and "502" in query:
-        results = _execute_search("httpRequest.status=502")
 
     return results
 
@@ -190,11 +187,11 @@ def cloudpulse_tool(
         action: Which operation to perform. Must be one of:
             "search_docs" -- free-text documentation search (RAG + Data Store). Requires `query`.
             "metadata" -- structured product lookup. Requires `product_name`.
-            "release_notes" -- release notes since a date. Requires `product_name` and `start_date`.
+            "release_notes" -- retrieves latest release notes in chronological order. Requires `product_name`. Optionally accepts `start_date` to return release notes on or after that date.
             "msas" -- Mandatory Service Announcements. Requires `product_name`; `severity` is optional.
         query: Search text. Only used when action="search_docs".
         product_name: Exact Google Cloud product name. Used by "metadata", "release_notes", and "msas".
-        start_date: Earliest date to include, format YYYY-MM-DD. Only used when action="release_notes".
+        start_date: Optional earliest date to include, format YYYY-MM-DD. If omitted, default to latest release notes.
         severity: Optional severity filter, e.g. "CRITICAL". Only used when action="msas".
         limit: Max number of results for "search_docs". Defaults to 5.
         
