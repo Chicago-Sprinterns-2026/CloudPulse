@@ -1,11 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import api from "./api"; // Adjust path if api.js lives elsewhere
+import { extractProductsFromText } from "./utils";
+
 const QUICK_QUESTIONS = [
   "What recent changes affect my deployment?",
   "Are there upcoming deprecations?",
   "What troubleshooting steps should I try first?",
 ];
+
+// Matches "one-pager", "one pager", "onepager" (and plurals) anywhere in a
+// typed message, so a one-pager request can be made in plain chat text
+// instead of only through the dedicated button.
+const ONE_PAGER_INTENT_PATTERN = /\bone[-\s]?pagers?\b/i;
+
+// How many recent thread messages to fold in as context when a one-pager
+// request doesn't itself name every product/detail explicitly.
+const CONTEXT_MESSAGE_WINDOW = 6;
 
 // Small talk (greetings, thanks, acknowledgements) never warrants offering
 // a "more technical" / "simpler" follow-up — there's no substance to
@@ -29,15 +40,17 @@ const THINKING_STAGES = [
 ];
 
 // Single chatbot surface for the workspace: handles free-form Q&A through
-// the general chat agent (/api/chat) AND, when a product is selected, a
-// one-click structured one-pager (/api/generate-pdf) rendered as a bot
-// message in the same thread — same conversation, two backends.
-export default function Chatbot({ product }) {
+// the general chat agent (/api/chat) AND structured one-pagers
+// (/api/generate-pdf) rendered as a bot message in the same thread — either
+// via the persistent button (drafts into the input for the ledger-selected
+// product) or by typing a one-pager request directly, which resolves the
+// product(s)/focus from the message and recent context and generates
+// immediately, no extra confirmation step.
+export default function Chatbot({ product, manifest = [] }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isGeneratingOnePager, setIsGeneratingOnePager] = useState(false);
-  const [lastOnePagerId, setLastOnePagerId] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [selectionMenu, setSelectionMenu] = useState(null);
   const [thinkingLabel, setThinkingLabel] = useState(THINKING_STAGES[0].label);
@@ -135,6 +148,14 @@ export default function Chatbot({ product }) {
     pushMessage({ sender: "user", text: query, replyTo });
     setInput("");
     setReplyTo(null);
+
+    // A one-pager ask isn't a Q&A question — resolve and generate it
+    // directly instead of routing the raw text to the chat agent.
+    if (ONE_PAGER_INTENT_PATTERN.test(query)) {
+      await handleOnePagerRequest(query);
+      return;
+    }
+
     setIsSending(true);
     startThinkingSequence();
 
@@ -160,40 +181,74 @@ export default function Chatbot({ product }) {
     }
   };
 
-  const handleGenerateOnePager = async () => {
-    const targetProduct = (product || "").trim();
-    if (!targetProduct) {
-      pushMessage({
-        sender: "bot",
-        text: "Pick a product in the release ledger on the right first, then I can put together a one-pager for it.",
-      });
-      return;
-    }
-
-    pushMessage({ sender: "user", text: `Generate a one-pager for ${targetProduct}` });
+  const runOnePagerGeneration = async (products, focus) => {
+    const label = products.join(" + ");
     setIsGeneratingOnePager(true);
     startThinkingSequence();
 
     try {
       const { data } = await api.post("/api/generate-pdf", {
-        product_name: targetProduct,
+        products,
+        focus: focus || null,
       });
 
-      const id = pushMessage({
+      pushMessage({
         sender: "bot",
         isOnePager: true,
         text: data.content_text,
+        pdfUrl: data.pdf_url ? `${api.defaults.baseURL || ""}${data.pdf_url}` : null,
       });
-      setLastOnePagerId(id);
     } catch (error) {
       pushMessage({
         sender: "bot",
-        text: `⚠️ Unable to generate a one-pager for ${targetProduct}. Check that VITE_API_BASE_URL points to a running server.`,
+        text: `⚠️ Unable to generate a one-pager for ${label}. Check that VITE_API_BASE_URL points to a running server.`,
       });
     } finally {
       clearThinkingSequence();
       setIsGeneratingOnePager(false);
     }
+  };
+
+  // The persistent button doesn't generate on its own click — it drafts a
+  // starting message into the input (seeded with the ledger-selected
+  // product, if any) so the user can add more products or a focus before
+  // actually sending it, same as typing a one-pager request from scratch.
+  const handleGenerateOnePager = () => {
+    const targetProduct = (product || "").trim();
+    setInput(targetProduct ? `Generate a one-pager for ${targetProduct}` : "Generate a one-pager for ");
+    inputRef.current?.focus();
+  };
+
+  // Recent non-one-pager turns, used to help resolve products/focus for a
+  // request that references earlier conversation ("the one we just talked
+  // about") rather than naming everything explicitly.
+  const buildConversationContext = () =>
+    messages
+      .slice(-CONTEXT_MESSAGE_WINDOW)
+      .filter((m) => !m.isOnePager)
+      .map((m) => `${m.sender === "user" ? "User" : "Assistant"}: ${m.text}`)
+      .join("\n");
+
+  // A typed one-pager request: resolve product(s) by matching the request
+  // text (+ recent context) against the known product manifest — no LLM
+  // round trip — falling back to the ledger selection.
+  const handleOnePagerRequest = async (requestText) => {
+    const contextText = [buildConversationContext(), requestText].filter(Boolean).join("\n");
+    const manifestProducts = manifest.map((m) => m.product);
+    const matchedProducts = extractProductsFromText(contextText, manifestProducts);
+    const targetProducts = matchedProducts.length
+      ? matchedProducts
+      : [(product || "").trim()].filter(Boolean);
+
+    if (targetProducts.length === 0) {
+      pushMessage({
+        sender: "bot",
+        text: "I couldn't tell which product you mean — pick one in the release ledger on the right, or name it in your message, then try again.",
+      });
+      return;
+    }
+
+    await runOnePagerGeneration(targetProducts, requestText);
   };
 
   const handleChipClick = (choice) => {
@@ -224,9 +279,7 @@ export default function Chatbot({ product }) {
           <div
             key={msg.id}
             data-msg-id={msg.id}
-            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""} ${
-              msg.id === lastOnePagerId ? "one-pager-print" : ""
-            }`}
+            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""}`}
           >
             {msg.replyTo && (
               <div className="reply-quote">
@@ -241,19 +294,22 @@ export default function Chatbot({ product }) {
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
                 <div className="onepager-actions">
-                  <button
-                    type="button"
-                    className="btn-icon"
-                    onClick={() => window.print()}
-                    aria-label="Export as PDF"
-                    title="Export as PDF"
-                  >
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 3v12" />
-                      <path d="M7 10l5 5 5-5" />
-                      <path d="M5 21h14" />
-                    </svg>
-                  </button>
+                  {msg.pdfUrl && (
+                    <a
+                      href={msg.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-icon"
+                      aria-label="Download PDF"
+                      title="Download PDF"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3v12" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M5 21h14" />
+                      </svg>
+                    </a>
+                  )}
                 </div>
               </>
             ) : (

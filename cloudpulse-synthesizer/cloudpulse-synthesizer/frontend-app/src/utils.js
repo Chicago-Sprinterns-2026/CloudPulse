@@ -20,3 +20,18 @@ export function productsMatch(a, b) {
   const y = b.toLowerCase();
   return x.includes(y) || y.includes(x);
 }
+
+// Finds which known products are mentioned in free-form text (e.g. a chat
+// message), for resolving one-pager targets without an extra LLM call.
+// Drops a match that's wholly contained in a longer match also found (e.g.
+// "AI" swallowed by "Vertex AI") so overlapping product names don't both show up.
+export function extractProductsFromText(text, products) {
+  const lower = text.toLowerCase();
+  const found = products.filter((product) => lower.includes(product.toLowerCase()));
+  return found.filter(
+    (product) =>
+      !found.some(
+        (other) => other !== product && other.length > product.length && other.toLowerCase().includes(product.toLowerCase())
+      )
+  );
+}

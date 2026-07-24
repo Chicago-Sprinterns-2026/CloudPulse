@@ -1147,32 +1147,6 @@
   color: var(--ink-soft);
 }
 
-/* PDF Export button */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .one-pager-print,
-  .one-pager-print * {
-    visibility: visible;
-  }
-
-  .one-pager-print {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-  }
-
-  .one-pager-print .onepager-actions {
-    display: none;
-  }
-}
-
 .scrolling-ledger {
   max-height: 240px;
   overflow-y: auto;

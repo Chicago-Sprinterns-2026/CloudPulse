@@ -1,7 +1,6 @@
 import asyncio
 import json
 import uuid
-from datetime import datetime, timedelta, timezone
 
 from google.adk.agents.llm_agent import Agent
 from google import genai
@@ -179,10 +178,16 @@ async def run_agent(message: str, session_id: str | None = None):
 # round-trip (previously: one call to choose tools, then the tool calls,
 # then a final call to write the text — now: tool calls, then one call).
 ONE_PAGER_INSTRUCTION = (
-    "You are given pre-fetched data for a Google Cloud product from three "
-    "sources: product metadata, recent release notes, and mandatory service "
-    "announcements (MSAs). Write a one-pager from that data alone — do not "
-    "invent facts not present in it.\n\n"
+    "You are given pre-fetched data for one or more Google Cloud products, "
+    "each from three sources: product metadata, recent release notes, and "
+    "mandatory service announcements (MSAs). Write a one-pager from that "
+    "data alone — do not invent facts not present in it. If more than one "
+    "product's data is given, synthesize a single combined one-pager that "
+    "covers them together (compare/contrast or group related updates as "
+    "appropriate) rather than writing separate reports back to back.\n\n"
+    "If a user-requested focus is given below, prioritize and filter the "
+    "content in every section around that focus — omit or de-emphasize "
+    "material outside it — while still keeping all six sections.\n\n"
     "The output must fit exactly one printed page — use this exact "
     "structure, in this exact order, with these exact Markdown headers, "
     "and stay within the word budget per section (target ~500-600 words "
@@ -191,19 +196,26 @@ ONE_PAGER_INSTRUCTION = (
     "60-80 words. One paragraph, no bullets. What the product is and its "
     "current state.\n\n"
     "## What Changed / Active Alerts\n"
-    "150-180 words. Bulleted. The most important recent release notes "
-    "and any active MSAs, most impactful first.\n\n"
+    "150-180 words, MAXIMUM 5 bullets. The most important recent release "
+    "notes and any active MSAs, most impactful first. If more than 5 items "
+    "are relevant, keep only the 5 most impactful and drop the rest — "
+    "never add a 6th bullet to fit more in.\n\n"
     "## Why It Matters\n"
     "60-80 words. One paragraph. The business/technical impact of the "
     "above changes.\n\n"
     "## Impacted Users/Workloads\n"
-    "50-70 words. Bulleted or one short paragraph. Who/what is affected.\n\n"
+    "50-70 words, MAXIMUM 4 bullets (or one short paragraph). Who/what is "
+    "affected.\n\n"
     "## Recommended Actions & Deadlines\n"
-    "100-120 words. Bulleted, one action per bullet, with a deadline "
-    "date when one exists in the source data.\n\n"
+    "100-120 words, MAXIMUM 4 bullets, one action per bullet, with a "
+    "deadline date when one exists in the source data. If more than 4 "
+    "actions are relevant, keep only the 4 most urgent/impactful.\n\n"
     "## Sources & Citations\n"
-    "30-50 words. Short bulleted list of the specific tool calls/source "
-    "URLs used.\n\n"
+    "30-50 words, MAXIMUM 4 bullets. Short bulleted list of the specific "
+    "tool calls/source URLs used.\n\n"
+    "These are hard caps on bullet COUNT, independent of the word budget — "
+    "a section with terse bullets must still stop at its bullet cap rather "
+    "than adding more short bullets to fill the word budget.\n\n"
     "Never add, remove, rename, or reorder sections. Never add extra "
     "commentary outside these six sections. If a section has nothing "
     "relevant to report, keep the header and write one line stating "
@@ -213,20 +225,39 @@ ONE_PAGER_INSTRUCTION = (
 _one_pager_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
 
 
-async def generate_one_pager(product_name: str) -> str:
+async def _gather_product_data(product_name: str) -> dict:
     metadata_result, release_notes_result, msas_result = await asyncio.gather(
         asyncio.to_thread(cloudpulse_tool, action="metadata", product_name=product_name),
         asyncio.to_thread(cloudpulse_tool, action="release_notes", product_name=product_name),
         asyncio.to_thread(cloudpulse_tool, action="msas", product_name=product_name),
     )
+    return {
+        "product": product_name,
+        "metadata": metadata_result,
+        "release_notes": release_notes_result,
+        "msas": msas_result,
+    }
 
-    prompt = (
-        f"{ONE_PAGER_INSTRUCTION}\n\n"
-        f"Product: {product_name}\n\n"
-        f"metadata tool result:\n{json.dumps(metadata_result, default=str)}\n\n"
-        f"release_notes tool result:\n{json.dumps(release_notes_result, default=str)}\n\n"
-        f"msas tool result:\n{json.dumps(msas_result, default=str)}"
+
+async def generate_one_pager(products: list[str], focus: str | None = None) -> str:
+    # Fetching every product's three tool calls together (rather than
+    # product-by-product) keeps this at the wall-clock cost of the single
+    # slowest call overall, not the sum across products.
+    per_product_data = await asyncio.gather(
+        *(_gather_product_data(product_name) for product_name in products)
     )
+
+    data_sections = "\n\n".join(
+        f"Product: {entry['product']}\n"
+        f"metadata tool result:\n{json.dumps(entry['metadata'], default=str)}\n\n"
+        f"release_notes tool result:\n{json.dumps(entry['release_notes'], default=str)}\n\n"
+        f"msas tool result:\n{json.dumps(entry['msas'], default=str)}"
+        for entry in per_product_data
+    )
+
+    focus_block = f"\nUser-requested focus: {focus}\n" if focus else ""
+
+    prompt = f"{ONE_PAGER_INSTRUCTION}\n{focus_block}\n{data_sections}"
 
     response = _one_pager_client.models.generate_content(
         model="gemini-2.5-flash",

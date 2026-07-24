@@ -37,7 +37,7 @@ export default function Synthesizer({ defaultProduct, onViewHistory }) {
     <div className="workspace-grid">
       {/* Left: full chatbot — Q&A and one-pager generation in one thread */}
       <div className="form-panel chat-panel">
-        <Chatbot product={productName.trim()} />
+        <Chatbot product={productName.trim()} manifest={manifest} />
       </div>
 
       {/* Right: release notes ledger */}
