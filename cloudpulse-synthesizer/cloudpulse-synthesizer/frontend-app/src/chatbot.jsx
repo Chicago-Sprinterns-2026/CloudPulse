@@ -47,6 +47,10 @@ const THINKING_STAGES = [
 // product(s)/focus from the message and recent context and generates
 // immediately, no extra confirmation step.
 export default function Chatbot({ product, manifest = [] }) {
+  // One id for the whole conversation (this browser tab) so the backend's
+  // ADK session can accumulate real multi-turn memory. Without this every
+  // request looked like a brand-new conversation to the agent.
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -162,6 +166,7 @@ export default function Chatbot({ product, manifest = [] }) {
     try {
       const { data } = await api.post("/api/chat", {
         message: query,
+        session_id: sessionId,
       });
 
       pushMessage({
@@ -190,6 +195,7 @@ export default function Chatbot({ product, manifest = [] }) {
       const { data } = await api.post("/api/generate-pdf", {
         products,
         focus: focus || null,
+        session_id: sessionId,
       });
 
       pushMessage({
@@ -418,3 +424,4 @@ export default function Chatbot({ product, manifest = [] }) {
     </div>
   );
 }
+

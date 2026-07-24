@@ -7,6 +7,7 @@ from google import genai
 from google.genai import types
 from google.adk.agents import Agent
 from google.adk.agents.callback_context import CallbackContext
+from google.adk.events import Event
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from .tools import cloudpulse_tool, _PROJECT_ID, _LOCATION
@@ -239,7 +240,38 @@ async def _gather_product_data(product_name: str) -> dict:
     }
 
 
-async def generate_one_pager(products: list[str], focus: str | None = None) -> str:
+async def _record_one_pager_in_session(session_id: str, products: list[str], focus: str | None, content_text: str) -> None:
+    """Writes the one-pager request/result into the same ADK session used by
+    /api/chat, as a normal user+model turn. Without this, a one-pager
+    generated via /api/generate-pdf (which talks to Gemini directly, not
+    through the Runner) is invisible to later chat turns — a follow-up like
+    "summarize that" would have no idea what "that" refers to."""
+    session = await _session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    if session is None:
+        session = await _session_service.create_session(
+            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        )
+
+    label = " + ".join(products)
+    focus_note = f" (focus: {focus})" if focus else ""
+    user_text = f"Generate a one-pager for {label}{focus_note}."
+
+    await _session_service.append_event(
+        session=session,
+        event=Event(author="user", content=types.Content(role="user", parts=[types.Part(text=user_text)])),
+    )
+    await _session_service.append_event(
+        session=session,
+        event=Event(
+            author=root_agent.name,
+            content=types.Content(role="model", parts=[types.Part(text=content_text)]),
+        ),
+    )
+
+
+async def generate_one_pager(products: list[str], focus: str | None = None, session_id: str | None = None) -> str:
     # Fetching every product's three tool calls together (rather than
     # product-by-product) keeps this at the wall-clock cost of the single
     # slowest call overall, not the sum across products.
@@ -270,4 +302,15 @@ async def generate_one_pager(products: list[str], focus: str | None = None) -> s
         ),
     )
 
-    return response.text or ""
+    content_text = response.text or ""
+
+    if session_id:
+        try:
+            await _record_one_pager_in_session(session_id, products, focus, content_text)
+        except Exception as error:
+            # Don't fail the one-pager response just because the follow-up
+            # context couldn't be recorded — worst case, later chat turns
+            # fall back to asking which product, same as before this fix.
+            print(f"Failed to record one-pager in session {session_id}: {error}")
+
+    return content_text

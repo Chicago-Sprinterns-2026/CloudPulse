@@ -1,4 +1,3 @@
-# routers/pdf.py
 import io
 import uuid
 from datetime import datetime, timezone
@@ -60,11 +59,12 @@ _ACCENT_BAR = f"""
 class PdfRequest(BaseModel):
     products: list[str]
     focus: str | None = None
+    session_id: str | None = None
 
 
-async def _get_one_pager_content(products: list[str], focus: str | None, label: str) -> str:
+async def _get_one_pager_content(products: list[str], focus: str | None, label: str, session_id: str | None) -> str:
     try:
-        text = await generate_one_pager(products, focus)
+        text = await generate_one_pager(products, focus, session_id)
         return text or f"No synthesis content returned for {label}."
     except Exception as error:
         return f"⚠️ Failed to generate one-pager for {label}: {error}"
@@ -106,7 +106,7 @@ def _format_and_upload(content_text: str, products: list[str]) -> str | None:
 @router.post("/generate-pdf")
 async def generate_pdf(request: PdfRequest):
     label = " + ".join(request.products)
-    content_text = await _get_one_pager_content(request.products, request.focus, label)
+    content_text = await _get_one_pager_content(request.products, request.focus, label, request.session_id)
     pdf_url = _format_and_upload(content_text, request.products)
 
     return {
