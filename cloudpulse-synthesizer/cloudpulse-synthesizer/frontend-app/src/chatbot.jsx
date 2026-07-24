@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
-
+import api from "./api"; // Adjust path if api.js lives elsewhere
 const QUICK_QUESTIONS = [
   "What recent changes affect my deployment?",
   "Are there upcoming deprecations?",
@@ -140,7 +140,7 @@ export default function Chatbot({ product }) {
     startThinkingSequence();
 
     try {
-      const { data } = await axios.post("https://cloudpulsebackend-1098468887328.us-central1.run.app/", {
+      const { data } = await api.post("/api/chat", {
         message: query,
       });
 
@@ -153,7 +153,7 @@ export default function Chatbot({ product }) {
     } catch (error) {
       pushMessage({
         sender: "bot",
-        text: "⚠️ Unable to reach the retrieval backend. Ensure the API server is running on localhost:8000.",
+        text: "⚠️ Unable to reach the retrieval backend. Check that VITE_API_BASE_URL points to a running server.",
       });
     } finally {
       clearThinkingSequence();
@@ -176,7 +176,7 @@ export default function Chatbot({ product }) {
     startThinkingSequence();
 
     try {
-      const { data } = await axios.post("http://localhost:8000/api/generate-pdf", {
+      const { data } = await api.post("/api/generate-pdf", {
         product_name: targetProduct,
       });
 
@@ -189,7 +189,7 @@ export default function Chatbot({ product }) {
     } catch (error) {
       pushMessage({
         sender: "bot",
-        text: `⚠️ Unable to generate a one-pager for ${targetProduct}. Ensure the API server is running on localhost:8000.`,
+        text: `⚠️ Unable to generate a one-pager for ${targetProduct}. Check that VITE_API_BASE_URL points to a running server.`,
       });
     } finally {
       clearThinkingSequence();
