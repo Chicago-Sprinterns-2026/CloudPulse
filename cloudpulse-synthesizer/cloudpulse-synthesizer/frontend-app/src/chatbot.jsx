@@ -313,7 +313,13 @@ export default function Chatbot({ product, manifest = [] }) {
                 </div>
               </>
             ) : (
-              <p>{msg.text}</p>
+              <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
+                {msg.sender === "bot" ? (
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                ) : (
+                  <p>{msg.text}</p>
+                )}
+              </div>
             )}
 
             {msg.showChips && (

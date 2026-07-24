@@ -1095,6 +1095,54 @@
   margin-top: 0;
 }
 
+/* Markdown rendering inside a chat bubble — same content rules as
+   .synthesis-output, but no card box, since the bubble already has its
+   own background/padding. */
+.chat-markdown h2,
+.chat-markdown h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 10px 0 6px;
+}
+
+.chat-markdown h2:first-child,
+.chat-markdown h3:first-child {
+  margin-top: 0;
+}
+
+.chat-markdown p {
+  margin: 0 0 8px;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+.chat-markdown li {
+  margin-bottom: 4px;
+}
+
+.chat-markdown strong {
+  font-weight: 700;
+}
+
+.chat-markdown code {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.chat-markdown a {
+  color: var(--pulse);
+}
+
 .synthesis-output p {
   margin: 0 0 10px;
 }
