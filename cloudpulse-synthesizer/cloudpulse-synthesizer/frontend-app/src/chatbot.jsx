@@ -215,7 +215,7 @@ export default function Chatbot({ product, manifest = [] }) {
   // actually sending it, same as typing a one-pager request from scratch.
   const handleGenerateOnePager = () => {
     const targetProduct = (product || "").trim();
-    setInput(targetProduct ? `Generate a one-pager for ${targetProduct}` : "Generate a one-pager for ");
+    setInput(`Generate one-pager for ${targetProduct ? `${targetProduct}...` : "..."}`);
     inputRef.current?.focus();
   };
 

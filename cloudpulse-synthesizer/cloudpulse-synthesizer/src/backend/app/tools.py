@@ -12,6 +12,13 @@ _LOCATION = "global"
 _CORPUS_ID = "5175911405336920064"
 _DATASTORE_PATH = f"projects/{_PROJECT_ID}/locations/global/collections/default_collection/dataStores/google-cloud-official-docs_1784562830724"
 
+# Reused across calls instead of constructed per-request — client
+# construction does its own auth/discovery round-trip, which otherwise
+# gets paid on every single tool invocation.
+_rag_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
+_discovery_client = discoveryengine.SearchServiceClient()
+_bigquery_client = bigquery.Client()
+
 
 def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     """Internal helper: runs Vertex AI RAG retrieval on internal corpus."""
@@ -22,7 +29,7 @@ def _search_docs_raw(query: str, limit: int = 5) -> List[Dict[str, str]]:
     corpus_name = (
         f"projects/{_PROJECT_ID}/locations/{_LOCATION}/ragCorpora/{_CORPUS_ID}"
     )
-    client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
+    client = _rag_client
     rag_tool = genai_types.Tool(
         retrieval=genai_types.Retrieval(
             vertex_rag_store=genai_types.VertexRagStore(
@@ -68,7 +75,7 @@ def _search_google_docs_datastore(query: str, limit: int = 5) -> List[Dict[str, 
 
     def _execute_search(term: str) -> List[Dict[str, str]]:
         try:
-            client = discoveryengine.SearchServiceClient()
+            client = _discovery_client
             serving_config = client.serving_config_path(
                 project=_PROJECT_ID,
                 location="global",
@@ -201,7 +208,7 @@ def cloudpulse_tool(
         
         metadata_res = {}
         try:
-            client = bigquery.Client()
+            client = _bigquery_client
             project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", _PROJECT_ID)
             dataset_id = os.environ.get("BIGQUERY_DATASET", "cloudpulse_dataset")
             sql_query = f"""
@@ -240,7 +247,7 @@ def cloudpulse_tool(
             
         notes = []
         try:
-            client = bigquery.Client()
+            client = _bigquery_client
             
             # Explicitly CAST published_at to TIMESTAMP for correct chronological order
             if start_date and start_date.strip():
