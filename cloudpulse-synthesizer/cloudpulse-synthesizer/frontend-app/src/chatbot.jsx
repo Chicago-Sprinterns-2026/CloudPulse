@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import api from "./api"; // Adjust path if api.js lives elsewhere
 const QUICK_QUESTIONS = [
