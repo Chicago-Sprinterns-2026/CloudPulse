@@ -57,72 +57,187 @@ Format your response using the specific Google Advisory headers, callout boxes (
 """.strip()
 
 # 2. Define a clean fallback string for generic queries
-DEFAULT_PERSONA = "A general technical assistant focused on operational clarity and strict grounding."
+DEFAULT_PERSONA = "support_engineer"
 
-async def determine_and_set_persona(callback_context):
+async def update_persona_context(callback_context):
     """
-    Analyzes the latest user request to dynamically match it to a predefined
-    CloudPulse sub-persona before the system prompt compiles.
-    """
-    # 3. Extract the last message sent by the user from session history
-    user_message = ""
-    if callback_context.session and callback_context.session.events:
-        for event in reversed(callback_context.session.events):
-            if event.author == "user":
-                if hasattr(event, "content") and event.content:
-                    if hasattr(event.content, "parts") and event.content.parts:
-                        user_message = "".join([
-                            part.text for part in event.content.parts if hasattr(part, "text") and part.text
-                        ])
-                    elif hasattr(event.content, "text") and event.content.text:
-                        user_message = event.content.text
-                break
+    Lightweight persona router.
 
-    # If it's a completely new session with no text yet, apply the default string
-    if not user_message:
-        if "persona" not in callback_context.state:
-            callback_context.state["persona"] = DEFAULT_PERSONA
-        return
-
-    # 4. Prompt the classifier to output exactly one key from your map
-    allowed_keys = list(PERSONA_PROMPTS.keys())
-    classifier_prompt = f"""
-    You are an internal routing system for CloudPulse. Analyze the user's question and categorize it into the single best audience persona key.
-    
-    Allowed Keys:
-    - 'support_engineer': Deep technical debugging, handling tickets, or tracking down system/code exceptions.
-    - 'tam': Multi-service cloud architecture setups, high-level client impact briefings, or roadmap queries.
-    - 'sales_rep': Feature capabilities, preview/GA status updates, or customer value-propositions for client calls.
-    - 'onboarding_intern': Conceptual questions, foundational GCP architecture explainers, and educational engineering mentoring.
-    
-    User Question: "{user_message}"
-    
-    Respond with ONLY the exact matching key name from this list: {allowed_keys}. 
-    If the question doesn't cleanly fit any category or is a basic greeting, return 'support_engineer' as the safest technical fallback. Do not add any extra text or punctuation.
+    Strategy:
+    - Look at recent conversation history for continuity.
+    - Look at the latest user message for explicit persona need shifts.
+    - Preserve the existing persona unless the new request clearly changes the audience.
+    - Store persona state for future turns.
     """
 
-    try:
-        # 5. Execute the classification via a fast flash model with 0.0 temperature
-        with genai.Client() as ai_client:
-            response = ai_client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=classifier_prompt,
-                config=types.GenerateContentConfig(temperature=0.0)
+    MAX_EVENTS = 8
+
+    conversation = []
+
+    # ---------------------------------------------------------
+    # 1. Pull recent conversation history from ADK session
+    # ---------------------------------------------------------
+    if callback_context.session:
+        for event in callback_context.session.events[-MAX_EVENTS:]:
+
+            if not event.content:
+                continue
+
+            text = ""
+
+            if hasattr(event.content, "parts"):
+                text = "".join(
+                    part.text
+                    for part in event.content.parts
+                    if getattr(part, "text", None)
+                )
+
+            if not text:
+                continue
+
+            speaker = (
+                "user"
+                if event.author == "user"
+                else "assistant"
             )
-        
-        selected_key = response.text.strip().lower()
-        
-        # 6. Retrieve the matching full prompt block. 
-        # If the model hallucinates a key, fallback to support_engineer or default
-        chosen_persona_prompt = PERSONA_PROMPTS.get(selected_key, PERSONA_PROMPTS["support_engineer"])
-        
-        # 7. Inject the text block straight into the state variable expected by your SYSTEM_PROMPT
-        callback_context.state["persona"] = chosen_persona_prompt
-        
-    except Exception as e:
-        # Fallback guardrail to keep the system operational if the API call fails
-        if "persona" not in callback_context.state:
-            callback_context.state["persona"] = PERSONA_PROMPTS["support_engineer"]
+
+            conversation.append(
+                {
+                    "speaker": speaker,
+                    "text": text,
+                }
+            )
+
+
+    # ---------------------------------------------------------
+    # 2. Find latest user message
+    # ---------------------------------------------------------
+    latest_user_message = ""
+
+    for message in reversed(conversation):
+        if message["speaker"] == "user":
+            latest_user_message = message["text"].lower()
+            break
+
+
+    # ---------------------------------------------------------
+    # 3. Retrieve existing persona state
+    # ---------------------------------------------------------
+    current_persona = callback_context.state.get(
+        "persona_key"
+    )
+
+
+    # ---------------------------------------------------------
+    # 4. Determine if this is a persona shift
+    # ---------------------------------------------------------
+
+    selected_persona = current_persona or DEFAULT_PERSONA
+
+
+    # ---- Executive / leadership context ----
+    if any(keyword in latest_user_message for keyword in [
+        "executive",
+        "leadership",
+        "vp",
+        "cio",
+        "business impact",
+        "customer briefing",
+        "presentation",
+        "stakeholder",
+    ]):
+        selected_persona = "tam"
+
+
+    # ---- Troubleshooting / incident response ----
+    elif any(keyword in latest_user_message for keyword in [
+        "error",
+        "exception",
+        "failed",
+        "failure",
+        "timeout",
+        "stack trace",
+        "logs",
+        "crash",
+        "503",
+        "debug",
+        "broken",
+        "incident",
+    ]):
+        selected_persona = "support_engineer"
+
+
+    # ---- Architecture / design ----
+    elif any(keyword in latest_user_message for keyword in [
+        "architecture",
+        "architect",
+        "design",
+        "migration",
+        "scaling",
+        "best practice",
+        "recommend an approach",
+    ]):
+        selected_persona = "cloud_architect"
+
+
+    # ---- DevOps ----
+    elif any(keyword in latest_user_message for keyword in [
+        "pipeline",
+        "ci/cd",
+        "terraform",
+        "deployment strategy",
+        "automation",
+        "infrastructure",
+    ]):
+        selected_persona = "devops_engineer"
+
+
+    # ---- Learning / onboarding ----
+    elif any(keyword in latest_user_message for keyword in [
+        "what is",
+        "explain",
+        "teach me",
+        "beginner",
+        "tutorial",
+        "how does",
+    ]):
+        selected_persona = "onboarding_intern"
+
+
+    # ---- Sales / customer value ----
+    elif any(keyword in latest_user_message for keyword in [
+        "pricing",
+        "cost",
+        "competitive",
+        "preview",
+        "ga",
+        "availability",
+        "customer value",
+    ]):
+        selected_persona = "sales_rep"
+
+
+    # ---------------------------------------------------------
+    # 5. Update ADK session state
+    # ---------------------------------------------------------
+
+    callback_context.state["persona_key"] = selected_persona
+
+    callback_context.state["persona"] = PERSONA_PROMPTS.get(
+        selected_persona,
+        PERSONA_PROMPTS["support_engineer"]
+    )
+
+
+    # Optional debugging context
+    callback_context.state["recent_messages"] = conversation[-6:]
+
+    callback_context.state["last_persona_update"] = {
+        "previous": current_persona,
+        "selected": selected_persona,
+        "trigger_message": latest_user_message,
+    }
+
 
 root_agent = Agent(
     model='gemini-2.5-flash',
@@ -130,7 +245,7 @@ root_agent = Agent(
     description='A helpful assistant for CloudPulse operational and technical questions.',
     instruction=SYSTEM_INSTRUCTION,
     tools=[cloudpulse_tool],
-    before_agent_callback=determine_and_set_persona,
+    before_agent_callback=update_persona_context,
     generate_content_config=types.GenerateContentConfig(
         http_options=types.HttpOptions(
             retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
@@ -169,7 +284,11 @@ async def run_agent(message: str, session_id: str | None = None):
         if event.is_final_response() and event.content and event.content.parts:
             answer = "".join(part.text or "" for part in event.content.parts)
 
-    return {"answer": answer, "source_documents": []}
+    return {
+        "answer": answer,
+        "source_documents": [],
+        "session_id": session_id
+    }
 
 
 # One-pagers always need exactly the same three lookups (metadata,

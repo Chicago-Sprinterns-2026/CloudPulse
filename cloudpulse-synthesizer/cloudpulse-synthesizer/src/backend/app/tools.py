@@ -198,7 +198,7 @@ def cloudpulse_tool(
     Returns:
         - "search_docs": list of dicts with "text", "source_url", "title".
         - "metadata": dict with product metadata and documentation search results.
-        - "release_notes": dict with BigQuery release notes and fallback documentation search results.
+        - "release_notes": dict with BigQuery release notes and documentation search results.
         - "msas": list of dicts with "product", "severity_filter", "title", "description", "source_url".
     """
     if action == "search_docs":

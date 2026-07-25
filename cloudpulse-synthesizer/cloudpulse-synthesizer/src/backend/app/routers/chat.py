@@ -14,5 +14,6 @@ async def chat(request: ChatRequest):
 
     return {
         "answer": result["answer"],
-        "source_documents": result.get("source_documents", [])
+        "source_documents": result.get("source_documents", []),
+        "session_id": result["session_id"]
     }

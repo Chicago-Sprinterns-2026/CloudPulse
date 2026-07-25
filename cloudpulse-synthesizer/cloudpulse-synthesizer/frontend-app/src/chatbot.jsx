@@ -231,6 +231,10 @@ export default function Chatbot({ product, manifest = [] }) {
  const inputRef = useRef(null);
  const thinkingTimeoutsRef = useRef([]);
 
+ const [sessionId, setSessionId] = useState(
+   () => localStorage.getItem("cloudpulse-session-id") || null
+ );
+
 
  const clearThinkingSequence = () => {
    thinkingTimeoutsRef.current.forEach(clearTimeout);
@@ -345,7 +349,13 @@ export default function Chatbot({ product, manifest = [] }) {
    try {
      const { data } = await api.post("/api/chat", {
        message: query,
+       session_id: sessionId,
      });
+
+     if (data.session_id && data.session_id !== sessionId) {
+       setSessionId(data.session_id);
+       localStorage.setItem("cloudpulse-session-id", data.session_id);
+     }
 
 
      pushMessage({
@@ -376,6 +386,7 @@ export default function Chatbot({ product, manifest = [] }) {
      const { data } = await api.post("/api/generate-pdf", {
        products,
        focus: focus || null,
+       session_id: sessionId
      });
 
 
