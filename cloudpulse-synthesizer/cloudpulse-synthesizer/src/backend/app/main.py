@@ -8,7 +8,7 @@ print("LOCATION:", os.getenv("GOOGLE_CLOUD_LOCATION"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import chat, pdf, product
+from app.routers import chat, pdf, product, release_notes
 
 
 app = FastAPI(title="Agent API")
@@ -28,9 +28,9 @@ app.add_middleware(
 app.include_router(chat.router)
 app.include_router(pdf.router)
 app.include_router(product.router)
+app.include_router(release_notes.router)
 
 
 @app.get("/")
 async def root():
    return {"status": "ok"}
-
