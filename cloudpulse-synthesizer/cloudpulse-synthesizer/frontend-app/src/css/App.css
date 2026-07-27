@@ -1572,3 +1572,14 @@
     padding: 28px 20px 48px;
   }
 }
+
+.chatbot-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.new-chat-btn {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+}

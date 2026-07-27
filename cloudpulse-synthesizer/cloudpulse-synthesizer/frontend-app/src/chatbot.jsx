@@ -337,6 +337,18 @@ export default function Chatbot({ product, manifest = [] }) {
     inputRef.current?.focus();
   };
 
+  const handleNewChat = () => {
+    clearThinkingSequence();
+    setMessages([]);
+    setInput("");
+    setIsSending(false);
+    setIsGeneratingOnePager(false);
+    setReplyTo(null);
+    setSelectionMenu(null);
+    setThinkingLabel(THINKING_STAGES[0].label);
+    inputRef.current?.focus();
+  };
+
   const handleSend = async (text) => {
     const query = text || input;
     if (!query.trim()) return;
@@ -450,7 +462,18 @@ export default function Chatbot({ product, manifest = [] }) {
 
   return (
     <div className="workspace-chatbot">
-      <h4>💬 CloudPulse Assistant</h4>
+      <div className="chatbot-header-row">
+        <h4>💬 CloudPulse Assistant</h4>
+        <button
+          type="button"
+          className="btn btn-secondary new-chat-btn"
+          onClick={handleNewChat}
+          disabled={isSending || isGeneratingOnePager}
+          title="Start a new conversation"
+        >
+          🆕 New Chat
+        </button>
+      </div>
       <hr />
 
       <div className="chat-history" ref={chatHistoryRef} onMouseUp={handleTextSelection}>
