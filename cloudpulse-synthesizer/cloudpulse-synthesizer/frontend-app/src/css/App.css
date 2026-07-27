@@ -1143,6 +1143,24 @@
   color: var(--pulse);
 }
 
+.message-edit-textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.message-edit-textarea:focus {
+  outline: none;
+  border-color: var(--pulse);
+}
+
 .synthesis-output p {
   margin: 0 0 10px;
 }
@@ -1365,10 +1383,17 @@
   margin-top: 0;
 }
 
-.onepager-actions {
+.onepager-actions,
+.message-actions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
+}
+
+.message-actions .btn-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
 }
 
 .btn-icon {

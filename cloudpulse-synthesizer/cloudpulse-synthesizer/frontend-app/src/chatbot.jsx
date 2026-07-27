@@ -5,6 +5,21 @@ import { extractProductsFromText } from "./utils";
 import { saveSession, getSession } from "./chatHistoryStorage";
 import ChatHistoryPanel from "./chatHistoryPanel";
 
+// crypto.randomUUID() is only exposed in secure contexts (HTTPS, or the
+// page origin literally being "localhost") — accessed over plain HTTP via
+// any other host/IP (e.g. a LAN or WSL address), it's undefined and throws,
+// crashing the whole component. Fall back to a manual v4 UUID in that case.
+function generateSessionId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 // Pool the two non-one-pager prompt buttons draw from — kept larger than 2
 // so the row shows different suggestions across sessions instead of the
 // same fixed pair every time.
@@ -262,7 +277,7 @@ export default function Chatbot({ product, manifest = [] }) {
   // One id per conversation so the backend's ADK session can accumulate
   // real multi-turn memory, and so New Chat / History can tell
   // conversations apart from each other.
-  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState(() => generateSessionId());
   const [historyOpen, setHistoryOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -364,7 +379,7 @@ export default function Chatbot({ product, manifest = [] }) {
 
   const handleNewChat = () => {
     clearThinkingSequence();
-    setSessionId(crypto.randomUUID());
+    setSessionId(generateSessionId());
     setMessages([]);
     setInput("");
     setIsSending(false);
@@ -460,9 +475,43 @@ export default function Chatbot({ product, manifest = [] }) {
   };
 
   const handleGenerateOnePager = () => {
-    const targetProduct = (product || "").trim();
-    setInput(targetProduct ? `Generate a one-pager for ${targetProduct}` : "Generate a one-pager for ");
+    setInput("Generate one-pager");
     inputRef.current?.focus();
+  };
+
+  const handleDraftEmail = () => {
+    setInput("Draft an email about ");
+    inputRef.current?.focus();
+  };
+
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
+
+  const handleCopyMessage = (id, text) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedMessageId(id);
+    setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
+  };
+
+  // In-place editing of a bot response (e.g. tweaking an email draft's
+  // wording) — edits the bubble itself rather than routing through the
+  // main input box.
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  const handleStartEdit = (msg) => {
+    setEditingMessageId(msg.id);
+    setEditDraft(msg.text);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditDraft("");
+  };
+
+  const handleSaveEdit = (id) => {
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, text: editDraft } : m)));
+    setEditingMessageId(null);
+    setEditDraft("");
   };
 
   const buildConversationContext = () =>
@@ -592,10 +641,58 @@ export default function Chatbot({ product, manifest = [] }) {
             ) : (
               <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
                 {msg.sender === "bot" ? (
-                  <>
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
-                    <ConfidenceTab messageText={msg.text} sources={msg.sources} />
-                  </>
+                  msg.id === editingMessageId ? (
+                    <>
+                      <textarea
+                        className="message-edit-textarea"
+                        value={editDraft}
+                        onChange={(e) => setEditDraft(e.target.value)}
+                        rows={Math.max(4, editDraft.split("\n").length)}
+                        autoFocus
+                      />
+                      <div className="message-actions">
+                        <button
+                          type="button"
+                          className="btn btn-primary quick-question"
+                          onClick={() => handleSaveEdit(msg.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary quick-question"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                      <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                      <div className="message-actions">
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => handleCopyMessage(msg.id, msg.text)}
+                          aria-label="Copy text"
+                          title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
+                        >
+                          {copiedMessageId === msg.id ? "✓" : "📋"}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => handleStartEdit(msg)}
+                          aria-label="Edit response"
+                          title="Edit response"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    </>
+                  )
                 ) : (
                   <p>{msg.text}</p>
                 )}
@@ -649,11 +746,21 @@ export default function Chatbot({ product, manifest = [] }) {
         >
           📄 Generate one-pager
         </button>
+        <button
+          type="button"
+          className="btn btn-secondary quick-question"
+          onClick={handleDraftEmail}
+        >
+          ✉️ Draft an email
+        </button>
         {randomPrompts.map((q, i) => (
           <button
             key={i}
             className="btn btn-secondary quick-question"
-            onClick={() => handleSend(q)}
+            onClick={() => {
+              setInput(q);
+              inputRef.current?.focus();
+            }}
             disabled={isSending}
           >
             💡 {q}
