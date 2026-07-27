@@ -42,10 +42,26 @@ SOURCE = os.getenv("RELEASE_NOTES_SOURCE", "bigquery").strip().lower()
 USING_FIXTURE = SOURCE == "fixture"
 
 # src/backend/app/this_file.py -> repo root is four levels up.
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-FIXTURE_DIR = Path(
-    os.getenv("RELEASE_NOTES_FIXTURE_DIR", _REPO_ROOT / "frontend-app" / "data-raw")
-)
+def _default_fixture_dir() -> Path:
+    """Best guess at frontend-app/data-raw when running from a source checkout.
+
+    Deliberately defensive rather than counting parents: in the Cloud Run image
+    the backend is copied to /app with nothing above it, so a fixed parents[3]
+    raises IndexError -- at import time, which took the whole service down before
+    it could serve one request. Fixture mode isn't usable in the container anyway
+    (data-raw lives under frontend-app, which isn't in the backend build context),
+    so failing to find it here is harmless: it only surfaces as a clear error if
+    someone explicitly asks for fixture mode where the files don't exist.
+    """
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        candidate = parent / "frontend-app" / "data-raw"
+        if candidate.is_dir():
+            return candidate
+    return here.parent / "data-raw"  # not found; _load_fixture reports it clearly
+
+
+FIXTURE_DIR = Path(os.getenv("RELEASE_NOTES_FIXTURE_DIR") or _default_fixture_dir())
 
 
 # --------------------------------------------------------------------------- #
