@@ -1956,3 +1956,50 @@
     transition: none;
   }
 }
+
+.attach-btn {
+  font-size: 1rem;
+  padding: 6px 10px;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.attachment-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+.attach-btn {
+  font-size: 1rem;
+  padding: 6px 10px;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.attachment-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}

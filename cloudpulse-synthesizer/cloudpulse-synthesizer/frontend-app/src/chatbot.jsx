@@ -287,10 +287,12 @@ export default function Chatbot({ product, manifest = [] }) {
   const [selectionMenu, setSelectionMenu] = useState(null);
   const [thinkingLabel, setThinkingLabel] = useState(THINKING_STAGES[0].label);
   const [randomPrompts, setRandomPrompts] = useState(() => pickRandomPrompts(QUICK_QUESTION_POOL, 2));
+  const [attachedFile, setAttachedFile] = useState(null);
   const nextIdRef = useRef(0);
   const chatHistoryRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const thinkingTimeoutsRef = useRef([]);
 
   // Persist this conversation (keyed by sessionId) any time it changes, so
@@ -377,6 +379,49 @@ export default function Chatbot({ product, manifest = [] }) {
     inputRef.current?.focus();
   };
 
+  const ALLOWED_EXTENSIONS = [".txt", ".md", ".csv", ".json", ".log", ".pdf", ".docx"];
+  const MAX_FILE_CHARS = 8000;
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    const lower = file.name.toLowerCase();
+    const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+    if (!hasAllowedExtension) {
+      pushMessage({
+        sender: "bot",
+        text: `⚠️ Unsupported file type. Please attach one of: ${ALLOWED_EXTENSIONS.join(", ")}.`,
+      });
+      return;
+    }
+
+    if (lower.endsWith(".pdf") || lower.endsWith(".docx")) {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const { data } = await api.post("/api/extract-text", formData);
+        setAttachedFile({ name: file.name, content: data.content });
+      } catch (error) {
+        pushMessage({ sender: "bot", text: `⚠️ Couldn't extract text from ${file.name}.` });
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = String(reader.result || "").slice(0, MAX_FILE_CHARS);
+      setAttachedFile({ name: file.name, content });
+    };
+    reader.onerror = () => {
+      pushMessage({ sender: "bot", text: "⚠️ Couldn't read that file. Please try again." });
+    };
+    reader.readAsText(file);
+  };
+
+  const handleRemoveAttachment = () => setAttachedFile(null);
+
   const handleNewChat = () => {
     clearThinkingSequence();
     setSessionId(generateSessionId());
@@ -388,6 +433,7 @@ export default function Chatbot({ product, manifest = [] }) {
     setSelectionMenu(null);
     setThinkingLabel(THINKING_STAGES[0].label);
     setRandomPrompts(pickRandomPrompts(QUICK_QUESTION_POOL, 2));
+    setAttachedFile(null);
     nextIdRef.current = 0;
     inputRef.current?.focus();
   };
@@ -408,11 +454,19 @@ export default function Chatbot({ product, manifest = [] }) {
 
   const handleSend = async (text) => {
     const query = text || input;
-    if (!query.trim()) return;
+    if (!query.trim() && !attachedFile) return;
 
-    pushMessage({ sender: "user", text: query, replyTo });
+    const fullQuery = attachedFile
+      ? `[Attached file: ${attachedFile.name}]\n\`\`\`\n${attachedFile.content}\n\`\`\`\n\n${query}`
+      : query;
+
+    const hadAttachment = Boolean(attachedFile);
+
+
+    pushMessage({ sender: "user", text: query, replyTo, attachmentName: attachedFile?.name });
     setInput("");
     setReplyTo(null);
+    setAttachedFile(null);
 
     if (ONE_PAGER_INTENT_PATTERN.test(query)) {
       await handleOnePagerRequest(query);
@@ -424,7 +478,7 @@ export default function Chatbot({ product, manifest = [] }) {
 
     try {
       const { data } = await api.post("/api/chat", {
-        message: query,
+        message: fullQuery,
         session_id: sessionId,
       });
 
@@ -433,7 +487,9 @@ export default function Chatbot({ product, manifest = [] }) {
         text: data.answer,
         sources: data.source_documents || [],
         showChips: shouldOfferFollowUpChips(query, data.answer),
+        fromAttachment: hadAttachment,
       });
+
     } catch (error) {
       pushMessage({
         sender: "bot",
@@ -674,7 +730,9 @@ export default function Chatbot({ product, manifest = [] }) {
                   ) : (
                     <>
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
-                      <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                      {!msg.fromAttachment && (
+                        <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                      )}
                       <div className="message-actions">
                         <button
                           type="button"
@@ -789,7 +847,32 @@ export default function Chatbot({ product, manifest = [] }) {
         </div>
       )}
 
+      {attachedFile && (
+        <div className="attachment-chip">
+          <span>📎 {attachedFile.name}</span>
+          <button type="button" onClick={handleRemoveAttachment} aria-label="Remove attachment">
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="chat-input-wrapper">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          style={{ display: "none" }}
+          accept=".txt,.md,.csv,.json,.log,.pdf,.docx"
+        />
+        <button
+          type="button"
+          className="btn btn-secondary attach-btn"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isSending}
+          title="Attach a file"
+        >
+          📎
+        </button>
         <input
           ref={inputRef}
           type="text"
@@ -808,5 +891,3 @@ export default function Chatbot({ product, manifest = [] }) {
     </div>
   );
 }
-
-
