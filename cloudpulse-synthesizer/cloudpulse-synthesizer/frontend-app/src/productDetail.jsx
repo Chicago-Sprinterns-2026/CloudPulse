@@ -5,7 +5,7 @@ import { productsMatch } from './utils';
 import api from './api';
 import ReactMarkdown from 'react-markdown';
 
-export default function ProductDetail({ product, onBack }) {
+export default function ProductDetail({ product, onBack, backLabel = '← Back to all products' }) {
   const [activeTab, setActiveTab] = useState('documentation');
   const [docContent, setDocContent] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function ProductDetail({ product, onBack }) {
   return (
     <div className="product-detail-view">
       <div className="product-detail-topbar">
-        <button className="history-back" onClick={onBack}>← Back to all products</button>
+        <button className="history-back" onClick={onBack}>{backLabel}</button>
       </div>
 
       <div className="product-detail-header">
