@@ -75,22 +75,20 @@ export function loadProducts() {
  * so it never has to wait on a product with thousands of notes.
  */
 export async function loadProductHistory(product, { maxPages = 40, pageSize = 100 } = {}) {
-  if (!product) return [];
+  if (!product) return { items: [], isLive: true };
 
   const all = [];
   let cursor = null;
+  let isLive = true;
 
   for (let page = 0; page < maxPages; page += 1) {
     // eslint-disable-next-line no-await-in-loop
-    const { items, nextCursor } = await fetchReleaseNotes({
-      product,
-      cursor,
-      limit: pageSize,
-    });
-    all.push(...items);
-    if (!nextCursor) break;
-    cursor = nextCursor;
+    const response = await fetchReleaseNotes({ product, cursor, limit: pageSize });
+    all.push(...response.items);
+    isLive = response.isLive;
+    if (!response.nextCursor) break;
+    cursor = response.nextCursor;
   }
 
-  return all;
+  return { items: all, isLive };
 }

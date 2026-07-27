@@ -2,12 +2,25 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import api from "./api"; // Adjust path if api.js lives elsewhere
 import { extractProductsFromText } from "./utils";
+import { saveSession, getSession } from "./chatHistoryStorage";
+import ChatHistoryPanel from "./chatHistoryPanel";
 
-const QUICK_QUESTIONS = [
+// Pool the two non-one-pager prompt buttons draw from — kept larger than 2
+// so the row shows different suggestions across sessions instead of the
+// same fixed pair every time.
+const QUICK_QUESTION_POOL = [
   "What recent changes affect my deployment?",
   "Are there upcoming deprecations?",
   "What troubleshooting steps should I try first?",
+  "What's new in the last 30 days?",
+  "Are there any active security advisories?",
+  "What should I know before my next upgrade?",
 ];
+
+function pickRandomPrompts(pool, count) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 const ONE_PAGER_INTENT_PATTERN = /\bone[-\s]?pagers?\b/i;
 const CONTEXT_MESSAGE_WINDOW = 6;
@@ -246,6 +259,11 @@ function ConfidenceTab({ messageText, sources = [] }) {
 }
 
 export default function Chatbot({ product, manifest = [] }) {
+  // One id per conversation so the backend's ADK session can accumulate
+  // real multi-turn memory, and so New Chat / History can tell
+  // conversations apart from each other.
+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -253,11 +271,18 @@ export default function Chatbot({ product, manifest = [] }) {
   const [replyTo, setReplyTo] = useState(null);
   const [selectionMenu, setSelectionMenu] = useState(null);
   const [thinkingLabel, setThinkingLabel] = useState(THINKING_STAGES[0].label);
+  const [randomPrompts, setRandomPrompts] = useState(() => pickRandomPrompts(QUICK_QUESTION_POOL, 2));
   const nextIdRef = useRef(0);
   const chatHistoryRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const thinkingTimeoutsRef = useRef([]);
+
+  // Persist this conversation (keyed by sessionId) any time it changes, so
+  // "Show history" and page refreshes have something real to show.
+  useEffect(() => {
+    saveSession(sessionId, messages);
+  }, [sessionId, messages]);
 
   const clearThinkingSequence = () => {
     thinkingTimeoutsRef.current.forEach(clearTimeout);
@@ -339,6 +364,7 @@ export default function Chatbot({ product, manifest = [] }) {
 
   const handleNewChat = () => {
     clearThinkingSequence();
+    setSessionId(crypto.randomUUID());
     setMessages([]);
     setInput("");
     setIsSending(false);
@@ -346,7 +372,23 @@ export default function Chatbot({ product, manifest = [] }) {
     setReplyTo(null);
     setSelectionMenu(null);
     setThinkingLabel(THINKING_STAGES[0].label);
+    setRandomPrompts(pickRandomPrompts(QUICK_QUESTION_POOL, 2));
+    nextIdRef.current = 0;
     inputRef.current?.focus();
+  };
+
+  const handleSelectHistorySession = (id) => {
+    const session = getSession(id);
+    if (session) {
+      clearThinkingSequence();
+      setSessionId(id);
+      setMessages(session.messages);
+      setInput("");
+      setReplyTo(null);
+      setSelectionMenu(null);
+      nextIdRef.current = session.messages.reduce((max, m) => Math.max(max, m.id || 0), 0);
+    }
+    setHistoryOpen(false);
   };
 
   const handleSend = async (text) => {
@@ -368,6 +410,7 @@ export default function Chatbot({ product, manifest = [] }) {
     try {
       const { data } = await api.post("/api/chat", {
         message: query,
+        session_id: sessionId,
       });
 
       pushMessage({
@@ -396,6 +439,7 @@ export default function Chatbot({ product, manifest = [] }) {
       const { data } = await api.post("/api/generate-pdf", {
         products,
         focus: focus || null,
+        session_id: sessionId,
       });
 
       pushMessage({
@@ -463,16 +507,33 @@ export default function Chatbot({ product, manifest = [] }) {
   return (
     <div className="workspace-chatbot">
       <div className="chatbot-header-row">
+        <div className="chatbot-header-actions">
+          <button
+            type="button"
+            className="header-action-btn"
+            onClick={() => setHistoryOpen(true)}
+            aria-label="Show conversation history"
+            title="Show conversation history"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="header-action-btn header-action-btn-primary"
+            onClick={handleNewChat}
+            disabled={isSending || isGeneratingOnePager}
+            aria-label="Start a new conversation"
+            title="Start a new conversation"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
+        </div>
         <h4>💬 CloudPulse Assistant</h4>
-        <button
-          type="button"
-          className="btn btn-secondary new-chat-btn"
-          onClick={handleNewChat}
-          disabled={isSending || isGeneratingOnePager}
-          title="Start a new conversation"
-        >
-          🆕 New Chat
-        </button>
       </div>
       <hr />
 
@@ -579,19 +640,16 @@ export default function Chatbot({ product, manifest = [] }) {
         <div ref={bottomRef} />
       </div>
 
-      <button
-        type="button"
-        className="btn btn-primary full-width one-pager-trigger"
-        onClick={handleGenerateOnePager}
-        disabled={isGeneratingOnePager}
-      >
-        {isGeneratingOnePager
-          ? "Generating one-pager…"
-          : `📄 Generate one-pager${product ? ` for ${product}` : ""}`}
-      </button>
-
       <div className="quick-questions-row">
-        {QUICK_QUESTIONS.map((q, i) => (
+        <button
+          type="button"
+          className="btn btn-secondary quick-question"
+          onClick={handleGenerateOnePager}
+          disabled={isGeneratingOnePager}
+        >
+          📄 Generate one-pager
+        </button>
+        {randomPrompts.map((q, i) => (
           <button
             key={i}
             className="btn btn-secondary quick-question"
@@ -634,6 +692,14 @@ export default function Chatbot({ product, manifest = [] }) {
           Send
         </button>
       </div>
+
+      {historyOpen && (
+        <ChatHistoryPanel
+          activeSessionId={sessionId}
+          onSelect={handleSelectHistorySession}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
     </div>
   );
 }

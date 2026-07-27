@@ -27,7 +27,6 @@ const CAROUSEL_SLIDES = buildCarouselSlides();
 // Back-button label on the release history page, based on which view sent
 // the user there.
 const HISTORY_ORIGIN_LABELS = {
-  synthesizer: '← Back to workspace',
   catalog: '← Back to recent updates',
   products: '← Back to all products',
 };
@@ -56,7 +55,7 @@ export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
-  const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
+  const [historyOrigin, setHistoryOrigin] = useState('catalog');
   const [detailProduct, setDetailProduct] = useState(null);
   const isTileHoveredRef = useRef(false);
 
@@ -94,10 +93,10 @@ export default function App() {
           {isSignedIn && (
             <nav className="header-nav">
               <button
-                className={`header-nav-link ${viewState === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setViewState('dashboard')}
+                className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
+                onClick={() => setViewState('synthesizer')}
               >
-                Dashboard
+                Workspace
               </button>
               <button
                 className={`header-nav-link ${(viewState === 'products' || viewState === 'productDetail') ? 'active' : ''}`}
@@ -106,10 +105,10 @@ export default function App() {
                 Products
               </button>
               <button
-                className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
-                onClick={() => setViewState('synthesizer')}
+                className={`header-nav-link ${viewState === 'dashboard' ? 'active' : ''}`}
+                onClick={() => setViewState('dashboard')}
               >
-                Workspace
+                Dashboard
               </button>
             </nav>
           )}
@@ -291,16 +290,7 @@ export default function App() {
 
         {/* Synthesizer view */}
         {viewState === 'synthesizer' && (
-          <div className="workspace-view">
-            <Synthesizer
-              defaultProduct={selectedProduct}
-              onViewHistory={(product) => {
-                setHistoryProduct(product);
-                setHistoryOrigin('synthesizer');
-                setViewState('history');
-              }}
-            />
-          </div>
+          <Synthesizer defaultProduct={selectedProduct} />
         )}
 
         {/* Release History View */}

@@ -175,6 +175,8 @@ export function useProductHistory(product) {
   const [releases, setReleases] = useState([]);
   const [loading, setLoading] = useState(Boolean(product));
   const [error, setError] = useState(null);
+  // False when the backend is serving the offline fixture rather than BigQuery.
+  const [isLive, setIsLive] = useState(true);
 
   useEffect(() => {
     if (!product) {
@@ -188,9 +190,10 @@ export function useProductHistory(product) {
     setError(null);
 
     loadProductHistory(product)
-      .then((data) => {
+      .then(({ items, isLive: live }) => {
         if (cancelled) return;
-        setReleases(data);
+        setReleases(items);
+        setIsLive(live);
         setLoading(false);
       })
       .catch((err) => {
@@ -204,7 +207,7 @@ export function useProductHistory(product) {
     };
   }, [product]);
 
-  return { releases, loading, error };
+  return { releases, loading, error, isLive };
 }
 
 /**
