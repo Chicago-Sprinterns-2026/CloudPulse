@@ -1,21 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useProductHistory } from './useReleaseNotes';
-import { stripHtml } from './utils';
 
-const PAGE_SIZE = 15;
+// How many notes to show initially, and how many more each time the reader
+// reaches the bottom. The full history is already in memory (see
+// loadProductHistory), so this is purely about not rendering 600 DOM nodes at
+// once -- and about keeping date filtering instant, which server-side paging
+// would not.
+const PAGE_SIZE = 20;
 
 export default function ReleaseHistory({ product, onBack, backLabel, embedded = false }) {
-  const { releases: history, loading, error } = useProductHistory(product);
+  const { releases: history, loading, error, isLive } = useProductHistory(product);
 
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [page, setPage] = useState(1);
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
-  // Reset filters and pagination whenever the product changes.
+  // Reset filters and the scroll window whenever the product changes.
   useEffect(() => {
     setDateFrom('');
     setDateTo('');
-    setPage(1);
+    setVisible(PAGE_SIZE);
   }, [product]);
 
   const filtered = useMemo(() => {
@@ -26,13 +30,37 @@ export default function ReleaseHistory({ product, onBack, backLabel, embedded = 
     });
   }, [history, dateFrom, dateTo]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageItems = filtered.slice(0, visible);
+  const hasMore = visible < filtered.length;
   const hasFilters = Boolean(dateFrom || dateTo);
+
+  // Infinite scroll: a sentinel below the last note reveals the next batch as
+  // soon as it enters the viewport. Replaces the old numbered pager -- reading
+  // release notes is a scanning task, and page buttons interrupt it.
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible((current) => current + PAGE_SIZE);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, pageItems.length]);
+
+  const resetFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setVisible(PAGE_SIZE);
+  };
 
   return (
     <div className="history-view">
@@ -42,11 +70,21 @@ export default function ReleaseHistory({ product, onBack, backLabel, embedded = 
           <h3>Full release history — {product}</h3>
         </>
       )}
-      <p className="subtitle">
-        {loading
-          ? 'Loading full history…'
-          : `${filtered.length} release${filtered.length === 1 ? '' : 's'} found${hasFilters ? ' (filtered)' : ''}.`}
-      </p>
+
+      <div className="history-status">
+        <p className="subtitle">
+          {loading
+            ? 'Loading full history…'
+            : `${filtered.length} release${filtered.length === 1 ? '' : 's'} found${hasFilters ? ' (filtered)' : ''}.`}
+        </p>
+        {!loading && !error && history.length > 0 && (
+          <p className={`note history-source${isLive ? '' : ' history-stale'}`}>
+            {isLive
+              ? 'Live from Google Cloud · click any note to open it in the docs'
+              : 'Offline snapshot · click any note to open it in the docs'}
+          </p>
+        )}
+      </div>
 
       {error && (
         <p className="subtitle" style={{ color: 'var(--coral)' }}>
@@ -64,7 +102,7 @@ export default function ReleaseHistory({ product, onBack, backLabel, embedded = 
               max={dateTo || undefined}
               onChange={(e) => {
                 setDateFrom(e.target.value);
-                setPage(1);
+                setVisible(PAGE_SIZE);
               }}
             />
           </div>
@@ -76,19 +114,12 @@ export default function ReleaseHistory({ product, onBack, backLabel, embedded = 
               min={dateFrom || undefined}
               onChange={(e) => {
                 setDateTo(e.target.value);
-                setPage(1);
+                setVisible(PAGE_SIZE);
               }}
             />
           </div>
           {hasFilters && (
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                setDateFrom('');
-                setDateTo('');
-                setPage(1);
-              }}
-            >
+            <button className="btn btn-secondary" onClick={resetFilters}>
               Clear filters
             </button>
           )}
@@ -103,36 +134,37 @@ export default function ReleaseHistory({ product, onBack, backLabel, embedded = 
               : `No release notes found for "${product}".`}
           </p>
         )}
-        {pageItems.map((item, idx) => (
-          <div key={idx} className="history-item">
+
+        {pageItems.map((item) => (
+          // Each note links to the exact date anchor on the official page, so a
+          // reader can always get to the authoritative version of what they're
+          // reading rather than trusting our copy of it.
+          <a
+            key={item.id}
+            className="history-item"
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Open the ${item.product} release notes for ${item.date}`}
+          >
             <div className="history-item-meta">
               <span className="history-item-date">{item.date}</span>
               {item.type && <span className="history-item-type">{item.type}</span>}
+              {item.version && <span className="history-item-version">{item.version}</span>}
             </div>
-            <p>{stripHtml(item.update)}</p>
-          </div>
+            <p>{item.update}</p>
+          </a>
         ))}
-      </div>
 
-      {!loading && filtered.length > PAGE_SIZE && (
-        <div className="history-pagination">
-          <button
-            className="btn btn-secondary"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            ← Previous
-          </button>
-          <span className="history-pagination-label">Page {page} of {totalPages}</span>
-          <button
-            className="btn btn-secondary"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Next →
-          </button>
-        </div>
-      )}
+        {/* Watched by the IntersectionObserver above. */}
+        <div ref={sentinelRef} className="history-sentinel" aria-hidden="true" />
+
+        {!loading && !hasMore && filtered.length > PAGE_SIZE && (
+          <p className="note history-end">
+            That's the full history for {product}.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
