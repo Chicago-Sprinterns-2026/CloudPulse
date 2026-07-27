@@ -19,6 +19,7 @@ export default function Synthesizer({ defaultProduct }) {
       <div className="chat-panel chat-panel-full">
         <Chatbot product={defaultProduct} manifest={manifest} />
       </div>
+      <p className="workspace-disclaimer">AI can be wrong. Please double check all responses.</p>
     </div>
   );
 }
