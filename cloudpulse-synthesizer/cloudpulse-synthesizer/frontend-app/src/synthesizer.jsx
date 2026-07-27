@@ -10,6 +10,12 @@ export default function Synthesizer({ defaultProduct }) {
 
   return (
     <div className="workspace-view-full">
+      <div className="workspace-title-row">
+        <h3 className="workspace-title">💬 CloudPulse Assistant</h3>
+        <span className="workspace-subtitle">
+          Ask a question, or generate a one-pager for the selected product.
+        </span>
+      </div>
       <div className="chat-panel chat-panel-full">
         <Chatbot product={defaultProduct} manifest={manifest} />
       </div>

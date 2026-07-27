@@ -590,16 +590,10 @@ export default function Chatbot({ product, manifest = [] }) {
             </svg>
           </button>
         </div>
-        <h4>💬 CloudPulse Assistant</h4>
       </div>
       <hr />
 
       <div className="chat-history" ref={chatHistoryRef} onMouseUp={handleTextSelection}>
-        {messages.length === 0 && (
-          <p className="subtitle">
-            Ask a question, or generate a one-pager for the selected product.
-          </p>
-        )}
         {messages.map((msg) => (
           <div
             key={msg.id}

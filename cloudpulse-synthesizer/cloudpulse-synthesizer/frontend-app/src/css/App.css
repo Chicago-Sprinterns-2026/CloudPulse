@@ -1428,6 +1428,9 @@
 .workspace-chatbot {
   width: 100%;
   background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   padding: 10px 32px 12px;
 }
 
@@ -1718,13 +1721,13 @@
 .chatbot-header-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .chatbot-header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 10px 0 0 10px;
 }
 
 .header-action-btn {
@@ -1770,15 +1773,40 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 32px 0;
-  background: #ffffff;
+  align-items: center;
+  padding: 24px 32px 32px;
+  background: color-mix(in srgb, var(--surface-tint) 50%, white);
   color: #000000;
 }
 
+.workspace-title-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 0 12px;
+}
+
+.workspace-title {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.workspace-subtitle {
+  font-size: 13px;
+  color: var(--ink-faint, var(--ink-soft));
+}
+
 .chat-panel-full {
-  height: calc(100vh - 180px);
-  min-height: 480px;
-  flex: 1;
+  width: 100%;
+  max-width: 1250px;
+  height: calc(100vh - 200px);
+  min-height: 520px;
+  max-height: 860px;
+  flex: none;
 }
 
 /* History — an in-flow sidebar to the left of the chatbot, styled to match
