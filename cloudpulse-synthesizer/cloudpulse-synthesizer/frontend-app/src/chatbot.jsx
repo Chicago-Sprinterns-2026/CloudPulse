@@ -2,14 +2,45 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import api from "./api"; // Adjust path if api.js lives elsewhere
 import { extractProductsFromText } from "./utils";
+import { saveSession, getSession } from "./chatHistoryStorage";
+import ChatHistoryPanel from "./chatHistoryPanel";
 
-const QUICK_QUESTIONS = [
+// crypto.randomUUID() is only exposed in secure contexts (HTTPS, or the
+// page origin literally being "localhost") — accessed over plain HTTP via
+// any other host/IP (e.g. a LAN or WSL address), it's undefined and throws,
+// crashing the whole component. Fall back to a manual v4 UUID in that case.
+function generateSessionId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+// Pool the two non-one-pager prompt buttons draw from — kept larger than 2
+// so the row shows different suggestions across sessions instead of the
+// same fixed pair every time.
+const QUICK_QUESTION_POOL = [
   "What recent changes affect my deployment?",
   "Are there upcoming deprecations?",
   "What troubleshooting steps should I try first?",
+  "What's new in the last 30 days?",
+  "Are there any active security advisories?",
+  "What should I know before my next upgrade?",
 ];
 
+function pickRandomPrompts(pool, count) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
 const ONE_PAGER_INTENT_PATTERN = /\bone[-\s]?pagers?\b/i;
+// Only email-draft responses get the in-bubble edit button — every other
+// bot answer is a Q&A response you'd re-ask rather than hand-edit.
+const EMAIL_DRAFT_INTENT_PATTERN = /\bdraft\s+(?:an?|the)\s+email\b/i;
 const CONTEXT_MESSAGE_WINDOW = 6;
 const SMALL_TALK_PATTERN =
   /^(hi|hello|hey+|yo|sup|thanks|thank you|thx|ty|bye|goodbye|see ya|ok|okay|k|cool|nice|great|got it|sounds good|awesome|perfect|np|no problem|you're welcome)[\s!.,]*$/i;
@@ -246,6 +277,11 @@ function ConfidenceTab({ messageText, sources = [] }) {
 }
 
 export default function Chatbot({ product, manifest = [] }) {
+  // One id per conversation so the backend's ADK session can accumulate
+  // real multi-turn memory, and so New Chat / History can tell
+  // conversations apart from each other.
+  const [sessionId, setSessionId] = useState(() => generateSessionId());
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -253,11 +289,21 @@ export default function Chatbot({ product, manifest = [] }) {
   const [replyTo, setReplyTo] = useState(null);
   const [selectionMenu, setSelectionMenu] = useState(null);
   const [thinkingLabel, setThinkingLabel] = useState(THINKING_STAGES[0].label);
+  const [randomPrompts, setRandomPrompts] = useState(() => pickRandomPrompts(QUICK_QUESTION_POOL, 2));
+  const [attachedFile, setAttachedFile] = useState(null);
   const nextIdRef = useRef(0);
   const chatHistoryRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const thinkingTimeoutsRef = useRef([]);
+  const abortControllerRef = useRef(null);
+
+  // Persist this conversation (keyed by sessionId) any time it changes, so
+  // "Show history" and page refreshes have something real to show.
+  useEffect(() => {
+    saveSession(sessionId, messages);
+  }, [sessionId, messages]);
 
   const clearThinkingSequence = () => {
     thinkingTimeoutsRef.current.forEach(clearTimeout);
@@ -337,13 +383,94 @@ export default function Chatbot({ product, manifest = [] }) {
     inputRef.current?.focus();
   };
 
+  const ALLOWED_EXTENSIONS = [".txt", ".md", ".csv", ".json", ".log", ".pdf", ".docx"];
+  const MAX_FILE_CHARS = 8000;
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    const lower = file.name.toLowerCase();
+    const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+    if (!hasAllowedExtension) {
+      pushMessage({
+        sender: "bot",
+        text: `⚠️ Unsupported file type. Please attach one of: ${ALLOWED_EXTENSIONS.join(", ")}.`,
+      });
+      return;
+    }
+
+    if (lower.endsWith(".pdf") || lower.endsWith(".docx")) {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const { data } = await api.post("/api/extract-text", formData);
+        setAttachedFile({ name: file.name, content: data.content });
+      } catch (error) {
+        pushMessage({ sender: "bot", text: `⚠️ Couldn't extract text from ${file.name}.` });
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = String(reader.result || "").slice(0, MAX_FILE_CHARS);
+      setAttachedFile({ name: file.name, content });
+    };
+    reader.onerror = () => {
+      pushMessage({ sender: "bot", text: "⚠️ Couldn't read that file. Please try again." });
+    };
+    reader.readAsText(file);
+  };
+
+  const handleRemoveAttachment = () => setAttachedFile(null);
+
+  const handleNewChat = () => {
+    clearThinkingSequence();
+    setSessionId(generateSessionId());
+    setMessages([]);
+    setInput("");
+    setIsSending(false);
+    setIsGeneratingOnePager(false);
+    setReplyTo(null);
+    setSelectionMenu(null);
+    setThinkingLabel(THINKING_STAGES[0].label);
+    setRandomPrompts(pickRandomPrompts(QUICK_QUESTION_POOL, 2));
+    setAttachedFile(null);
+    nextIdRef.current = 0;
+    inputRef.current?.focus();
+  };
+
+  const handleSelectHistorySession = (id) => {
+    const session = getSession(id);
+    if (session) {
+      clearThinkingSequence();
+      setSessionId(id);
+      setMessages(session.messages);
+      setInput("");
+      setReplyTo(null);
+      setSelectionMenu(null);
+      nextIdRef.current = session.messages.reduce((max, m) => Math.max(max, m.id || 0), 0);
+    }
+    setHistoryOpen(false);
+  };
+
   const handleSend = async (text) => {
     const query = text || input;
-    if (!query.trim()) return;
+    if (!query.trim() && !attachedFile) return;
 
-    pushMessage({ sender: "user", text: query, replyTo });
+    const fullQuery = attachedFile
+      ? `[Attached file: ${attachedFile.name}]\n\`\`\`\n${attachedFile.content}\n\`\`\`\n\n${query}`
+      : query;
+
+    const hadAttachment = Boolean(attachedFile);
+
+
+    pushMessage({ sender: "user", text: query, replyTo, attachmentName: attachedFile?.name });
     setInput("");
     setReplyTo(null);
+    setAttachedFile(null);
 
     if (ONE_PAGER_INTENT_PATTERN.test(query)) {
       await handleOnePagerRequest(query);
@@ -353,25 +480,36 @@ export default function Chatbot({ product, manifest = [] }) {
     setIsSending(true);
     startThinkingSequence();
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const { data } = await api.post("/api/chat", {
-        message: query,
-      });
+      const { data } = await api.post(
+        "/api/chat",
+        { message: fullQuery, session_id: sessionId },
+        { signal: controller.signal }
+      );
 
       pushMessage({
         sender: "bot",
         text: data.answer,
         sources: data.source_documents || [],
         showChips: shouldOfferFollowUpChips(query, data.answer),
+        fromAttachment: hadAttachment,
+        isEmailDraft: EMAIL_DRAFT_INTENT_PATTERN.test(query),
       });
+
     } catch (error) {
-      pushMessage({
-        sender: "bot",
-        text: "⚠️ Unable to reach the retrieval backend. Check that VITE_API_BASE_URL points to a running server.",
-      });
+      if (error.code !== "ERR_CANCELED") {
+        pushMessage({
+          sender: "bot",
+          text: "⚠️ Unable to reach the retrieval backend. Check that VITE_API_BASE_URL points to a running server.",
+        });
+      }
     } finally {
       clearThinkingSequence();
       setIsSending(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -380,11 +518,15 @@ export default function Chatbot({ product, manifest = [] }) {
     setIsGeneratingOnePager(true);
     startThinkingSequence();
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const { data } = await api.post("/api/generate-pdf", {
-        products,
-        focus: focus || null,
-      });
+      const { data } = await api.post(
+        "/api/generate-pdf",
+        { products, focus: focus || null, session_id: sessionId },
+        { signal: controller.signal }
+      );
 
       pushMessage({
         sender: "bot",
@@ -393,20 +535,61 @@ export default function Chatbot({ product, manifest = [] }) {
         pdfUrl: data.pdf_url ? `${api.defaults.baseURL || ""}${data.pdf_url}` : null,
       });
     } catch (error) {
-      pushMessage({
-        sender: "bot",
-        text: `⚠️ Unable to generate a one-pager for ${label}. Check that VITE_API_BASE_URL points to a running server.`,
-      });
+      if (error.code !== "ERR_CANCELED") {
+        pushMessage({
+          sender: "bot",
+          text: `⚠️ Unable to generate a one-pager for ${label}. Check that VITE_API_BASE_URL points to a running server.`,
+        });
+      }
     } finally {
       clearThinkingSequence();
       setIsGeneratingOnePager(false);
+      abortControllerRef.current = null;
     }
   };
 
+  const handleStopGenerating = () => {
+    abortControllerRef.current?.abort();
+  };
+
   const handleGenerateOnePager = () => {
-    const targetProduct = (product || "").trim();
-    setInput(targetProduct ? `Generate a one-pager for ${targetProduct}` : "Generate a one-pager for ");
+    setInput("Generate one-pager");
     inputRef.current?.focus();
+  };
+
+  const handleDraftEmail = () => {
+    setInput("Draft an email about ");
+    inputRef.current?.focus();
+  };
+
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
+
+  const handleCopyMessage = (id, text) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedMessageId(id);
+    setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
+  };
+
+  // In-place editing of a bot response (e.g. tweaking an email draft's
+  // wording) — edits the bubble itself rather than routing through the
+  // main input box.
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  const handleStartEdit = (msg) => {
+    setEditingMessageId(msg.id);
+    setEditDraft(msg.text);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditDraft("");
+  };
+
+  const handleSaveEdit = (id) => {
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, text: editDraft } : m)));
+    setEditingMessageId(null);
+    setEditDraft("");
   };
 
   const buildConversationContext = () =>
@@ -449,21 +632,53 @@ export default function Chatbot({ product, manifest = [] }) {
   };
 
   return (
-    <div className="workspace-chatbot">
-      <h4>💬 CloudPulse Assistant</h4>
+    <div className="workspace-chatbot-wrapper">
+      {historyOpen && (
+        <ChatHistoryPanel
+          activeSessionId={sessionId}
+          onSelect={handleSelectHistorySession}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
+      <div className="workspace-chatbot">
+        <div className="chatbot-header-row">
+        <div className="chatbot-header-actions">
+          <button
+            type="button"
+            className="header-action-btn"
+            onClick={() => setHistoryOpen(true)}
+            aria-label="Show conversation history"
+            title="Show conversation history"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="header-action-btn header-action-btn-primary"
+            onClick={handleNewChat}
+            disabled={isSending || isGeneratingOnePager}
+            aria-label="Start a new conversation"
+            title="Start a new conversation"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
+        </div>
+      </div>
       <hr />
 
       <div className="chat-history" ref={chatHistoryRef} onMouseUp={handleTextSelection}>
-        {messages.length === 0 && (
-          <p className="subtitle">
-            Ask a question, or generate a one-pager for the selected product.
-          </p>
-        )}
         {messages.map((msg) => (
           <div
             key={msg.id}
             data-msg-id={msg.id}
-            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""}`}
+            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""} ${
+              msg.id === editingMessageId ? "editing" : ""
+            }`}
           >
             {msg.replyTo && (
               <div className="reply-quote">
@@ -507,13 +722,76 @@ export default function Chatbot({ product, manifest = [] }) {
               </>
             ) : (
               <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
-                {msg.sender === "bot" ? (
+                {msg.id === editingMessageId ? (
+                  <>
+                    <textarea
+                      className="message-edit-textarea"
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      rows={Math.max(4, editDraft.split("\n").length)}
+                      autoFocus
+                    />
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn btn-primary quick-question"
+                        onClick={() => handleSaveEdit(msg.id)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary quick-question"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : msg.sender === "bot" ? (
                   <>
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
-                    <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                    {!msg.fromAttachment && (
+                      <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                    )}
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => handleCopyMessage(msg.id, msg.text)}
+                        aria-label="Copy text"
+                        title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
+                      >
+                        {copiedMessageId === msg.id ? "✓" : "📋"}
+                      </button>
+                      {msg.isEmailDraft && (
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => handleStartEdit(msg)}
+                          aria-label="Edit email draft"
+                          title="Edit email draft"
+                        >
+                          ✏️
+                        </button>
+                      )}
+                    </div>
                   </>
                 ) : (
-                  <p>{msg.text}</p>
+                  <>
+                    <p>{msg.text}</p>
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => handleStartEdit(msg)}
+                        aria-label="Edit message"
+                        title="Edit message"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -556,23 +834,30 @@ export default function Chatbot({ product, manifest = [] }) {
         <div ref={bottomRef} />
       </div>
 
-      <button
-        type="button"
-        className="btn btn-primary full-width one-pager-trigger"
-        onClick={handleGenerateOnePager}
-        disabled={isGeneratingOnePager}
-      >
-        {isGeneratingOnePager
-          ? "Generating one-pager…"
-          : `📄 Generate one-pager${product ? ` for ${product}` : ""}`}
-      </button>
-
       <div className="quick-questions-row">
-        {QUICK_QUESTIONS.map((q, i) => (
+        <button
+          type="button"
+          className="btn btn-secondary quick-question"
+          onClick={handleGenerateOnePager}
+          disabled={isGeneratingOnePager}
+        >
+          📄 Generate one-pager
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary quick-question"
+          onClick={handleDraftEmail}
+        >
+          ✉️ Draft an email
+        </button>
+        {randomPrompts.map((q, i) => (
           <button
             key={i}
             className="btn btn-secondary quick-question"
-            onClick={() => handleSend(q)}
+            onClick={() => {
+              setInput(q);
+              inputRef.current?.focus();
+            }}
             disabled={isSending}
           >
             💡 {q}
@@ -597,7 +882,32 @@ export default function Chatbot({ product, manifest = [] }) {
         </div>
       )}
 
+      {attachedFile && (
+        <div className="attachment-chip">
+          <span>📎 {attachedFile.name}</span>
+          <button type="button" onClick={handleRemoveAttachment} aria-label="Remove attachment">
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="chat-input-wrapper">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          style={{ display: "none" }}
+          accept=".txt,.md,.csv,.json,.log,.pdf,.docx"
+        />
+        <button
+          type="button"
+          className="btn btn-secondary attach-btn"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isSending}
+          title="Attach a file"
+        >
+          📎
+        </button>
         <input
           ref={inputRef}
           type="text"
@@ -607,12 +917,18 @@ export default function Chatbot({ product, manifest = [] }) {
           placeholder="Ask a Google Cloud question..."
           disabled={isSending}
         />
-        <button className="btn btn-primary" onClick={() => handleSend()} disabled={isSending}>
-          Send
-        </button>
+        {isSending || isGeneratingOnePager ? (
+          <button type="button" className="btn btn-secondary stop-generating-btn" onClick={handleStopGenerating}>
+            ⏹ Stop
+          </button>
+        ) : (
+          <button className="btn btn-primary" onClick={() => handleSend()}>
+            Send
+          </button>
+        )}
+      </div>
+
       </div>
     </div>
   );
 }
-
-

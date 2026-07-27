@@ -28,17 +28,17 @@ _GOOGLE_GREEN = "#34A853"
 # softer without losing contrast.
 _PDF_STYLE = f"""
 <style>
-  @page {{ size: letter; margin: 0.4in; }}
-  body {{ font-family: 'Google Sans', Arial, Helvetica, sans-serif; font-size: 9pt; color: #3c4043; }}
-  h1 {{ font-size: 16pt; margin: 0 0 2px; color: #202124; font-weight: bold; }}
+  @page {{ size: letter; margin: 0.35in; }}
+  body {{ font-family: 'Google Sans', Arial, Helvetica, sans-serif; font-size: 8.75pt; color: #3c4043; }}
+  h1 {{ font-size: 15pt; margin: 0 0 2px; color: #202124; font-weight: bold; }}
   .accent-bar td {{ height: 3px; padding: 0; font-size: 1px; line-height: 1px; }}
   h2 {{
-    font-size: 11pt; color: {_GOOGLE_BLUE}; font-weight: bold;
-    border-bottom: 1.5px solid {_GOOGLE_BLUE}; padding-bottom: 2px; margin: 8px 0 3px;
+    font-size: 10.5pt; color: {_GOOGLE_BLUE}; font-weight: bold;
+    border-bottom: 1.5px solid {_GOOGLE_BLUE}; padding-bottom: 2px; margin: 6px 0 2px;
   }}
-  ul {{ margin: 0 0 3px; padding-left: 16px; }}
+  ul {{ margin: 0 0 2px; padding-left: 16px; }}
   li {{ margin-bottom: 1px; }}
-  p {{ margin: 0 0 3px; line-height: 1.25; }}
+  p {{ margin: 0 0 2px; line-height: 1.2; }}
   strong {{ color: #202124; }}
   a {{ color: {_GOOGLE_BLUE}; }}
 </style>

@@ -1143,6 +1143,24 @@
   color: var(--pulse);
 }
 
+.message-edit-textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.message-edit-textarea:focus {
+  outline: none;
+  border-color: var(--pulse);
+}
+
 .synthesis-output p {
   margin: 0 0 10px;
 }
@@ -1340,22 +1358,26 @@
   min-height: 520px;
 }
 
+/* Holds the optional history sidebar and the chatbot card side by side. */
+.workspace-chatbot-wrapper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
 .chat-panel .workspace-chatbot {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 0;
+  padding: 14px 22px 16px;
 }
 
 .chat-panel .chat-history {
   flex: 1;
   max-height: none;
   min-height: 0;
-}
-
-.one-pager-trigger {
-  margin: 4px 0 10px;
 }
 
 .chat-bubble.onepager {
@@ -1369,10 +1391,17 @@
   margin-top: 0;
 }
 
-.onepager-actions {
+.onepager-actions,
+.message-actions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
+}
+
+.message-actions .btn-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
 }
 
 .btn-icon {
@@ -1399,6 +1428,9 @@
 .workspace-chatbot {
   width: 100%;
   background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   padding: 10px 32px 12px;
 }
 
@@ -1523,6 +1555,13 @@
   border-bottom-left-radius: 3px;
 }
 
+/* Editing needs room to actually see what you're typing — don't cap it
+   to the normal 85% bubble width. */
+.chat-bubble.editing {
+  max-width: 100%;
+  width: 100%;
+}
+
 .typing-indicator {
   display: flex;
   align-items: center;
@@ -1596,6 +1635,7 @@
 
 .quick-questions-row {
   display: flex;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 10px;
   overflow-x: auto;
@@ -1623,6 +1663,17 @@
 .chat-input-wrapper input:focus {
   outline: 2px solid var(--pulse);
   outline-offset: 1px;
+}
+
+.stop-generating-btn {
+  color: var(--coral, #ea4335);
+  border-color: var(--coral, #ea4335);
+}
+
+.stop-generating-btn:hover {
+  background: var(--coral-bg, rgba(234, 67, 53, 0.1));
+  color: var(--coral, #ea4335);
+  border-color: var(--coral, #ea4335);
 }
 
 /* bottom of page */
@@ -1676,4 +1727,298 @@
   .catalog-view {
     padding: 28px 20px 48px;
   }
+}
+
+.chatbot-header-row {
+  display: flex;
+  align-items: center;
+}
+
+.chatbot-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.header-action-btn:hover:not(:disabled) {
+  background: var(--surface-tint);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--pulse) 35%, var(--border));
+}
+
+.header-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.header-action-btn-primary {
+  background: var(--pulse);
+  border-color: var(--pulse);
+  color: #ffffff;
+}
+
+.header-action-btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--pulse) 88%, black);
+  border-color: color-mix(in srgb, var(--pulse) 88%, black);
+  color: #ffffff;
+}
+
+/* Workspace page — the entire page is the chatbot now; History / New Chat
+   live in the chatbot's own header row (see .chatbot-header-actions). */
+.workspace-view-full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 32px 32px;
+  background: color-mix(in srgb, var(--surface-tint) 50%, white);
+  color: #000000;
+}
+
+.workspace-title-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 0 12px;
+}
+
+.workspace-title {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.workspace-subtitle {
+  font-size: 13px;
+  color: var(--ink-faint, var(--ink-soft));
+}
+
+.chat-panel-full {
+  width: 100%;
+  max-width: 1250px;
+  height: calc(100vh - 230px);
+  min-height: 520px;
+  max-height: 860px;
+  flex: none;
+}
+
+.workspace-disclaimer {
+  width: 100%;
+  max-width: 1250px;
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-faint, var(--ink-soft));
+}
+
+/* History — an in-flow sidebar to the left of the chatbot, styled to match
+   its card (not a fixed overlay/backdrop that hovers above the page). */
+.chat-history-panel {
+  flex: 0 0 280px;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  overflow: hidden;
+}
+
+.chat-history-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.chat-history-panel-header h4 {
+  margin: 0;
+}
+
+.chat-history-panel-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.chat-history-item:hover {
+  background: var(--surface-tint);
+}
+
+.chat-history-item.active {
+  background: color-mix(in srgb, var(--pulse) 14%, white);
+}
+
+.chat-history-item-main {
+  min-width: 0;
+}
+
+.chat-history-item-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-history-item-delete {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.chat-history-item-delete:hover {
+  opacity: 1;
+}
+
+/* Release History — ledger features on the product page */
+.history-item {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+ 
+.history-item:hover,
+.history-item:focus-visible {
+  border-color: var(--pulse, #4285f4);
+  background: var(--pulse-bg, rgba(66, 133, 244, 0.06));
+}
+ 
+.history-item:focus-visible {
+  outline: 2px solid var(--pulse, #4285f4);
+  outline-offset: 2px;
+}
+ 
+/* Signals the card goes somewhere, without adding an icon that would compete
+   with the type badge. */
+.history-item:hover .history-item-date {
+  text-decoration: underline;
+}
+ 
+.history-item-version {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+ 
+.history-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.history-status .subtitle {
+  margin-bottom: 2px;
+}
+ 
+.history-source {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+ 
+/* Shown instead of the live label when the backend is on the offline fixture,
+   so stale data never gets presented as current. */
+.history-stale {
+  color: var(--g-yellow, #b06000);
+  font-weight: 500;
+}
+ 
+.history-sentinel {
+  height: 1px;
+}
+ 
+.history-end {
+  padding: 14px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  .history-item {
+    transition: none;
+  }
+}
+
+.attach-btn {
+  font-size: 1rem;
+  padding: 6px 10px;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.attachment-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+.attach-btn {
+  font-size: 1rem;
+  padding: 6px 10px;
+}
+
+.attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.attachment-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
 }

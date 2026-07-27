@@ -27,8 +27,14 @@ const CAROUSEL_SLIDES = buildCarouselSlides();
 // Back-button label on the release history page, based on which view sent
 // the user there.
 const HISTORY_ORIGIN_LABELS = {
-  synthesizer: '← Back to workspace',
   catalog: '← Back to recent updates',
+  products: '← Back to all products',
+};
+
+// Back-button label on the product detail page, based on which view sent
+// the user there.
+const DETAIL_ORIGIN_LABELS = {
+  carousel: '← Back to home',
   products: '← Back to all products',
 };
 
@@ -56,8 +62,9 @@ export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
-  const [historyOrigin, setHistoryOrigin] = useState('synthesizer');
+  const [historyOrigin, setHistoryOrigin] = useState('catalog');
   const [detailProduct, setDetailProduct] = useState(null);
+  const [detailOrigin, setDetailOrigin] = useState('products');
   const isTileHoveredRef = useRef(false);
 
   // Carousel timing logic
@@ -81,23 +88,23 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="global-header-bar">
-        <div className="brand" onClick={() => setViewState(isSignedIn ? 'dashboard' : 'carousel')} style={{ cursor: 'pointer' }}>
+        <div className="brand" onClick={() => setViewState('carousel')} style={{ cursor: 'pointer' }}>
           <img src={googleCloudIcon} alt="Google Cloud" style={{ width: '22px', height: '20px', marginRight: '8px' }} />
           <strong style={{ fontSize: '1.1rem', color: '#202124' }}>CloudPulse</strong>
         </div>
 
         <div className="header-right-actions">
-          {!isSignedIn && (viewState === 'catalog' || viewState === 'products') && (
+          {!isSignedIn && (viewState === 'catalog' || viewState === 'products' || viewState === 'productDetail') && (
             <button className="btn btn-primary" onClick={() => setViewState('login')}>Sign In</button>
           )}
 
           {isSignedIn && (
             <nav className="header-nav">
               <button
-                className={`header-nav-link ${viewState === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setViewState('dashboard')}
+                className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
+                onClick={() => setViewState('synthesizer')}
               >
-                Dashboard
+                Workspace
               </button>
               <button
                 className={`header-nav-link ${(viewState === 'products' || viewState === 'productDetail') ? 'active' : ''}`}
@@ -106,10 +113,10 @@ export default function App() {
                 Products
               </button>
               <button
-                className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
-                onClick={() => setViewState('synthesizer')}
+                className={`header-nav-link ${viewState === 'dashboard' ? 'active' : ''}`}
+                onClick={() => setViewState('dashboard')}
               >
-                Workspace
+                Dashboard
               </button>
             </nav>
           )}
@@ -163,8 +170,9 @@ export default function App() {
                         className="carousel-tile active"
                         style={{ '--tile-color': BRAND_COLORS[i % 4] }}
                         onClick={() => {
-                          setSelectedProduct(prod.name);
-                          setViewState('login');
+                          setDetailProduct(prod.name);
+                          setDetailOrigin('carousel');
+                          setViewState('productDetail');
                         }}
                         onMouseEnter={() => { isTileHoveredRef.current = true; }}
                         onMouseLeave={() => { isTileHoveredRef.current = false; }}
@@ -234,6 +242,7 @@ export default function App() {
               <ProductDirectory
                 onSeeMore={(productName) => {
                   setDetailProduct(productName);
+                  setDetailOrigin('products');
                   setViewState('productDetail');
                 }}
               />
@@ -291,16 +300,7 @@ export default function App() {
 
         {/* Synthesizer view */}
         {viewState === 'synthesizer' && (
-          <div className="workspace-view">
-            <Synthesizer
-              defaultProduct={selectedProduct}
-              onViewHistory={(product) => {
-                setHistoryProduct(product);
-                setHistoryOrigin('synthesizer');
-                setViewState('history');
-              }}
-            />
-          </div>
+          <Synthesizer defaultProduct={selectedProduct} />
         )}
 
         {/* Release History View */}
@@ -316,7 +316,8 @@ export default function App() {
         {viewState === 'productDetail' && detailProduct && (
           <ProductDetail
             product={detailProduct}
-            onBack={() => setViewState('products')}
+            backLabel={DETAIL_ORIGIN_LABELS[detailOrigin]}
+            onBack={() => setViewState(detailOrigin)}
           />
         )}
       </main>
