@@ -4,6 +4,7 @@ import api from "./api"; // Adjust path if api.js lives elsewhere
 import { extractProductsFromText } from "./utils";
 import { saveSession, getSession } from "./chatHistoryStorage";
 import ChatHistoryPanel from "./chatHistoryPanel";
+import VisualExplainer from './visualExplainer';
 
 // crypto.randomUUID() is only exposed in secure contexts (HTTPS, or the
 // page origin literally being "localhost") — accessed over plain HTTP via
@@ -808,6 +809,16 @@ export default function Chatbot({ product, manifest = [] }) {
             )}
           </div>
         ))}
+
+        <VisualExplainer
+          messages={messages
+            .filter((m) => !m.isOnePager)
+            .map((m) => ({
+              role: m.sender === 'user' ? 'user' : 'assistant',
+              content: m.text,
+            }))}
+          enabled={!isSending}
+        />
 
         {(isSending || isGeneratingOnePager) && (
           <div className="chat-bubble bot typing-indicator">

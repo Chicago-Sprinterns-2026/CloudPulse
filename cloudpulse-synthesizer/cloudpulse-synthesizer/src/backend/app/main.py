@@ -1,3 +1,4 @@
+from app.routers import chat, pdf, product, release_notes, visuals
 from dotenv import load_dotenv
 load_dotenv()  # must run before importing chat/agent, so env vars are set when root_agent is built
 
@@ -30,7 +31,7 @@ app.include_router(pdf.router)
 app.include_router(product.router)
 app.include_router(release_notes.router)
 app.include_router(upload.router)
-
+app.include_router(visuals.router)
 
 
 @app.get("/")
