@@ -1249,10 +1249,6 @@
   min-height: 0;
 }
 
-.one-pager-trigger {
-  margin: 4px 0 10px;
-}
-
 .chat-bubble.onepager {
   max-width: 100%;
   width: 100%;
@@ -1491,6 +1487,7 @@
 
 .quick-questions-row {
   display: flex;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 10px;
   overflow-x: auto;
@@ -1579,7 +1576,145 @@
   justify-content: space-between;
 }
 
-.new-chat-btn {
-  font-size: 0.8rem;
-  padding: 4px 10px;
+.chatbot-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.header-action-btn:hover:not(:disabled) {
+  background: var(--surface-tint);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--pulse) 35%, var(--border));
+}
+
+.header-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.header-action-btn-primary {
+  background: var(--pulse);
+  border-color: var(--pulse);
+  color: #ffffff;
+}
+
+.header-action-btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--pulse) 88%, black);
+  border-color: color-mix(in srgb, var(--pulse) 88%, black);
+  color: #ffffff;
+}
+
+/* Workspace page — the entire page is the chatbot now; History / New Chat
+   live in the chatbot's own header row (see .chatbot-header-actions). */
+.workspace-view-full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px 0;
+  background: #ffffff;
+  color: #000000;
+}
+
+.chat-panel-full {
+  height: calc(100vh - 180px);
+  min-height: 480px;
+  flex: 1;
+}
+
+/* History popup — slides in from the right, dismissible via backdrop */
+.chat-history-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 33, 36, 0.35);
+  z-index: 40;
+}
+
+.chat-history-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-md, -4px 0 16px rgba(0, 0, 0, 0.12));
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+}
+
+.chat-history-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.chat-history-panel-header h4 {
+  margin: 0;
+}
+
+.chat-history-panel-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.chat-history-item:hover {
+  background: var(--surface-tint);
+}
+
+.chat-history-item.active {
+  background: color-mix(in srgb, var(--pulse) 14%, white);
+}
+
+.chat-history-item-main {
+  min-width: 0;
+}
+
+.chat-history-item-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-history-item-delete {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.chat-history-item-delete:hover {
+  opacity: 1;
 }
