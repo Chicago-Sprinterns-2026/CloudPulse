@@ -1,4 +1,3 @@
-from app.routers import chat, pdf, product, release_notes, visuals
 from dotenv import load_dotenv
 load_dotenv()  # must run before importing chat/agent, so env vars are set when root_agent is built
 
@@ -9,7 +8,7 @@ print("LOCATION:", os.getenv("GOOGLE_CLOUD_LOCATION"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import chat, pdf, product, release_notes, upload
+from app.routers import chat, pdf, product, release_notes, upload, visuals
 
 
 app = FastAPI(title="Agent API")
