@@ -13,7 +13,7 @@ export default function Synthesizer({ defaultProduct }) {
       <div className="workspace-title-row">
         <h3 className="workspace-title">💬 CloudPulse Assistant</h3>
         <span className="workspace-subtitle">
-          Ask a question, or generate a one-pager for the selected product.
+          Ask a question, or generate a one-pager for any Google Cloud product.
         </span>
       </div>
       <div className="chat-panel chat-panel-full">
