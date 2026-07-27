@@ -25,53 +25,50 @@ export default function ChatHistoryPanel({ activeSessionId, onSelect, onClose })
   };
 
   return (
-    <>
-      <div className="chat-history-backdrop" onClick={onClose} />
-      <div className="chat-history-panel">
-        <div className="chat-history-panel-header">
-          <h4>Chat history</h4>
-          <button
-            type="button"
-            className="btn-icon"
-            aria-label="Close history"
-            onClick={onClose}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="chat-history-panel-list">
-          {sessions.length === 0 && (
-            <p className="subtitle" style={{ padding: "0 4px" }}>
-              No past conversations yet.
-            </p>
-          )}
-
-          {sessions.map((s) => (
-            <div
-              key={s.sessionId}
-              className={`chat-history-item ${s.sessionId === activeSessionId ? "active" : ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={() => onSelect(s.sessionId)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(s.sessionId)}
-            >
-              <div className="chat-history-item-main">
-                <p className="chat-history-item-title">{s.title}</p>
-                <p className="note">{formatTimestamp(s.updatedAt)}</p>
-              </div>
-              <button
-                type="button"
-                className="btn-icon chat-history-item-delete"
-                aria-label={`Delete "${s.title}"`}
-                onClick={(e) => handleDelete(e, s.sessionId)}
-              >
-                🗑
-              </button>
-            </div>
-          ))}
-        </div>
+    <div className="chat-history-panel">
+      <div className="chat-history-panel-header">
+        <h4>Chat history</h4>
+        <button
+          type="button"
+          className="btn-icon"
+          aria-label="Close history"
+          onClick={onClose}
+        >
+          ✕
+        </button>
       </div>
-    </>
+
+      <div className="chat-history-panel-list">
+        {sessions.length === 0 && (
+          <p className="subtitle" style={{ padding: "0 4px" }}>
+            No past conversations yet.
+          </p>
+        )}
+
+        {sessions.map((s) => (
+          <div
+            key={s.sessionId}
+            className={`chat-history-item ${s.sessionId === activeSessionId ? "active" : ""}`}
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelect(s.sessionId)}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(s.sessionId)}
+          >
+            <div className="chat-history-item-main">
+              <p className="chat-history-item-title">{s.title}</p>
+              <p className="note">{formatTimestamp(s.updatedAt)}</p>
+            </div>
+            <button
+              type="button"
+              className="btn-icon chat-history-item-delete"
+              aria-label={`Delete "${s.title}"`}
+              onClick={(e) => handleDelete(e, s.sessionId)}
+            >
+              🗑
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -1358,6 +1358,14 @@
   min-height: 520px;
 }
 
+/* Holds the optional history sidebar and the chatbot card side by side. */
+.workspace-chatbot-wrapper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
 .chat-panel .workspace-chatbot {
   display: flex;
   flex-direction: column;
@@ -1542,6 +1550,13 @@
   background: var(--surface-tint);
   color: var(--ink);
   border-bottom-left-radius: 3px;
+}
+
+/* Editing needs room to actually see what you're typing — don't cap it
+   to the normal 85% bubble width. */
+.chat-bubble.editing {
+  max-width: 100%;
+  width: 100%;
 }
 
 .typing-indicator {
@@ -1766,28 +1781,19 @@
   flex: 1;
 }
 
-/* History popup — slides in from the right, dismissible via backdrop */
-.chat-history-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(32, 33, 36, 0.35);
-  z-index: 40;
-}
-
+/* History — an in-flow sidebar to the left of the chatbot, styled to match
+   its card (not a fixed overlay/backdrop that hovers above the page). */
 .chat-history-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 320px;
-  max-width: 85vw;
+  flex: 0 0 280px;
+  width: 280px;
   background: var(--surface);
-  border-left: 1px solid var(--border);
-  box-shadow: var(--shadow-md, -4px 0 16px rgba(0, 0, 0, 0.12));
-  z-index: 41;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   padding: 18px;
+  overflow: hidden;
 }
 
 .chat-history-panel-header {

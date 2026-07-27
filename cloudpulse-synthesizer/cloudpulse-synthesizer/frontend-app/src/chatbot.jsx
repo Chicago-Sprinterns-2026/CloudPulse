@@ -554,8 +554,16 @@ export default function Chatbot({ product, manifest = [] }) {
   };
 
   return (
-    <div className="workspace-chatbot">
-      <div className="chatbot-header-row">
+    <div className="workspace-chatbot-wrapper">
+      {historyOpen && (
+        <ChatHistoryPanel
+          activeSessionId={sessionId}
+          onSelect={handleSelectHistorySession}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
+      <div className="workspace-chatbot">
+        <div className="chatbot-header-row">
         <div className="chatbot-header-actions">
           <button
             type="button"
@@ -596,7 +604,9 @@ export default function Chatbot({ product, manifest = [] }) {
           <div
             key={msg.id}
             data-msg-id={msg.id}
-            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""}`}
+            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""} ${
+              msg.id === editingMessageId ? "editing" : ""
+            }`}
           >
             {msg.replyTo && (
               <div className="reply-quote">
@@ -800,13 +810,7 @@ export default function Chatbot({ product, manifest = [] }) {
         </button>
       </div>
 
-      {historyOpen && (
-        <ChatHistoryPanel
-          activeSessionId={sessionId}
-          onSelect={handleSelectHistorySession}
-          onClose={() => setHistoryOpen(false)}
-        />
-      )}
+      </div>
     </div>
   );
 }
