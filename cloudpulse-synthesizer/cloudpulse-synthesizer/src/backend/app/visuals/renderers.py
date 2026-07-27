@@ -31,7 +31,7 @@ from app.visuals.schemas import DiagramSpec, IllustrationSpec, InfographicSpec
 # Nano Banana. Imagen was retired in June 2026, so the Gemini image models are
 # the path on Vertex now. These are preview IDs and they move -- override with
 # the env var rather than editing code when it changes.
-_IMAGE_MODEL = os.getenv("VISUAL_IMAGE_MODEL", "gemini-3.1-flash-image-preview")
+_IMAGE_MODEL = os.getenv("VISUAL_IMAGE_MODEL", "gemini-2.5-flash-image")
 
 _client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
 _RETRY = types.HttpRetryOptions(initial_delay=1, attempts=3)
