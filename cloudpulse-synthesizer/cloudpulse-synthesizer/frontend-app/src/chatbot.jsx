@@ -38,6 +38,9 @@ function pickRandomPrompts(pool, count) {
 }
 
 const ONE_PAGER_INTENT_PATTERN = /\bone[-\s]?pagers?\b/i;
+// Only email-draft responses get the in-bubble edit button — every other
+// bot answer is a Q&A response you'd re-ask rather than hand-edit.
+const EMAIL_DRAFT_INTENT_PATTERN = /\bdraft\s+(?:an?|the)\s+email\b/i;
 const CONTEXT_MESSAGE_WINDOW = 6;
 const SMALL_TALK_PATTERN =
   /^(hi|hello|hey+|yo|sup|thanks|thank you|thx|ty|bye|goodbye|see ya|ok|okay|k|cool|nice|great|got it|sounds good|awesome|perfect|np|no problem|you're welcome)[\s!.,]*$/i;
@@ -294,6 +297,7 @@ export default function Chatbot({ product, manifest = [] }) {
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
   const thinkingTimeoutsRef = useRef([]);
+  const abortControllerRef = useRef(null);
 
   // Persist this conversation (keyed by sessionId) any time it changes, so
   // "Show history" and page refreshes have something real to show.
@@ -476,11 +480,15 @@ export default function Chatbot({ product, manifest = [] }) {
     setIsSending(true);
     startThinkingSequence();
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const { data } = await api.post("/api/chat", {
-        message: fullQuery,
-        session_id: sessionId,
-      });
+      const { data } = await api.post(
+        "/api/chat",
+        { message: fullQuery, session_id: sessionId },
+        { signal: controller.signal }
+      );
 
       pushMessage({
         sender: "bot",
@@ -488,16 +496,20 @@ export default function Chatbot({ product, manifest = [] }) {
         sources: data.source_documents || [],
         showChips: shouldOfferFollowUpChips(query, data.answer),
         fromAttachment: hadAttachment,
+        isEmailDraft: EMAIL_DRAFT_INTENT_PATTERN.test(query),
       });
 
     } catch (error) {
-      pushMessage({
-        sender: "bot",
-        text: "⚠️ Unable to reach the retrieval backend. Check that VITE_API_BASE_URL points to a running server.",
-      });
+      if (error.code !== "ERR_CANCELED") {
+        pushMessage({
+          sender: "bot",
+          text: "⚠️ Unable to reach the retrieval backend. Check that VITE_API_BASE_URL points to a running server.",
+        });
+      }
     } finally {
       clearThinkingSequence();
       setIsSending(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -506,12 +518,15 @@ export default function Chatbot({ product, manifest = [] }) {
     setIsGeneratingOnePager(true);
     startThinkingSequence();
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const { data } = await api.post("/api/generate-pdf", {
-        products,
-        focus: focus || null,
-        session_id: sessionId,
-      });
+      const { data } = await api.post(
+        "/api/generate-pdf",
+        { products, focus: focus || null, session_id: sessionId },
+        { signal: controller.signal }
+      );
 
       pushMessage({
         sender: "bot",
@@ -520,14 +535,21 @@ export default function Chatbot({ product, manifest = [] }) {
         pdfUrl: data.pdf_url ? `${api.defaults.baseURL || ""}${data.pdf_url}` : null,
       });
     } catch (error) {
-      pushMessage({
-        sender: "bot",
-        text: `⚠️ Unable to generate a one-pager for ${label}. Check that VITE_API_BASE_URL points to a running server.`,
-      });
+      if (error.code !== "ERR_CANCELED") {
+        pushMessage({
+          sender: "bot",
+          text: `⚠️ Unable to generate a one-pager for ${label}. Check that VITE_API_BASE_URL points to a running server.`,
+        });
+      }
     } finally {
       clearThinkingSequence();
       setIsGeneratingOnePager(false);
+      abortControllerRef.current = null;
     }
+  };
+
+  const handleStopGenerating = () => {
+    abortControllerRef.current?.abort();
   };
 
   const handleGenerateOnePager = () => {
@@ -700,63 +722,76 @@ export default function Chatbot({ product, manifest = [] }) {
               </>
             ) : (
               <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
-                {msg.sender === "bot" ? (
-                  msg.id === editingMessageId ? (
-                    <>
-                      <textarea
-                        className="message-edit-textarea"
-                        value={editDraft}
-                        onChange={(e) => setEditDraft(e.target.value)}
-                        rows={Math.max(4, editDraft.split("\n").length)}
-                        autoFocus
-                      />
-                      <div className="message-actions">
-                        <button
-                          type="button"
-                          className="btn btn-primary quick-question"
-                          onClick={() => handleSaveEdit(msg.id)}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary quick-question"
-                          onClick={handleCancelEdit}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <ReactMarkdown>{msg.text}</ReactMarkdown>
-                      {!msg.fromAttachment && (
-                        <ConfidenceTab messageText={msg.text} sources={msg.sources} />
-                      )}
-                      <div className="message-actions">
-                        <button
-                          type="button"
-                          className="btn-icon"
-                          onClick={() => handleCopyMessage(msg.id, msg.text)}
-                          aria-label="Copy text"
-                          title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
-                        >
-                          {copiedMessageId === msg.id ? "✓" : "📋"}
-                        </button>
+                {msg.id === editingMessageId ? (
+                  <>
+                    <textarea
+                      className="message-edit-textarea"
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      rows={Math.max(4, editDraft.split("\n").length)}
+                      autoFocus
+                    />
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn btn-primary quick-question"
+                        onClick={() => handleSaveEdit(msg.id)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-secondary quick-question"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : msg.sender === "bot" ? (
+                  <>
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    {!msg.fromAttachment && (
+                      <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                    )}
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => handleCopyMessage(msg.id, msg.text)}
+                        aria-label="Copy text"
+                        title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
+                      >
+                        {copiedMessageId === msg.id ? "✓" : "📋"}
+                      </button>
+                      {msg.isEmailDraft && (
                         <button
                           type="button"
                           className="btn-icon"
                           onClick={() => handleStartEdit(msg)}
-                          aria-label="Edit response"
-                          title="Edit response"
+                          aria-label="Edit email draft"
+                          title="Edit email draft"
                         >
                           ✏️
                         </button>
-                      </div>
-                    </>
-                  )
+                      )}
+                    </div>
+                  </>
                 ) : (
-                  <p>{msg.text}</p>
+                  <>
+                    <p>{msg.text}</p>
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => handleStartEdit(msg)}
+                        aria-label="Edit message"
+                        title="Edit message"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -882,9 +917,15 @@ export default function Chatbot({ product, manifest = [] }) {
           placeholder="Ask a Google Cloud question..."
           disabled={isSending}
         />
-        <button className="btn btn-primary" onClick={() => handleSend()} disabled={isSending}>
-          Send
-        </button>
+        {isSending || isGeneratingOnePager ? (
+          <button type="button" className="btn btn-secondary stop-generating-btn" onClick={handleStopGenerating}>
+            ⏹ Stop
+          </button>
+        ) : (
+          <button className="btn btn-primary" onClick={() => handleSend()}>
+            Send
+          </button>
+        )}
       </div>
 
       </div>

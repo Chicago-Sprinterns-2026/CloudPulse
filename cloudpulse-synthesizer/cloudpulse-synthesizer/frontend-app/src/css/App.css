@@ -1665,6 +1665,17 @@
   outline-offset: 1px;
 }
 
+.stop-generating-btn {
+  color: var(--coral, #ea4335);
+  border-color: var(--coral, #ea4335);
+}
+
+.stop-generating-btn:hover {
+  background: var(--coral-bg, rgba(234, 67, 53, 0.1));
+  color: var(--coral, #ea4335);
+  border-color: var(--coral, #ea4335);
+}
+
 /* bottom of page */
 .global-footer-bar {
   display: flex;
