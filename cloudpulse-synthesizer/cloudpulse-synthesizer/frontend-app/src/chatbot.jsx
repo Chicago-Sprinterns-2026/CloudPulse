@@ -467,7 +467,6 @@ export default function Chatbot({ product, manifest = [] }) {
 
     const hadAttachment = Boolean(attachedFile);
 
-
     pushMessage({ sender: "user", text: query, replyTo, attachmentName: attachedFile?.name });
     setInput("");
     setReplyTo(null);
@@ -533,6 +532,7 @@ export default function Chatbot({ product, manifest = [] }) {
         sender: "bot",
         isOnePager: true,
         text: data.content_text,
+        sources: data.sources || [],
         pdfUrl: data.pdf_url ? `${api.defaults.baseURL || ""}${data.pdf_url}` : null,
       });
     } catch (error) {
@@ -643,302 +643,315 @@ export default function Chatbot({ product, manifest = [] }) {
       )}
       <div className="workspace-chatbot">
         <div className="chatbot-header-row">
-        <div className="chatbot-header-actions">
-          <button
-            type="button"
-            className="header-action-btn"
-            onClick={() => setHistoryOpen(true)}
-            aria-label="Show conversation history"
-            title="Show conversation history"
-          >
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 3" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="header-action-btn header-action-btn-primary"
-            onClick={handleNewChat}
-            disabled={isSending || isGeneratingOnePager}
-            aria-label="Start a new conversation"
-            title="Start a new conversation"
-          >
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
+          <div className="chatbot-header-actions">
+            <button
+              type="button"
+              className="header-action-btn"
+              onClick={() => setHistoryOpen(true)}
+              aria-label="Show conversation history"
+              title="Show conversation history"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 3" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="header-action-btn header-action-btn-primary"
+              onClick={handleNewChat}
+              disabled={isSending || isGeneratingOnePager}
+              aria-label="Start a new conversation"
+              title="Start a new conversation"
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
-      <hr />
+        <hr />
 
-      <div className="chat-history" ref={chatHistoryRef} onMouseUp={handleTextSelection}>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            data-msg-id={msg.id}
-            className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""} ${
-              msg.id === editingMessageId ? "editing" : ""
-            }`}
-          >
-            {msg.replyTo && (
-              <div className="reply-quote">
-                <span className="reply-quote-bar" />
-                <span className="reply-quote-text">{msg.replyTo.snippet}</span>
-              </div>
-            )}
+        <div className="chat-history" ref={chatHistoryRef} onMouseUp={handleTextSelection}>
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              data-msg-id={msg.id}
+              className={`chat-bubble ${msg.sender} ${msg.isOnePager ? "onepager" : ""} ${
+                msg.id === editingMessageId ? "editing" : ""
+              }`}
+            >
+              {msg.replyTo && (
+                <div className="reply-quote">
+                  <span className="reply-quote-bar" />
+                  <span className="reply-quote-text">{msg.replyTo.snippet}</span>
+                </div>
+              )}
 
-            {msg.isOnePager ? (
-              <>
-                <div className="synthesis-output">
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
-                </div>
-                <div className="onepager-actions">
-                  {msg.pdfUrl && (
-                    <a
-                      href={msg.pdfUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-icon"
-                      aria-label="Download PDF"
-                      title="Download PDF"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M12 3v12" />
-                        <path d="M7 10l5 5 5-5" />
-                        <path d="M5 21h14" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
-                {msg.id === editingMessageId ? (
-                  <>
-                    <textarea
-                      className="message-edit-textarea"
-                      value={editDraft}
-                      onChange={(e) => setEditDraft(e.target.value)}
-                      rows={Math.max(4, editDraft.split("\n").length)}
-                      autoFocus
-                    />
-                    <div className="message-actions">
-                      <button
-                        type="button"
-                        className="btn btn-primary quick-question"
-                        onClick={() => handleSaveEdit(msg.id)}
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary quick-question"
-                        onClick={handleCancelEdit}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                ) : msg.sender === "bot" ? (
-                  <>
+              {msg.isOnePager ? (
+                <>
+                  <div className="synthesis-output">
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
-                    {!msg.fromAttachment && (
-                      <ConfidenceTab messageText={msg.text} sources={msg.sources} />
-                    )}
-                    <div className="message-actions">
-                      <button
-                        type="button"
+                  </div>
+                  
+                  {/* Confidence Tab added for One-Pager responses */}
+                  <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+
+                  <div className="onepager-actions" style={{ marginTop: "8px" }}>
+                    {msg.pdfUrl && (
+                      <a
+                        href={msg.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="btn-icon"
-                        onClick={() => handleCopyMessage(msg.id, msg.text)}
-                        aria-label="Copy text"
-                        title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
+                        aria-label="Download PDF"
+                        title="Download PDF"
                       >
-                        {copiedMessageId === msg.id ? "✓" : "📋"}
-                      </button>
-                      {msg.isEmailDraft && (
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 3v12" />
+                          <path d="M7 10l5 5 5-5" />
+                          <path d="M5 21h14" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className={msg.sender === "bot" ? "chat-markdown" : undefined}>
+                  {msg.id === editingMessageId ? (
+                    <>
+                      <textarea
+                        className="message-edit-textarea"
+                        value={editDraft}
+                        onChange={(e) => setEditDraft(e.target.value)}
+                        rows={Math.max(4, editDraft.split("\n").length)}
+                        autoFocus
+                      />
+                      <div className="message-actions">
+                        <button
+                          type="button"
+                          className="btn btn-primary quick-question"
+                          onClick={() => handleSaveEdit(msg.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary quick-question"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  ) : msg.sender === "bot" ? (
+                    <>
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                      {!msg.fromAttachment && (
+                        <ConfidenceTab messageText={msg.text} sources={msg.sources} />
+                      )}
+                      <div className="message-actions">
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => handleCopyMessage(msg.id, msg.text)}
+                          aria-label="Copy text"
+                          title={copiedMessageId === msg.id ? "Copied!" : "Copy text"}
+                        >
+                          {copiedMessageId === msg.id ? "✓" : "📋"}
+                        </button>
+                        {msg.isEmailDraft && (
+                          <button
+                            type="button"
+                            className="btn-icon"
+                            onClick={() => handleStartEdit(msg)}
+                            aria-label="Edit email draft"
+                            title="Edit email draft"
+                          >
+                            ✏️
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p>{msg.text}</p>
+                      <div className="message-actions">
                         <button
                           type="button"
                           className="btn-icon"
                           onClick={() => handleStartEdit(msg)}
-                          aria-label="Edit email draft"
-                          title="Edit email draft"
+                          aria-label="Edit message"
+                          title="Edit message"
                         >
                           ✏️
                         </button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p>{msg.text}</p>
-                    <div className="message-actions">
-                      <button
-                        type="button"
-                        className="btn-icon"
-                        onClick={() => handleStartEdit(msg)}
-                        aria-label="Edit message"
-                        title="Edit message"
-                      >
-                        ✏️
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
-            {msg.showChips && (
-              <div className="chat-chips">
-                <button className="chip" onClick={() => handleChipClick("tech")}>
-                  🔧 Technical details
-                </button>
-                <button className="chip" onClick={() => handleChipClick("simple")}>
-                  💡 Simpler explanation
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+              {msg.showChips && (
+                <div className="chat-chips">
+                  <button className="chip" onClick={() => handleChipClick("tech")}>
+                    🔧 Technical details
+                  </button>
+                  <button className="chip" onClick={() => handleChipClick("simple")}>
+                    💡 Simpler explanation
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
 
-        <VisualExplainer
-          messages={messages
-            .filter((m) => !m.isOnePager)
-            .map((m) => ({
-              role: m.sender === 'user' ? 'user' : 'assistant',
-              content: m.text,
-            }))}
-          enabled={!isSending}
-        />
+          <VisualExplainer
+            messages={messages
+              .filter((m) => !m.isOnePager)
+              .map((m) => ({
+                role: m.sender === 'user' ? 'user' : 'assistant',
+                content: m.text,
+              }))}
+            enabled={!isSending}
+          />
 
-        {(isSending || isGeneratingOnePager) && (
-          <div className="chat-bubble bot typing-indicator">
-            <span className="typing-label">{thinkingLabel}…</span>
-            <span className="typing-dots">
-              <span />
-              <span />
-              <span />
-            </span>
-          </div>
-        )}
+          {(isSending || isGeneratingOnePager) && (
+            <div className="chat-bubble bot typing-indicator">
+              <span className="typing-label">{thinkingLabel}…</span>
+              <span className="typing-dots">
+                <span />
+                <span />
+                <span />
+              </span>
+            </div>
+          )}
 
-        {selectionMenu && (
+          {selectionMenu && (
+            <button
+              type="button"
+              className="selection-reply-btn"
+              style={{ top: selectionMenu.top, left: selectionMenu.left }}
+              onClick={handleReplyToSelection}
+            >
+              ↩ Reply
+            </button>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="quick-questions-row">
           <button
             type="button"
-            className="selection-reply-btn"
-            style={{ top: selectionMenu.top, left: selectionMenu.left }}
-            onClick={handleReplyToSelection}
-          >
-            ↩ Reply
-          </button>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      <div className="quick-questions-row">
-        <button
-          type="button"
-          className="btn btn-secondary quick-question"
-          onClick={handleGenerateOnePager}
-          disabled={isGeneratingOnePager}
-        >
-          📄 Generate one-pager
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary quick-question"
-          onClick={handleDraftEmail}
-        >
-          ✉️ Draft an email
-        </button>
-        {randomPrompts.map((q, i) => (
-          <button
-            key={i}
             className="btn btn-secondary quick-question"
-            onClick={() => {
-              setInput(q);
-              inputRef.current?.focus();
-            }}
-            disabled={isSending}
+            onClick={handleGenerateOnePager}
+            disabled={isGeneratingOnePager}
           >
-            💡 {q}
+            📄 Generate one-pager
           </button>
-        ))}
-      </div>
-
-      {replyTo && (
-        <div className="reply-banner">
-          <div className="reply-banner-text">
-            <span className="reply-banner-label">Replying to</span>
-            <span className="reply-banner-snippet">{replyTo.snippet}</span>
-          </div>
           <button
             type="button"
-            className="reply-banner-close"
-            onClick={() => setReplyTo(null)}
-            aria-label="Cancel reply"
+            className="btn btn-secondary quick-question"
+            onClick={handleDraftEmail}
           >
-            ✕
+            ✉️ Draft an email
           </button>
+          {randomPrompts.map((q, i) => (
+            <button
+              key={i}
+              className="btn btn-secondary quick-question"
+              onClick={() => {
+                setInput(q);
+                inputRef.current?.focus();
+              }}
+              disabled={isSending}
+            >
+              💡 {q}
+            </button>
+          ))}
         </div>
-      )}
 
-      {attachedFile && (
-        <div className="attachment-chip">
-          <span>📎 {attachedFile.name}</span>
-          <button type="button" onClick={handleRemoveAttachment} aria-label="Remove attachment">
-            ✕
-          </button>
-        </div>
-      )}
-
-      <div className="chat-input-wrapper">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileSelect}
-          style={{ display: "none" }}
-          accept=".txt,.md,.csv,.json,.log,.pdf,.docx"
-        />
-        <button
-          type="button"
-          className="btn btn-secondary attach-btn"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isSending}
-          title="Attach a file"
-        >
-          📎
-        </button>
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask a Google Cloud question..."
-          disabled={isSending}
-        />
-        {isSending || isGeneratingOnePager ? (
-          <button type="button" className="btn btn-secondary stop-generating-btn" onClick={handleStopGenerating}>
-            ⏹ Stop
-          </button>
-        ) : (
-          <button className="btn btn-primary" onClick={() => handleSend()}>
-            Send
-          </button>
+        {replyTo && (
+          <div className="reply-banner">
+            <div className="reply-banner-text">
+              <span className="reply-banner-label">Replying to</span>
+              <span className="reply-banner-snippet">{replyTo.snippet}</span>
+            </div>
+            <button
+              type="button"
+              className="reply-banner-close"
+              onClick={() => setReplyTo(null)}
+              aria-label="Cancel reply"
+            >
+              ✕
+            </button>
+          </div>
         )}
-      </div>
 
+        {attachedFile && (
+          <div className="attachment-chip">
+            <span>📎 {attachedFile.name}</span>
+            <button type="button" onClick={handleRemoveAttachment} aria-label="Remove attachment">
+              ✕
+            </button>
+          </div>
+        )}
+
+        <div className="chat-input-wrapper">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+            accept=".txt,.md,.csv,.json,.log,.pdf,.docx"
+          />
+          <button
+            type="button"
+            className="btn btn-secondary attach-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isSending}
+            title="Attach a file"
+          >
+            📎
+          </button>
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            placeholder="Ask a Google Cloud question..."
+            disabled={isSending || isGeneratingOnePager}
+          />
+          {isSending || isGeneratingOnePager ? (
+            <button
+              type="button"
+              className="btn btn-secondary stop-btn"
+              onClick={handleStopGenerating}
+              title="Stop generating"
+            >
+              ⏹️ Stop
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-primary send-btn"
+              onClick={() => handleSend()}
+              disabled={!input.trim() && !attachedFile}
+            >
+              Send
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
