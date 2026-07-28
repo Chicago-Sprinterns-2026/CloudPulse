@@ -104,7 +104,7 @@ export default function App() {
                 className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
                 onClick={() => setViewState('synthesizer')}
               >
-                Workspace
+                PulseChat
               </button>
               <button
                 className={`header-nav-link ${(viewState === 'products' || viewState === 'productDetail') ? 'active' : ''}`}
