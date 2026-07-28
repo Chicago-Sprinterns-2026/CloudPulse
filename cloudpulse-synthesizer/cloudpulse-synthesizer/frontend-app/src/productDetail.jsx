@@ -4,6 +4,7 @@ import { GCP_PRODUCTS } from './products';
 import { productsMatch } from './utils';
 import ReactMarkdown from 'react-markdown';
 import PRODUCT_DOCS from './data/productDocs.json';
+import ReleaseNotesPanel from './releaseNotesPanel';
 
 export default function ProductDetail({ product, onBack, backLabel = '← Back to all products' }) {
   const [activeTab, setActiveTab] = useState('documentation');
@@ -44,16 +45,23 @@ export default function ProductDetail({ product, onBack, backLabel = '← Back t
       </div>
 
       {activeTab === 'documentation' && (
-        <div className="product-doc-panel">
-          {docContent ? (
-            <div className="synthesis-output">
-              <ReactMarkdown>{docContent}</ReactMarkdown>
-            </div>
-          ) : (
-            <div className="product-doc-placeholder">
-              📄 Documentation for {product} will appear here once it's connected to the backend data store.
-            </div>
-          )}
+        <div className="product-doc-layout">
+          <div className="product-doc-panel">
+            {docContent ? (
+              <div className="synthesis-output">
+                <ReactMarkdown>{docContent}</ReactMarkdown>
+              </div>
+            ) : (
+              <div className="product-doc-placeholder">
+                📄 Documentation for {product} will appear here once it's connected to the backend data store.
+              </div>
+            )}
+          </div>
+
+          <ReleaseNotesPanel
+            product={product}
+            onViewHistory={() => setActiveTab('history')}
+          />
         </div>
       )}
 
