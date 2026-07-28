@@ -3,7 +3,6 @@ import json
 import time
 import uuid
 
-
 from google.adk.agents.llm_agent import Agent
 from google import genai
 from google.genai import types
@@ -14,38 +13,35 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from .tools import cloudpulse_tool, _PROJECT_ID, _LOCATION
 from .prompt_templates import (
-   SYSTEM_PROMPT,
-   ONE_PAGER_PROMPT,
-   TROUBLESHOOTING_PROMPT,
-   SUPPORT_ENGINEER_PROMPT,
-   TAM_PROMPT,
-   SALES_REP_PROMPT,
-   ONBOARDING_INTERN_PROMPT,
-   CUSTOMER_ENGINEER_PROMPT,
-   DEVOPS_ENGINEER_PROMPT,
-   CLOUD_ARCHITECT_PROMPT,
-   STARTUP_CTO_PROMPT,
-   COMPLIANCE_MANAGER_PROMPT,
+    SYSTEM_PROMPT,
+    ONE_PAGER_PROMPT,
+    TROUBLESHOOTING_PROMPT,
+    SUPPORT_ENGINEER_PROMPT,
+    TAM_PROMPT,
+    SALES_REP_PROMPT,
+    ONBOARDING_INTERN_PROMPT,
+    CUSTOMER_ENGINEER_PROMPT,
+    DEVOPS_ENGINEER_PROMPT,
+    CLOUD_ARCHITECT_PROMPT,
+    STARTUP_CTO_PROMPT,
+    COMPLIANCE_MANAGER_PROMPT,
 )
-
 
 # Persona-to-Prompt template map for dynamic selection
 PERSONA_PROMPTS = {
-   "support_engineer": SUPPORT_ENGINEER_PROMPT,
-   "tam": TAM_PROMPT,
-   "sales_rep": SALES_REP_PROMPT,
-   "onboarding_intern": ONBOARDING_INTERN_PROMPT,
-   "customer_engineer": CUSTOMER_ENGINEER_PROMPT,
-   "devops_engineer": DEVOPS_ENGINEER_PROMPT,
-   "cloud_architect": CLOUD_ARCHITECT_PROMPT,
-   "startup_cto": STARTUP_CTO_PROMPT,
-   "compliance_manager": COMPLIANCE_MANAGER_PROMPT,
+    "support_engineer": SUPPORT_ENGINEER_PROMPT,
+    "tam": TAM_PROMPT,
+    "sales_rep": SALES_REP_PROMPT,
+    "onboarding_intern": ONBOARDING_INTERN_PROMPT,
+    "customer_engineer": CUSTOMER_ENGINEER_PROMPT,
+    "devops_engineer": DEVOPS_ENGINEER_PROMPT,
+    "cloud_architect": CLOUD_ARCHITECT_PROMPT,
+    "startup_cto": STARTUP_CTO_PROMPT,
+    "compliance_manager": COMPLIANCE_MANAGER_PROMPT,
 }
-
 
 SYSTEM_INSTRUCTION = f"""
 {SYSTEM_PROMPT}
-
 
 TOOL USAGE INSTRUCTIONS:
 You have access to `cloudpulse_tool`, which supports four actions:
@@ -54,304 +50,249 @@ You have access to `cloudpulse_tool`, which supports four actions:
 - 'release_notes' for product release notes and recent updates (pass `product_name`). Do NOT ask the user for a start date; omit `start_date` to automatically retrieve the latest notes.
 - 'msas' for required actions or deprecations (pass `product_name` and optionally `severity`).
 
-
 Always set the `action` argument explicitly when calling `cloudpulse_tool`.
 
-<<<<<<< Updated upstream
 EMAIL DRAFTING INSTRUCTIONS:
 If the user asks you to draft an email, write a concise, ready-to-send draft — not a long report. Include every piece of information the user actually asked for (dates, deadlines, links, specific changes) but nothing beyond that. Use a short subject line, a brief greeting, 3-6 sentences or a short bulleted list in the body, and a brief sign-off. Do not pad it with generic filler, restate the same point twice, or add sections the user didn't ask for.
-=======
->>>>>>> Stashed changes
 
 PERSONA ADAPTATION & FORMATTING INSTRUCTIONS:
 Identify the targeted persona or use-case requested by the user (e.g., Support Engineer, TAM, Cloud Sales Rep, Onboarding Intern, Customer Engineer, DevOps Engineer, Cloud Architect, Startup CTO, or Compliance Manager).
 Format your response using the specific Google Advisory headers, callout boxes (`> ⚠️`), and structural layouts defined for that persona.
 """.strip()
 
-
 # 2. Define a clean fallback string for generic queries
 DEFAULT_PERSONA = "support_engineer"
 
-
 async def update_persona_context(callback_context):
-   """
-   Lightweight persona router.
-
-
-   Strategy:
-   - Look at recent conversation history for continuity.
-   - Look at the latest user message for explicit persona need shifts.
-   - Preserve the existing persona unless the new request clearly changes the audience.
-   - Store persona state for future turns.
-   """
-
-
-   MAX_EVENTS = 8
-
-
-   conversation = []
-
-
-   # ---------------------------------------------------------
-   # 1. Pull recent conversation history from ADK session
-   # ---------------------------------------------------------
-   if callback_context.session:
-       for event in callback_context.session.events[-MAX_EVENTS:]:
-
-
-           if not event.content:
-               continue
-
-
-           text = ""
-
-
-           if hasattr(event.content, "parts"):
-               text = "".join(
-                   part.text
-                   for part in event.content.parts
-                   if getattr(part, "text", None)
-               )
-
-
-           if not text:
-               continue
-
-
-           speaker = (
-               "user"
-               if event.author == "user"
-               else "assistant"
-           )
-
-
-           conversation.append(
-               {
-                   "speaker": speaker,
-                   "text": text,
-               }
-           )
-
-
-
-
-   # ---------------------------------------------------------
-   # 2. Find latest user message
-   # ---------------------------------------------------------
-   latest_user_message = ""
-
-
-   for message in reversed(conversation):
-       if message["speaker"] == "user":
-           latest_user_message = message["text"].lower()
-           break
-
-
-
-
-   # ---------------------------------------------------------
-   # 3. Retrieve existing persona state
-   # ---------------------------------------------------------
-   current_persona = callback_context.state.get(
-       "persona_key"
-   )
-
-
-
-
-   # ---------------------------------------------------------
-   # 4. Determine if this is a persona shift
-   # ---------------------------------------------------------
-
-
-   selected_persona = current_persona or DEFAULT_PERSONA
-
-
-
-
-   # ---- Executive / leadership context ----
-   if any(keyword in latest_user_message for keyword in [
-       "executive",
-       "leadership",
-       "vp",
-       "cio",
-       "business impact",
-       "customer briefing",
-       "presentation",
-       "stakeholder",
-   ]):
-       selected_persona = "tam"
-
-
-
-
-   # ---- Troubleshooting / incident response ----
-   elif any(keyword in latest_user_message for keyword in [
-       "error",
-       "exception",
-       "failed",
-       "failure",
-       "timeout",
-       "stack trace",
-       "logs",
-       "crash",
-       "503",
-       "debug",
-       "broken",
-       "incident",
-   ]):
-       selected_persona = "support_engineer"
-
-
-
-
-   # ---- Architecture / design ----
-   elif any(keyword in latest_user_message for keyword in [
-       "architecture",
-       "architect",
-       "design",
-       "migration",
-       "scaling",
-       "best practice",
-       "recommend an approach",
-   ]):
-       selected_persona = "cloud_architect"
-
-
-
-
-   # ---- DevOps ----
-   elif any(keyword in latest_user_message for keyword in [
-       "pipeline",
-       "ci/cd",
-       "terraform",
-       "deployment strategy",
-       "automation",
-       "infrastructure",
-   ]):
-       selected_persona = "devops_engineer"
-
-
-
-
-   # ---- Learning / onboarding ----
-   elif any(keyword in latest_user_message for keyword in [
-       "what is",
-       "explain",
-       "teach me",
-       "beginner",
-       "tutorial",
-       "how does",
-   ]):
-       selected_persona = "onboarding_intern"
-
-
-
-
-   # ---- Sales / customer value ----
-   elif any(keyword in latest_user_message for keyword in [
-       "pricing",
-       "cost",
-       "competitive",
-       "preview",
-       "ga",
-       "availability",
-       "customer value",
-   ]):
-       selected_persona = "sales_rep"
-
-
-
-
-   # ---------------------------------------------------------
-   # 5. Update ADK session state
-   # ---------------------------------------------------------
-
-
-   callback_context.state["persona_key"] = selected_persona
-
-
-   callback_context.state["persona"] = PERSONA_PROMPTS.get(
-       selected_persona,
-       PERSONA_PROMPTS["support_engineer"]
-   )
-
-
-
-
-   # Optional debugging context
-   callback_context.state["recent_messages"] = conversation[-6:]
-
-
-   callback_context.state["last_persona_update"] = {
-       "previous": current_persona,
-       "selected": selected_persona,
-       "trigger_message": latest_user_message,
-   }
-
-
+    """
+    Lightweight persona router.
+
+    Strategy:
+    - Look at recent conversation history for continuity.
+    - Look at the latest user message for explicit persona need shifts.
+    - Preserve the existing persona unless the new request clearly changes the audience.
+    - Store persona state for future turns.
+    """
+
+    MAX_EVENTS = 8
+
+    conversation = []
+
+    # ---------------------------------------------------------
+    # 1. Pull recent conversation history from ADK session
+    # ---------------------------------------------------------
+    if callback_context.session:
+        for event in callback_context.session.events[-MAX_EVENTS:]:
+
+            if not event.content:
+                continue
+
+            text = ""
+
+            if hasattr(event.content, "parts"):
+                text = "".join(
+                    part.text
+                    for part in event.content.parts
+                    if getattr(part, "text", None)
+                )
+
+            if not text:
+                continue
+
+            speaker = (
+                "user"
+                if event.author == "user"
+                else "assistant"
+            )
+
+            conversation.append(
+                {
+                    "speaker": speaker,
+                    "text": text,
+                }
+            )
+
+
+    # ---------------------------------------------------------
+    # 2. Find latest user message
+    # ---------------------------------------------------------
+    latest_user_message = ""
+
+    for message in reversed(conversation):
+        if message["speaker"] == "user":
+            latest_user_message = message["text"].lower()
+            break
+
+
+    # ---------------------------------------------------------
+    # 3. Retrieve existing persona state
+    # ---------------------------------------------------------
+    current_persona = callback_context.state.get(
+        "persona_key"
+    )
+
+
+    # ---------------------------------------------------------
+    # 4. Determine if this is a persona shift
+    # ---------------------------------------------------------
+
+    selected_persona = current_persona or DEFAULT_PERSONA
+
+
+    # ---- Executive / leadership context ----
+    if any(keyword in latest_user_message for keyword in [
+        "executive",
+        "leadership",
+        "vp",
+        "cio",
+        "business impact",
+        "customer briefing",
+        "presentation",
+        "stakeholder",
+    ]):
+        selected_persona = "tam"
+
+
+    # ---- Troubleshooting / incident response ----
+    elif any(keyword in latest_user_message for keyword in [
+        "error",
+        "exception",
+        "failed",
+        "failure",
+        "timeout",
+        "stack trace",
+        "logs",
+        "crash",
+        "503",
+        "debug",
+        "broken",
+        "incident",
+    ]):
+        selected_persona = "support_engineer"
+
+
+    # ---- Architecture / design ----
+    elif any(keyword in latest_user_message for keyword in [
+        "architecture",
+        "architect",
+        "design",
+        "migration",
+        "scaling",
+        "best practice",
+        "recommend an approach",
+    ]):
+        selected_persona = "cloud_architect"
+
+
+    # ---- DevOps ----
+    elif any(keyword in latest_user_message for keyword in [
+        "pipeline",
+        "ci/cd",
+        "terraform",
+        "deployment strategy",
+        "automation",
+        "infrastructure",
+    ]):
+        selected_persona = "devops_engineer"
+
+
+    # ---- Learning / onboarding ----
+    elif any(keyword in latest_user_message for keyword in [
+        "what is",
+        "explain",
+        "teach me",
+        "beginner",
+        "tutorial",
+        "how does",
+    ]):
+        selected_persona = "onboarding_intern"
+
+
+    # ---- Sales / customer value ----
+    elif any(keyword in latest_user_message for keyword in [
+        "pricing",
+        "cost",
+        "competitive",
+        "preview",
+        "ga",
+        "availability",
+        "customer value",
+    ]):
+        selected_persona = "sales_rep"
+
+
+    # ---------------------------------------------------------
+    # 5. Update ADK session state
+    # ---------------------------------------------------------
+
+    callback_context.state["persona_key"] = selected_persona
+
+    callback_context.state["persona"] = PERSONA_PROMPTS.get(
+        selected_persona,
+        PERSONA_PROMPTS["support_engineer"]
+    )
+
+
+    # Optional debugging context
+    callback_context.state["recent_messages"] = conversation[-6:]
+
+    callback_context.state["last_persona_update"] = {
+        "previous": current_persona,
+        "selected": selected_persona,
+        "trigger_message": latest_user_message,
+    }
 
 
 root_agent = Agent(
-   model='gemini-2.5-flash',
-   name='root_agent',
-   description='A helpful assistant for CloudPulse operational and technical questions.',
-   instruction=SYSTEM_INSTRUCTION,
-   tools=[cloudpulse_tool],
-   before_agent_callback=update_persona_context,
-   generate_content_config=types.GenerateContentConfig(
-       temperature=0.4,
-       top_p=0.7,
-       #max_output_tokens=1000,
-   ),
+    model='gemini-2.5-flash',
+    name='root_agent',
+    description='A helpful assistant for CloudPulse operational and technical questions.',
+    instruction=SYSTEM_INSTRUCTION,
+    tools=[cloudpulse_tool],
+    before_agent_callback=update_persona_context,
+    generate_content_config=types.GenerateContentConfig(
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(initial_delay=1, attempts=5),
+        ),
+    ),
 )
-
 
 _APP_NAME = "cloudpulse"
 _USER_ID = "cloudpulse-user"
 
-
 _session_service = InMemorySessionService()
 _runner = Runner(
-   app_name=_APP_NAME,
-   agent=root_agent,
-   session_service=_session_service,
+    app_name=_APP_NAME,
+    agent=root_agent,
+    session_service=_session_service,
 )
 
 
-
-
 async def run_agent(message: str, session_id: str | None = None):
-   session_id = session_id or str(uuid.uuid4())
+    session_id = session_id or str(uuid.uuid4())
 
+    session = await _session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    if session is None:
+        await _session_service.create_session(
+            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        )
 
-   session = await _session_service.get_session(
-       app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
-   )
-   if session is None:
-       await _session_service.create_session(
-           app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
-       )
+    content = types.Content(role="user", parts=[types.Part(text=message)])
 
+    answer = ""
+    async for event in _runner.run_async(
+        user_id=_USER_ID, session_id=session_id, new_message=content
+    ):
+        if event.is_final_response() and event.content and event.content.parts:
+            answer = "".join(part.text or "" for part in event.content.parts)
 
-   content = types.Content(role="user", parts=[types.Part(text=message)])
-
-
-   answer = ""
-   async for event in _runner.run_async(
-       user_id=_USER_ID, session_id=session_id, new_message=content
-   ):
-       if event.is_final_response() and event.content and event.content.parts:
-           answer = "".join(part.text or "" for part in event.content.parts)
-
-
-   return {
-       "answer": answer,
-       "source_documents": [],
-       "session_id": session_id
-   }
-
-
+    return {
+        "answer": answer,
+        "source_documents": [],
+        "session_id": session_id
+    }
 
 
 # One-pagers always need exactly the same three lookups (metadata,
@@ -361,7 +302,6 @@ async def run_agent(message: str, session_id: str | None = None):
 # round-trip (previously: one call to choose tools, then the tool calls,
 # then a final call to write the text — now: tool calls, then one call).
 ONE_PAGER_INSTRUCTION = (
-<<<<<<< Updated upstream
     "You are given pre-fetched data for one or more Google Cloud products, "
     "each from three sources: product metadata, recent release notes, and "
     "mandatory service announcements (MSAs). Write a one-pager from that "
@@ -495,112 +435,11 @@ ONE_PAGER_INSTRUCTION = (
     "unless the supplied source explicitly groups them.\n"
     "- Never output more than 5 update bullets, 4 impacted-user bullets, "
     "4 recommended-action bullets, or 4 source bullets.\n"
-=======
-   "You are given pre-fetched data for one or more Google Cloud products, "
-   "each from three sources: product metadata, recent release notes, and "
-   "mandatory service announcements (MSAs). Write a one-pager from that "
-   "data alone. Do not invent facts not present in the supplied data. If more "
-   "than one product's data is given, synthesize one combined one-pager that "
-   "covers them together rather than writing separate reports back to back.\n\n"
-
-
-   "If a user-requested focus is provided, prioritize and filter every section "
-   "around that focus. Omit or de-emphasize unrelated material while retaining "
-   "all six required sections.\n\n"
-
-
-   "The output must fit one printed page. Use the exact structure and order "
-   "below. Target approximately 500-600 words total, and treat every section "
-   "limit as a hard cap.\n\n"
-
-
-   "## Executive Summary\n"
-   "60-80 words. Use one paragraph and no bullets. Explain what the product is "
-   "and summarize its current state.\n\n"
-
-
-   "## What Changed / Active Alerts\n"
-   "150-180 words. Use a maximum of 5 bullets. Select the most important recent "
-   "release notes and active MSAs, ordered by impact. If more than 5 items are "
-   "relevant, include only the 5 most impactful. Never add a sixth bullet.\n\n"
-
-
-   "## Why It Matters\n"
-   "60-80 words. Use one paragraph. Explain only the business and technical "
-   "impact of the updates selected in What Changed / Active Alerts.\n\n"
-
-
-   "## Impacted Users/Workloads\n"
-   "50-70 words. Use a maximum of 4 bullets or one short paragraph. Include only "
-   "users and workloads directly affected by updates selected in What Changed / "
-   "Active Alerts.\n\n"
-
-
-   "## Recommended Actions & Deadlines\n"
-   "100-120 words. Use a maximum of 4 bullets and one action per bullet. Include "
-   "a deadline only when one exists in the supplied source data. If more than "
-   "4 actions are relevant, include only the 4 most urgent or impactful.\n\n"
-
-
-   "## Sources & Citations\n"
-   "30-50 words. Use a maximum of 4 bullets. Include the specific readable "
-   "document titles or source URLs that support the selected updates.\n\n"
-
-
-   "The bullet-count limits are independent of the word budgets. A section with "
-   "short bullets must still stop at its bullet limit rather than adding more "
-   "items to fill the word budget.\n\n"
-
-
-   "Never add, remove, rename, or reorder sections. Never add commentary outside "
-   "the six required sections. If no relevant information exists for a section, "
-   "retain its header and state that plainly in one line.\n\n"
-
-
-   "GROUNDING AND ACCURACY REQUIREMENTS:\n"
-   "- Use only information contained in the supplied metadata, release-note, "
-   "and MSA results.\n"
-
-   "- When multiple updates conflict or one update supersedes another, use the "
-    "most recent dated update.\n"
-    "- When more than five valid updates remain, prefer the newest dated updates.\n"
-    "- Do not select an older update unless it is an active MSA, has a future "
-    "deadline, or is necessary to explain a current breaking change.\n"
-
- 
-   "- Do not repeat the same information across sections.\n"
-   "- Every statement in Why It Matters, Impacted Users/Workloads, and "
-   "Recommended Actions & Deadlines must correspond directly to an item selected "
-   "in What Changed / Active Alerts.\n"
-   "- Do not mention users, workloads, actions, vulnerabilities, announcements, "
-   "or sources unrelated to the selected updates.\n"
-   "- Do not assign a severity such as critical, high, or urgent unless the "
-   "source explicitly states that severity.\n"
-   "- Do not invent deadlines, business impacts, remediation steps, recommended "
-   "actions, or migration requirements.\n"
-   "- Recommend an action only when that action is explicitly supported by the "
-   "supplied data. Otherwise, direct the user to review the relevant source.\n"
-   "- Preserve exact dates, product names, commands, permissions, release stages, "
-   "and status labels such as Preview, General Availability, deprecated, retired, "
-   "breaking change, or non-breaking change.\n"
-   "- Preserve the exact relationship between each vulnerability title, CVE "
-   "identifier, affected platform, security bulletin, and date.\n"
-   "- Do not combine separate vulnerabilities or announcements into one bullet "
-   "unless the supplied source explicitly groups them.\n"
-   "- Use readable source titles or URLs in Sources & Citations. Do not present "
-   "raw Cloud Storage paths as the only user-facing citations.\n"
->>>>>>> Stashed changes
 )
-
-
-
-
-
 
 _one_pager_client = genai.Client(vertexai=True, project=_PROJECT_ID, location=_LOCATION)
 
 
-<<<<<<< Updated upstream
 # ---------------------------------------------------------------------------
 # One-pager input trimming.
 #
@@ -717,63 +556,40 @@ async def _gather_product_data(product_name: str) -> dict:
         "release_notes": one_pager_release_notes,
         "msas": msas_result,
     }
-=======
-
-
-async def _gather_product_data(product_name: str) -> dict:
-   metadata_result, release_notes_result, msas_result = await asyncio.gather(
-       asyncio.to_thread(cloudpulse_tool, action="metadata", product_name=product_name),
-       asyncio.to_thread(cloudpulse_tool, action="release_notes", product_name=product_name),
-       asyncio.to_thread(cloudpulse_tool, action="msas", product_name=product_name),
-   )
-   return {
-       "product": product_name,
-       "metadata": metadata_result,
-       "release_notes": release_notes_result,
-       "msas": msas_result,
-   }
-
-
->>>>>>> Stashed changes
 
 
 async def _record_one_pager_in_session(session_id: str, products: list[str], focus: str | None, content_text: str) -> None:
-   """Writes the one-pager request/result into the same ADK session used by
-   /api/chat, as a normal user+model turn. Without this, a one-pager
-   generated via /api/generate-pdf (which talks to Gemini directly, not
-   through the Runner) is invisible to later chat turns — a follow-up like
-   "summarize that" would have no idea what "that" refers to."""
-   session = await _session_service.get_session(
-       app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
-   )
-   if session is None:
-       session = await _session_service.create_session(
-           app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
-       )
+    """Writes the one-pager request/result into the same ADK session used by
+    /api/chat, as a normal user+model turn. Without this, a one-pager
+    generated via /api/generate-pdf (which talks to Gemini directly, not
+    through the Runner) is invisible to later chat turns — a follow-up like
+    "summarize that" would have no idea what "that" refers to."""
+    session = await _session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    if session is None:
+        session = await _session_service.create_session(
+            app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+        )
 
+    label = " + ".join(products)
+    focus_note = f" (focus: {focus})" if focus else ""
+    user_text = f"Generate a one-pager for {label}{focus_note}."
 
-   label = " + ".join(products)
-   focus_note = f" (focus: {focus})" if focus else ""
-   user_text = f"Generate a one-pager for {label}{focus_note}."
-
-
-   await _session_service.append_event(
-       session=session,
-       event=Event(author="user", content=types.Content(role="user", parts=[types.Part(text=user_text)])),
-   )
-   await _session_service.append_event(
-       session=session,
-       event=Event(
-           author=root_agent.name,
-           content=types.Content(role="model", parts=[types.Part(text=content_text)]),
-       ),
-   )
-
-
+    await _session_service.append_event(
+        session=session,
+        event=Event(author="user", content=types.Content(role="user", parts=[types.Part(text=user_text)])),
+    )
+    await _session_service.append_event(
+        session=session,
+        event=Event(
+            author=root_agent.name,
+            content=types.Content(role="model", parts=[types.Part(text=content_text)]),
+        ),
+    )
 
 
 async def generate_one_pager(products: list[str], focus: str | None = None, session_id: str | None = None) -> str:
-<<<<<<< Updated upstream
     t_start = time.perf_counter()
 
     # Fetching every product's three tool calls together (rather than
@@ -784,25 +600,17 @@ async def generate_one_pager(products: list[str], focus: str | None = None, sess
     )
     t_data_ready = time.perf_counter()
     print(f"All product data ready in {t_data_ready - t_start:.2f}s")
-=======
-   # Fetching every product's three tool calls together (rather than
-   # product-by-product) keeps this at the wall-clock cost of the single
-   # slowest call overall, not the sum across products.
-   per_product_data = await asyncio.gather(
-       *(_gather_product_data(product_name) for product_name in products)
-   )
->>>>>>> Stashed changes
 
+    data_sections = "\n\n".join(
+        f"Product: {entry['product']}\n"
+        f"metadata tool result:\n{json.dumps(entry['metadata'], default=str)}\n\n"
+        f"release_notes tool result:\n{json.dumps(entry['release_notes'], default=str)}\n\n"
+        f"msas tool result:\n{json.dumps(entry['msas'], default=str)}"
+        for entry in per_product_data
+    )
 
-   data_sections = "\n\n".join(
-       f"Product: {entry['product']}\n"
-       f"metadata tool result:\n{json.dumps(entry['metadata'], default=str)}\n\n"
-       f"release_notes tool result:\n{json.dumps(entry['release_notes'], default=str)}\n\n"
-       f"msas tool result:\n{json.dumps(entry['msas'], default=str)}"
-       for entry in per_product_data
-   )
+    focus_block = f"\nUser-requested focus: {focus}\n" if focus else ""
 
-<<<<<<< Updated upstream
     prompt = f"{ONE_PAGER_INSTRUCTION}\n{focus_block}\n{data_sections}"
     print(f"Prompt size: {len(prompt)} chars (~{len(prompt) // 4} tokens est.)")
 
@@ -828,44 +636,19 @@ async def generate_one_pager(products: list[str], focus: str | None = None, sess
                 f"WARNING: one-pager generation finished with reason "
                 f"{finish_reason} (not STOP) — output may be truncated or filtered."
             )
-=======
 
-   focus_block = f"\nUser-requested focus: {focus}\n" if focus else ""
->>>>>>> Stashed changes
+    content_text = response.text or ""
 
+    if session_id:
+        try:
+            await _record_one_pager_in_session(session_id, products, focus, content_text)
+        except Exception as error:
+            # Don't fail the one-pager response just because the follow-up
+            # context couldn't be recorded — worst case, later chat turns
+            # fall back to asking which product, same as before this fix.
+            print(f"Failed to record one-pager in session {session_id}: {error}")
 
-   prompt = f"{ONE_PAGER_INSTRUCTION}\n{focus_block}\n{data_sections}"
-
-<<<<<<< Updated upstream
     print(f"Total generate_one_pager time: {time.perf_counter() - t_start:.2f}s")
 
     return content_text
 
-=======
-
-   response = _one_pager_client.models.generate_content(
-       model="gemini-2.5-flash",
-       contents=prompt,
-       config=types.GenerateContentConfig(
-           temperature=0.4,
-           top_p=0.7,
-           #max_output_tokens=1000
-       ),
-   )
-
-
-   content_text = response.text or ""
-
-
-   if session_id:
-       try:
-           await _record_one_pager_in_session(session_id, products, focus, content_text)
-       except Exception as error:
-           # Don't fail the one-pager response just because the follow-up
-           # context couldn't be recorded — worst case, later chat turns
-           # fall back to asking which product, same as before this fix.
-           print(f"Failed to record one-pager in session {session_id}: {error}")
-
-
-   return content_text
->>>>>>> Stashed changes
