@@ -927,7 +927,7 @@
 }
 
 .product-doc-panel {
-  padding: 20px 48px 64px;
+  padding: 20px 0 64px;
   max-width: 760px;
 }
 
@@ -2208,6 +2208,33 @@
  
 @media (prefers-reduced-motion: reduce) {
   .visual-spinner { animation: none; }
+}
+
+/* Two columns: docs take the space they need, the panel is a fixed rail.
+   Applied to the wrapper around the Documentation content + this panel.
+   The docs track matches .product-doc-panel's own max-width (760px) —
+   sizing it as 1fr let it stretch far wider than the capped prose inside
+   it, stranding the rail with a wide dead gap between the two columns. */
+.product-doc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 760px) 340px;
+  gap: 24px;
+  align-items: start;
+  padding: 0 48px;
+}
+@media (max-width: 1100px) {
+  .product-doc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.notes-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--surface, #fff);
+  padding: 16px 18px;
+  position: sticky;
+  top: 24px;
+  margin-top: 4px;
 }
 
 .directory-card-photo {
