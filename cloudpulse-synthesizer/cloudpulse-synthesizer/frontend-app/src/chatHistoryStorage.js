@@ -1,15 +1,23 @@
-// Persists chat conversations to localStorage so the "Show history" panel
-// and "New chat" button have something real to work with. Each entry is
-// keyed by the same session_id sent to the backend, so re-opening a past
-// conversation also resumes real backend memory for it (see agent.py's
-// session service), not just the on-screen transcript.
+// Persists chat conversations so the "Show history" panel and "New chat"
+// button have something real to work with. Each entry is keyed by the same
+// session_id sent to the backend, so re-opening a past conversation also
+// resumes real backend memory for it (see agent.py's session service), not
+// just the on-screen transcript.
+//
+// Uses sessionStorage, not localStorage: there's no account system yet, so
+// there's no real per-user boundary to key on — localStorage would just be
+// one shared history for anyone on the same browser, persisted forever.
+// sessionStorage is scoped to this one tab and clears itself when the tab
+// closes, which is the correct behavior until real accounts exist. Once
+// sign-in lands, this should key by account and move to a persistent
+// (ideally backend-side) store instead.
 
 const STORAGE_KEY = "cloudpulse_chat_sessions";
 const MAX_SESSIONS = 50;
 
 function readAll() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -18,7 +26,7 @@ function readAll() {
 
 function writeAll(sessions) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.slice(0, MAX_SESSIONS)));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.slice(0, MAX_SESSIONS)));
   } catch {
     // Storage full or unavailable (private browsing, etc.) — history just
     // won't persist across reloads; not worth surfacing as an error.
