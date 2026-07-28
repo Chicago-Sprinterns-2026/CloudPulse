@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { GCP_PRODUCTS, CATEGORIES } from './products';
+import { PRODUCT_IMAGES, CATEGORY_ICONS } from './productImages';
 
 const BRAND_COLORS = ['var(--g-blue)', 'var(--g-red)', 'var(--g-yellow)', 'var(--g-green)'];
 
@@ -43,6 +44,14 @@ export default function ProductDirectory({ onSeeMore }) {
               style={{ '--chip-color': BRAND_COLORS[i % 4] }}
               onClick={() => setActiveCategory(cat)}
             >
+              {CATEGORY_ICONS[cat] && (
+                <img
+                  src={CATEGORY_ICONS[cat]}
+                  alt=""
+                  className="category-chip-icon"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
               {cat}
             </button>
           ))}
@@ -55,6 +64,7 @@ export default function ProductDirectory({ onSeeMore }) {
         <div className="directory-grid">
           {filtered.map((p) => {
             const colorIndex = CATEGORIES.indexOf(p.category) % 4;
+            const imageSrc = PRODUCT_IMAGES[p.name] || CATEGORY_ICONS[p.category];
             return (
               <div
                 key={p.name}
@@ -62,7 +72,16 @@ export default function ProductDirectory({ onSeeMore }) {
                 style={{ '--chip-color': BRAND_COLORS[colorIndex] }}
               >
                 <button className="directory-card-main" onClick={() => onSeeMore(p.name)}>
-                  <span className="directory-card-dot" />
+                  {imageSrc ? (
+                    <img
+                      src={imageSrc}
+                      alt={`${p.name} icon`}
+                      className="directory-card-photo"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <span className="directory-card-dot" />
+                  )}
                   <span className="directory-card-name">{p.name}</span>
                   <span className="directory-card-category">{p.category}</span>
                 </button>
