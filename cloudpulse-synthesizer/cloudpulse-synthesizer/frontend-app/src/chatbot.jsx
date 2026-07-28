@@ -278,9 +278,6 @@ function ConfidenceTab({ messageText, sources = [] }) {
 }
 
 export default function Chatbot({ product, manifest = [] }) {
-  // One id per conversation so the backend's ADK session can accumulate
-  // real multi-turn memory, and so New Chat / History can tell
-  // conversations apart from each other.
   const [sessionId, setSessionId] = useState(() => generateSessionId());
   const [historyOpen, setHistoryOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -300,8 +297,6 @@ export default function Chatbot({ product, manifest = [] }) {
   const thinkingTimeoutsRef = useRef([]);
   const abortControllerRef = useRef(null);
 
-  // Persist this conversation (keyed by sessionId) any time it changes, so
-  // "Show history" and page refreshes have something real to show.
   useEffect(() => {
     saveSession(sessionId, messages);
   }, [sessionId, messages]);
@@ -571,9 +566,6 @@ export default function Chatbot({ product, manifest = [] }) {
     setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
   };
 
-  // In-place editing of a bot response (e.g. tweaking an email draft's
-  // wording) — edits the bubble itself rather than routing through the
-  // main input box.
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editDraft, setEditDraft] = useState("");
 
@@ -619,17 +611,16 @@ export default function Chatbot({ product, manifest = [] }) {
     await runOnePagerGeneration(targetProducts, requestText);
   };
 
-  const handleChipClick = (choice) => {
+  // UPDATED: Sends a query to the backend API when chips are clicked
+  const handleChipClick = async (choice) => {
     setMessages((prev) => prev.map((m) => ({ ...m, showChips: false })));
 
-    const botFollowUp = {
-      sender: "bot",
-      text:
-        choice === "tech"
-          ? "Mock Technical Data: Process relies on write-ahead logging (WAL) replication updates using schema engine 16.4."
-          : "Mock Simple Data: You can now safely roll your storage database backwards without causing runtime downtime.",
-    };
-    pushMessage(botFollowUp);
+    const prompt =
+      choice === "tech"
+        ? "Can you provide more technical details on that?"
+        : "Can you explain that in simpler terms?";
+
+    await handleSend(prompt);
   };
 
   return (
@@ -694,7 +685,6 @@ export default function Chatbot({ product, manifest = [] }) {
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                   </div>
                   
-                  {/* Confidence Tab added for One-Pager responses */}
                   <ConfidenceTab messageText={msg.text} sources={msg.sources} />
 
                   <div className="onepager-actions" style={{ marginTop: "8px" }}>
