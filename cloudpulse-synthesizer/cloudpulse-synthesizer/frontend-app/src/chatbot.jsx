@@ -554,7 +554,7 @@ export default function Chatbot({ product, manifest = [] }) {
   };
 
   const handleGenerateOnePager = () => {
-    setInput("Generate a [short/standard/long] one-pager about [product]");
+    setInput("Generate a one-pager about ");
     inputRef.current?.focus();
   };
 
