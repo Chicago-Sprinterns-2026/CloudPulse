@@ -60,6 +60,7 @@ export default function App() {
   const [slideDirection, setSlideDirection] = useState('next');
   const [selectedProduct, setSelectedProduct] = useState('Compute Engine');
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
   const [historyOrigin, setHistoryOrigin] = useState('catalog');
@@ -104,7 +105,7 @@ export default function App() {
                 className={`header-nav-link ${(viewState === 'synthesizer' || viewState === 'history') ? 'active' : ''}`}
                 onClick={() => setViewState('synthesizer')}
               >
-                Workspace
+                PulseChat
               </button>
               <button
                 className={`header-nav-link ${(viewState === 'products' || viewState === 'productDetail') ? 'active' : ''}`}
@@ -136,6 +137,7 @@ export default function App() {
                     onClick={() => {
                       setAccountMenuOpen(false);
                       setIsSignedIn(false);
+                      setIsGuest(false);
                       setViewState('carousel');
                     }}
                   >
@@ -152,6 +154,10 @@ export default function App() {
         {/* carousel view*/}
         {viewState === 'carousel' && (
           <div className="carousel-view">
+            <h1 className="carousel-headline">
+              CloudPulse: The synthesizer &amp; AI assistant for all of your Google Cloud Platform services
+            </h1>
+
             <div className="carousel-frame">
               <button
                 className="arrow-btn"
@@ -215,7 +221,21 @@ export default function App() {
 
             <div className="carousel-actions">
               <button className="btn btn-pill" onClick={() => setViewState('products')}>See all {GCP_PRODUCTS.length} products</button>
-              <button className="btn btn-primary-dark" onClick={() => setViewState('login')}>Sign in</button>
+              {!isSignedIn && (
+                <div className="carousel-auth-actions">
+                  <button className="btn btn-primary-dark" onClick={() => setViewState('login')}>Sign in</button>
+                  <button
+                    className="btn-link"
+                    onClick={() => {
+                      setIsSignedIn(true);
+                      setIsGuest(true);
+                      setViewState('synthesizer');
+                    }}
+                  >
+                    Continue as guest
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
