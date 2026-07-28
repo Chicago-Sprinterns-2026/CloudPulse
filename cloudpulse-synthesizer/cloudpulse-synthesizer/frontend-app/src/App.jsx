@@ -8,6 +8,7 @@ import ProductDetail from "./productDetail";
 import Dashboard from "./dashboard";
 import ReleaseHistory from "./releaseHistory";
 import { GCP_PRODUCTS, CATEGORIES } from "./products";
+import { PRODUCT_IMAGES, CATEGORY_ICONS } from "./productImages";
 import googleCloudIcon from "./assets/google-cloud-icon.png";
 
 //Real brand colors.
@@ -170,24 +171,36 @@ export default function App() {
               <div className="carousel-band">
                 <div className="carousel-tiles-viewport">
                   <div className={`carousel-tiles slide-${slideDirection}`} key={carouselIndex}>
-                    {activeSlide.products.map((prod, i) => (
-                      <button
-                        key={prod.name}
-                        className="carousel-tile active"
-                        style={{ '--tile-color': BRAND_COLORS[i % 4] }}
-                        onClick={() => {
-                          setDetailProduct(prod.name);
-                          setDetailOrigin('carousel');
-                          setViewState('productDetail');
-                        }}
-                        onMouseEnter={() => { isTileHoveredRef.current = true; }}
-                        onMouseLeave={() => { isTileHoveredRef.current = false; }}
-                      >
-                        <span className="tile-swatch" />
-                        <span className="tile-label">{prod.name}</span>
-                        <span className="tile-blurb">{prod.description}</span>
-                      </button>
-                    ))}
+                    {activeSlide.products.map((prod, i) => {
+                      const imageSrc = PRODUCT_IMAGES[prod.name] || CATEGORY_ICONS[prod.category];
+                      return (
+                        <button
+                          key={prod.name}
+                          className="carousel-tile active"
+                          style={{ '--tile-color': BRAND_COLORS[i % 4] }}
+                          onClick={() => {
+                            setDetailProduct(prod.name);
+                            setDetailOrigin('carousel');
+                            setViewState('productDetail');
+                          }}
+                          onMouseEnter={() => { isTileHoveredRef.current = true; }}
+                          onMouseLeave={() => { isTileHoveredRef.current = false; }}
+                        >
+                          {imageSrc ? (
+                            <img
+                              src={imageSrc}
+                              alt={`${prod.name} icon`}
+                              className="tile-photo"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <span className="tile-swatch" />
+                          )}
+                          <span className="tile-blurb">{prod.description}</span>
+                          <span className="tile-label">{prod.name}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
