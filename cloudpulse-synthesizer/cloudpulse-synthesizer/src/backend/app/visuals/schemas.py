@@ -83,7 +83,16 @@ class InfographicSpec(BaseModel):
     footer: Optional[str] = Field(default=None, max_length=90)
 
     def has_content(self) -> bool:
-        return bool(self.stats or self.timeline or self.bars or self.callout)
+        """An infographic needs enough material to be worth the space.
+
+        A title plus a single callout is a sentence in a box — it takes more
+        room than the sentence and implies more substance than it has. Require
+        either a real content section, or at least two elements together.
+        """
+        sections = sum(1 for s in (self.stats, self.timeline, self.bars) if s)
+        if sections:
+            return True
+        return False
 
 
 # --------------------------------------------------------------------------- #

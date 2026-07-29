@@ -58,6 +58,9 @@ infographic — carries FACTS. Dates, counts, versions, comparisons, "what
   changed", release timelines, breakdowns by category, before/after numbers.
   Every string you provide is rendered exactly as written, so it must be
   correct and drawn only from the conversation.
+  Do NOT choose infographic unless the conversation contains at least three
+  distinct facts to show — multiple dates, several numbers, or a set of items
+  to compare. One fact is a sentence, not an infographic.
 
 diagram — carries STRUCTURE. How components connect, request flow, architecture,
   a sequence of stages, decision paths. Anything the user would otherwise draw
