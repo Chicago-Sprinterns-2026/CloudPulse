@@ -82,8 +82,24 @@ class InfographicSpec(BaseModel):
     callout: Optional[Callout] = None
     footer: Optional[str] = Field(default=None, max_length=90)
 
+    @field_validator("stats", "timeline", "bars", mode="before")
+    @classmethod
+    def none_to_empty(cls, value):
+        """Models write "bars": null rather than omitting the key. A default
+        only applies when a key is absent, so coerce the explicit null."""
+        return [] if value is None else value
+
     def has_content(self) -> bool:
-        return bool(self.stats or self.timeline or self.bars or self.callout)
+        """An infographic needs enough material to be worth the space.
+
+        A title plus a single callout is a sentence in a box — it takes more
+        room than the sentence and implies more substance than it has. Require
+        either a real content section, or at least two elements together.
+        """
+        sections = sum(1 for s in (self.stats, self.timeline, self.bars) if s)
+        if sections:
+            return True
+        return False
 
 
 # --------------------------------------------------------------------------- #
@@ -113,6 +129,11 @@ class DiagramSpec(BaseModel):
     nodes: List[DiagramNode] = Field(min_length=2, max_length=14)
     edges: List[DiagramEdge] = Field(default_factory=list, max_length=24)
     direction: Literal["horizontal", "vertical"] = "horizontal"
+
+    @field_validator("edges", mode="before")
+    @classmethod
+    def none_to_empty(cls, value):
+        return [] if value is None else value
 
     @field_validator("edges")
     @classmethod

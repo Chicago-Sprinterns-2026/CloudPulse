@@ -2316,6 +2316,16 @@
   height: auto;
   margin: 0 auto;
 }
+
+.visual-card:not(.visual-card-zoomed) .visual-svg svg,
+.visual-card:not(.visual-card-zoomed) .visual-img {
+  max-height: 380px;
+}
+
+.visual-card-zoomed .visual-card-body {
+  max-height: 70vh;
+  overflow: auto;
+}
  
 /* Expanded state lets wide diagrams be read at full size by scrolling. */
 .visual-card-zoomed .visual-card-body { overflow-x: scroll; }

@@ -76,11 +76,11 @@ function extractLinksFromMarkdown(text) {
  * Calculates Confidence Score based on context:
  * - Refusals / Missing Info / Clarification Requests -> Hide badge (returns null)
  * - Greetings / Casual conversation -> Hide badge (returns null)
- * - Official Web Docs + Hyperlinks -> Very High (95%)
- * - Internal Release Notes / MSAs / Backend Sources -> Very High (95%)
- * - Community Forums -> High (90%)
- * - General Google Cloud Context -> Medium (75%)
- * - No Grounding / Fallback -> Low (<50%)
+ * - Official Web Docs + Hyperlinks -> 95% confidence
+ * - Internal Release Notes / MSAs / Backend Sources -> 95% confidence
+ * - Community Forums -> 90% confidence
+ * - GCP Context / Simplified Explanations -> 75% confidence
+ * - No Grounding / Fallback -> <50% confidence
  */
 function evaluateConfidence(messageText, sources = []) {
   if (!messageText || messageText.startsWith("⚠️")) {
@@ -147,7 +147,7 @@ function evaluateConfidence(messageText, sources = []) {
 
   if ((isOfficialDocs && hasLinks) || isInternalDoc) {
     return {
-      level: "🟢 Very High",
+      dot: "🟢",
       score: "95%",
       rationale: isInternalDoc && !hasLinks
         ? "Grounded directly in verified internal release notes and GCP platform documentation."
@@ -165,22 +165,34 @@ function evaluateConfidence(messageText, sources = []) {
 
   if (isCommunityForum && hasLinks) {
     return {
-      level: "🟢 High",
+      dot: "🟢",
       score: "90%",
       rationale: "Includes real-world context verified by external community forum page links.",
     };
   }
 
-  if (isOfficialDocs) {
+  // Detect simplified explanations, follow-ups, or general GCP service references
+  const isSimplifiedOrGcpContext =
+    textLower.includes("simpler terms") ||
+    textLower.includes("technical details") ||
+    textLower.includes("technical specifics") ||
+    textLower.includes("technical deep dive") ||
+    textLower.includes("simplify") ||
+    textLower.includes("compute engine") ||
+    textLower.includes("google cloud") ||
+    textLower.includes("gcp") ||
+    isOfficialDocs;
+
+  if (isSimplifiedOrGcpContext) {
     return {
-      level: "🟡 Medium",
+      dot: "🟡",
       score: "75%",
-      rationale: "Based on official Google Cloud platform context without direct source links.",
+      rationale: "Based on grounded Google Cloud platform context or simplified explanation without direct source links.",
     };
   }
 
   return {
-    level: "🔴 Low",
+    dot: "🔴",
     score: "<50%",
     rationale: "Lacks direct document grounding or verified links. Output generated from general platform context.",
   };
@@ -191,12 +203,10 @@ function ConfidenceTab({ messageText, sources = [] }) {
 
   const confidence = evaluateConfidence(messageText, sources);
 
-  // Hide tab if confidence is null (e.g. greetings, errors, refusals, or lack of information)
   if (!confidence) {
     return null;
   }
 
-  // Check backend sources array, fallback to extracting markdown links from messageText
   const extractedLinks = extractLinksFromMarkdown(messageText);
   const displaySources =
     sources && sources.length > 0
@@ -207,29 +217,39 @@ function ConfidenceTab({ messageText, sources = [] }) {
       : extractedLinks;
 
   return (
-    <div className="confidence-tab-wrapper" style={{ marginTop: "8px", fontSize: "0.85rem" }}>
+    <div
+      className="confidence-tab-wrapper"
+      style={{
+        marginTop: "10px",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      }}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          background: "#f8f9fa",
-          border: "1px solid #e0e0e0",
-          borderRadius: "6px",
-          padding: "6px 12px",
+          background: "#f9f9f9",
+          border: "1px solid #eaeaea",
+          borderRadius: isOpen ? "12px 12px 0 0" : "12px",
+          padding: "10px 16px",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           width: "100%",
-          color: "#333",
+          color: "#4a4a4a",
+          fontSize: "0.88rem",
           fontWeight: "500",
+          transition: "all 0.2s ease",
         }}
       >
-        <span>
-          🛡️ Response Confidence: <strong>{confidence.level} ({confidence.score})</strong>
+        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "0.65rem", lineHeight: "1" }}>{confidence.dot}</span>
+          <span>{confidence.score} confidence</span>
         </span>
-        <span style={{ fontSize: "0.75rem", color: "#666" }}>
-          {isOpen ? "▲ Hide Details" : "▼ View Verification"}
+        <span style={{ fontSize: "0.8rem", color: "#757575", display: "flex", alignItems: "center", gap: "6px" }}>
+          {isOpen ? "Hide details" : "See verification"}
+          <span style={{ fontSize: "0.7rem" }}>{isOpen ? "∧" : "∨"}</span>
         </span>
       </button>
 
@@ -237,26 +257,27 @@ function ConfidenceTab({ messageText, sources = [] }) {
         <div
           style={{
             background: "#ffffff",
-            border: "1px solid #e0e0e0",
+            border: "1px solid #eaeaea",
             borderTop: "none",
-            borderRadius: "0 0 6px 6px",
-            padding: "10px 12px",
-            lineHeight: "1.4",
-            color: "#444",
+            borderRadius: "0 0 12px 12px",
+            padding: "12px 16px",
+            lineHeight: "1.5",
+            color: "#555555",
+            fontSize: "0.83rem",
           }}
         >
-          <p style={{ margin: "0 0 6px 0", fontSize: "0.8rem" }}>
-            <strong>Assessment Rationale:</strong> {confidence.rationale}
+          <p style={{ margin: "0 0 8px 0" }}>
+            <strong style={{ color: "#333" }}>Assessment Rationale:</strong> {confidence.rationale}
           </p>
 
           {displaySources && displaySources.length > 0 ? (
             <div>
-              <strong style={{ fontSize: "0.8rem" }}>Verified Sources:</strong>
-              <ul style={{ margin: "4px 0 0 0", paddingLeft: "18px" }}>
+              <strong style={{ color: "#333" }}>Verified Sources:</strong>
+              <ul style={{ margin: "6px 0 0 0", paddingLeft: "18px" }}>
                 {displaySources.map((src, idx) => (
-                  <li key={idx}>
+                  <li key={idx} style={{ marginBottom: "4px" }}>
                     {src.url ? (
-                      <a href={src.url} target="_blank" rel="noreferrer" style={{ color: "#1a73e8" }}>
+                      <a href={src.url} target="_blank" rel="noreferrer" style={{ color: "#1a73e8", textDecoration: "none" }}>
                         {src.title}
                       </a>
                     ) : (
@@ -267,7 +288,7 @@ function ConfidenceTab({ messageText, sources = [] }) {
               </ul>
             </div>
           ) : (
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
+            <p style={{ margin: 0, color: "#888", fontSize: "0.8rem" }}>
               Grounded in internal release ledger document.
             </p>
           )}
@@ -611,7 +632,6 @@ export default function Chatbot({ product, manifest = [] }) {
     await runOnePagerGeneration(targetProducts, requestText);
   };
 
-  // UPDATED: Sends a query to the backend API when chips are clicked
   const handleChipClick = async (choice) => {
     setMessages((prev) => prev.map((m) => ({ ...m, showChips: false })));
 
