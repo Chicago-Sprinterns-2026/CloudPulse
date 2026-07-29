@@ -8,7 +8,6 @@ export default function Catalog({ onSelectProduct, onViewHistory }) {
   return (
     <div className="catalog-view">
       <h3> 📅 Recent Updates</h3>
-      <p className="subtitle">Select a product below to trigger the RAG synthesis engine.</p>
 
       {loading && <p className="subtitle">Loading release notes…</p>}
       {error && <p className="subtitle" style={{ color: 'var(--coral)' }}>Couldn't load release notes: {error.message}</p>}
@@ -27,7 +26,7 @@ export default function Catalog({ onSelectProduct, onViewHistory }) {
                   className="btn btn-primary"
                   onClick={() => onSelectProduct(item.product)}
                 >
-                  Synthesize {item.product}
+                  Summarize {item.product}
                 </button>
                 <button
                   className="btn btn-secondary"
