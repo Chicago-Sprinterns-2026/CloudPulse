@@ -1805,8 +1805,17 @@
     gap: 12px;
   }
 
+  /* Desktop's fixed aspect-ratio (1/0.85) makes for a short tile at these
+     widths — too short to fit the icon + label without overflowing, which
+     .carousel-tile's own overflow: hidden then clips (with justify-content:
+     flex-end pushing the overflow off the top, so the icon disappears
+     entirely rather than just getting cropped). Let the tile size to its
+     content instead — see further down for the .tile-photo size to match
+     (needs to come after .tile-photo's own base rule to win the cascade). */
   .carousel-tile {
     flex: none;
+    aspect-ratio: unset;
+    padding: 14px 10px 16px;
   }
 
   .carousel-actions {
@@ -2371,69 +2380,6 @@
     padding: 0 32px;
   }
 }
-/* Stay side-by-side down to phone width instead of stacking — narrower
-   columns, tighter gutters, and smaller type inside each panel (below)
-   keep both readable at once rather than pushing the ledger below the docs. */
-@media (max-width: 640px) {
-  .product-doc-layout {
-    grid-template-columns: 1.3fr 1fr;
-    gap: 10px;
-    padding: 0 14px;
-  }
-
-  .product-doc-panel {
-    padding: 14px 0 40px;
-  }
-
-  .product-doc-panel .synthesis-output {
-    font-size: 12px;
-  }
-
-  .product-doc-placeholder {
-    padding: 18px 12px;
-    font-size: 11.5px;
-  }
-
-  .notes-panel {
-    padding: 12px;
-    max-height: calc(100vh - 130px);
-  }
-
-  .notes-panel-head h4 {
-    font-size: 12.5px;
-  }
-
-  .notes-panel-item {
-    padding: 8px 9px;
-  }
-
-  .notes-panel-item p {
-    font-size: 11px;
-  }
-
-  /* Date + type + version no longer fit on one line at this card width —
-     wrap instead of letting them overflow the card. */
-  .notes-panel-meta {
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 4px;
-  }
-
-  .notes-panel-date,
-  .notes-panel-version {
-    font-size: 9.5px;
-  }
-
-  .notes-panel-type {
-    font-size: 8.5px;
-    padding: 1px 5px;
-  }
-
-  .notes-panel-more {
-    font-size: 11px !important;
-    padding: 7px 10px !important;
-  }
-}
 .notes-panel {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg, 12px);
@@ -2570,6 +2516,23 @@
   }
 }
 
+/* Back to stacked on phones — the docs stay on top, ledger underneath,
+   full width. Placed after the base .notes-panel rules (not inside the
+   1100px block above) so it actually wins the cascade at this width. */
+@media (max-width: 640px) {
+  .product-doc-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    padding: 0 18px;
+  }
+
+  .notes-panel {
+    position: static;
+    max-height: 50vh;
+    margin-top: 4px;
+  }
+}
+
 .directory-card-photo {
   width: 28px;
   height: 28px;
@@ -2585,9 +2548,14 @@
   margin-right: 4px;
 }
 
+/* min() caps it at 64px on normal tiles but lets it shrink with the tile
+   itself on narrow phones — a fixed 64px was wider than the tile's own
+   padded content box below ~340px viewports, so it got clipped by
+   .carousel-tile's overflow: hidden instead of scaling down. */
 .tile-photo {
-  width: 64px;
-  height: 64px;
+  width: min(64px, 100%);
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   margin: 0 auto 12px;
   display: block;
