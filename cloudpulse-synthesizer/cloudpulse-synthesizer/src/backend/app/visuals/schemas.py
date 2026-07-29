@@ -82,6 +82,13 @@ class InfographicSpec(BaseModel):
     callout: Optional[Callout] = None
     footer: Optional[str] = Field(default=None, max_length=90)
 
+    @field_validator("stats", "timeline", "bars", mode="before")
+    @classmethod
+    def none_to_empty(cls, value):
+        """Models write "bars": null rather than omitting the key. A default
+        only applies when a key is absent, so coerce the explicit null."""
+        return [] if value is None else value
+
     def has_content(self) -> bool:
         """An infographic needs enough material to be worth the space.
 
@@ -122,6 +129,11 @@ class DiagramSpec(BaseModel):
     nodes: List[DiagramNode] = Field(min_length=2, max_length=14)
     edges: List[DiagramEdge] = Field(default_factory=list, max_length=24)
     direction: Literal["horizontal", "vertical"] = "horizontal"
+
+    @field_validator("edges", mode="before")
+    @classmethod
+    def none_to_empty(cls, value):
+        return [] if value is None else value
 
     @field_validator("edges")
     @classmethod
