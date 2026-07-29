@@ -2198,8 +2198,9 @@
 }
 
 .visual-card:not(.visual-card-zoomed) .visual-svg svg,
-.visual-card:not(.visual-card-zoomed) .visual-img {
-  max-height: 380px;
+.visual-card:not(.visual-card-zoomed) .visual-card-body {
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .visual-card-zoomed .visual-card-body {
@@ -2389,3 +2390,11 @@
   display: block;
 }
  
+.visual-card {
+  flex-shrink: 0;
+}
+
+.visual-card:not(.visual-card-zoomed) .visual-card-body {
+  max-height: 420px;
+  overflow-y: auto;
+}
