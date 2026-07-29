@@ -1764,6 +1764,115 @@
   .catalog-view {
     padding: 28px 20px 48px;
   }
+  .dashboard-view {
+    padding: 20px 20px 48px;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Phone-width pass. Everything above this assumed at least tablet-width
+   real estate (fixed 48px page gutters, 4-across tile rows, side-by-side
+   panels); none of that fits a ~375px viewport without this. */
+@media (max-width: 640px) {
+  .carousel-view {
+    padding: 32px 16px 40px;
+    gap: 20px;
+  }
+
+  .carousel-headline {
+    font-size: 20px;
+  }
+
+  .carousel-band {
+    padding: 20px 16px;
+  }
+
+  /* Four tiles across a phone screen leaves each one too narrow to read —
+     lay out a real 2x2 grid instead of doing flex-basis percentage math,
+     which is one padding tweak away from leaving two tiles just barely
+     too wide to fit per row. */
+  .carousel-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .carousel-tile {
+    flex: none;
+  }
+
+  .carousel-actions {
+    width: 100%;
+  }
+
+  .directory-view,
+  .browse-view,
+  .history-view,
+  .product-detail-topbar,
+  .product-detail-header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .dashboard-panel {
+    padding: 16px 18px;
+  }
+
+  .browse-tabs {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .product-doc-layout {
+    padding: 0 18px;
+    gap: 18px;
+  }
+
+  .directory-view h3,
+  .history-view h3,
+  .product-detail-header h3 {
+    font-size: 20px;
+  }
+
+  /* Workspace / chatbot card */
+  .workspace-view-full {
+    padding: 16px 12px 20px;
+  }
+
+  .workspace-title-row {
+    padding: 0 4px;
+  }
+
+  .chat-panel-full {
+    height: calc(100svh - 190px);
+    min-height: 380px;
+  }
+
+  .workspace-chatbot {
+    padding: 12px 14px 14px;
+  }
+
+  .chatbot-header-row {
+    padding-left: 2px;
+  }
+
+  /* The history rail sitting beside a phone-width chat card leaves neither
+     one usable — stack it above instead, full width, and cap its own
+     height so it doesn't push the chat card off-screen. */
+  .workspace-chatbot-wrapper {
+    flex-direction: column;
+  }
+
+  .quick-questions-row {
+    gap: 6px;
+  }
+
+  .quick-question {
+    font-size: 11.5px !important;
+    padding: 6px 10px !important;
+  }
 }
 
 .chatbot-header-row {
@@ -1878,6 +1987,17 @@
   flex-direction: column;
   padding: 18px;
   overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  /* Stacked above the chat card on phones (see .workspace-chatbot-wrapper) —
+     full width instead of the fixed 280px rail, and capped so it doesn't
+     push the chat card off-screen. */
+  .chat-history-panel {
+    flex-basis: auto;
+    width: 100%;
+    max-height: 45vh;
+  }
 }
 
 .chat-history-panel-header {
@@ -2217,12 +2337,17 @@
    Applied to the wrapper around the Documentation content + this panel.
    The docs track matches .product-doc-panel's own max-width (760px) —
    sizing it as 1fr let it stretch far wider than the capped prose inside
-   it, stranding the rail with a wide dead gap between the two columns. */
+   it, stranding the rail with a wide dead gap between the two columns.
+   align-items: stretch (rather than start) makes both columns the same
+   height — whichever is naturally shorter grows to match the taller one,
+   and since neither column has its own clipped/scrolling viewport, any
+   extra length is reached the same way the rest of the page is: by
+   scrolling the window, not a nested scrollbar. */
 .product-doc-layout {
   display: grid;
   grid-template-columns: minmax(0, 760px) 340px;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
   padding: 0 48px;
 }
 @media (max-width: 1100px) {
@@ -2238,7 +2363,8 @@
   position: sticky;
   top: 24px;
   margin-top: 4px;
-
+  display: flex;
+  flex-direction: column;
 }
 
 .notes-panel-head {
